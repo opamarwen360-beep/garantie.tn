@@ -226,6 +226,32 @@
     <p>Garantie.tn simplifie la gestion de vos achats et de vos garanties.</p>
     <a href="mailto:contact@garantie.tn" class="btn">Nous contacter</a>
   </div>
+  <div id="auth-modal" style="display:none; position:fixed; inset:0; background:#0008; z-index:1000; justify-content:center; align-items:center; padding:20px;">
+  <div style="background:white; padding:30px; border-radius:15px; width:100%; max-width:400px; position:relative;">
+    <button id="close-auth" style="position:absolute; right:15px; top:12px; border:0; background:none; font-size:24px; cursor:pointer;">×</button>
+
+    <h2 style="margin-bottom:20px;">Bienvenue sur Garantie.tn</h2>
+
+    <div style="display:flex; gap:10px; margin-bottom:20px;">
+      <button id="show-login" class="btn" style="flex:1;">Connexion</button>
+      <button id="show-signup" class="btn" style="flex:1; background:#183b52;">Inscription</button>
+    </div>
+
+    <form id="auth-form">
+      <input id="full-name" type="text" placeholder="Nom complet" style="display:none; width:100%; padding:13px; margin-bottom:12px; border:1px solid #ddd; border-radius:7px;">
+
+      <input id="phone" type="tel" placeholder="Téléphone" style="display:none; width:100%; padding:13px; margin-bottom:12px; border:1px solid #ddd; border-radius:7px;">
+
+      <input id="email" type="email" placeholder="Adresse e-mail" required style="width:100%; padding:13px; margin-bottom:12px; border:1px solid #ddd; border-radius:7px;">
+
+      <input id="password" type="password" placeholder="Mot de passe (8 caractères minimum)" required minlength="8" style="width:100%; padding:13px; margin-bottom:15px; border:1px solid #ddd; border-radius:7px;">
+
+      <button type="submit" class="btn" style="width:100%;">Continuer</button>
+    </form>
+
+    <p id="auth-message" style="margin-top:15px; font-size:14px;"></p>
+  </div>
+</div>
 </main>
 
 <footer>
