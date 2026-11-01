@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Garantie.tn - Gérez vos garanties et factures facilement en Tunisie.">
+  <title>Garantie.tn | Votre garantie, toujours avec vous</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      color: #172b3a;
+      background: #f7f9fc;
+    }
+    header {
+      background: white;
+      padding: 20px 7%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 12px #00000008;
+    }
+    .logo { font-size: 27px; font-weight: bold; color: #126b55; }
+    .logo span { color: #183b52; }
+    nav { display: flex; gap: 25px; align-items: center; }
+    nav a { text-decoration: none; color: #526477; font-size: 14px; }
+    .btn {
+      display: inline-block;
+      background: #14765c;
+      color: white;
+      padding: 13px 23px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+    .hero {
+      padding: 95px 7%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 50px;
+      background: linear-gradient(120deg, #edf8f4, #f7f9fc);
+    }
+    .hero-content { max-width: 590px; }
+    .tag {
+      display: inline-block;
+      background: #d9eee6;
+      color: #14765c;
+      padding: 9px 15px;
+      border-radius: 30px;
+      font-size: 13px;
+      margin-bottom: 22px;
+    }
+    h1 {
+      font-size: clamp(36px, 5vw, 57px);
+      line-height: 1.15;
+      margin-bottom: 22px;
+    }
+    h1 span { color: #14765c; }
+    .hero p { color: #647586; line-height: 1.8; font-size: 17px; margin-bottom: 30px; }
+    .hero-card {
+      background: white;
+      padding: 35px;
+      border-radius: 20px;
+      width: 340px;
+      box-shadow: 0 15px 45px #183b5212;
+    }
+    .hero-card h3 { margin-bottom: 20px; }
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 15px 0;
+      border-bottom: 1px solid #edf0f2;
+    }
+    .icon {
+      background: #e4f4ed;
+      width: 43px;
+      height: 43px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      font-size: 21px;
+    }
+    .item small { display: block; color: #82909d; margin-top: 5px; }
+    section { padding: 75px 7%; }
+    .section-title { text-align: center; margin-bottom: 45px; }
+    .section-title h2 { font-size: 32px; margin-bottom: 12px; }
+    .section-title p { color: #758392; }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+    .feature {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      border: 1px solid #edf0f2;
+    }
+    .feature .icon { margin-bottom: 20px; }
+    .feature h3 { margin-bottom: 12px; }
+    .feature p { color: #718092; line-height: 1.7; font-size: 14px; }
+    .cta {
+      background: #183b52;
+      color: white;
+      text-align: center;
+      padding: 65px 20px;
+    }
+    .cta h2 { font-size: 32px; margin-bottom: 15px; }
+    .cta p { color: #d2e0e8; margin-bottom: 25px; }
+    footer {
+      background: #102c3d;
+      color: white;
+      padding: 28px 7%;
+      text-align: center;
+      font-size: 13px;
+    }
+    @media(max-width: 750px) {
+      nav a:not(.btn) { display: none; }
+      .hero { flex-direction: column; padding: 65px 6%; }
+      .hero-card { width: 100%; }
+      .features { grid-template-columns: 1fr; }
+      section { padding: 55px 6%; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Garantie<span>.tn</span></div>
+  <nav>
+    <a href="#accueil">Accueil</a>
+    <a href="#services">Services</a>
+    <a href="#contact">Contact</a>
+    <a href="#" class="btn">Connexion</a>
+  </nav>
+</header>
+
+<main>
+  <div class="hero" id="accueil">
+    <div class="hero-content">
+      <span class="tag">Votre tranquillité, notre priorité</span>
+      <h1>Vos garanties, <span>toujours</span> avec vous.</h1>
+      <p>
+        Fini les factures perdues et les dates de garantie oubliées.
+        Retrouvez tous vos produits, factures et garanties dans un
+        seul espace sécurisé.
+      </p>
+      <a href="#services" class="btn">Découvrir nos services</a>
+    </div>
+
+    <div class="hero-card">
+      <h3>Mon espace garanties</h3>
+      <div class="item">
+        <div class="icon">❄️</div>
+        <div>Réfrigérateur Beko
+          <small>Garantie active</small>
+        </div>
+      </div>
+      <div class="item">
+        <div class="icon">📺</div>
+        <div>Téléviseur Smart TV
+          <small>Garantie active</small>
+        </div>
+      </div>
+      <div class="item">
+        <div class="icon">📱</div>
+        <div>Smartphone
+          <small>Garantie active</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="services">
+    <div class="section-title">
+      <h2>Une gestion simple et intelligente</h2>
+      <p>Tous vos documents et garanties au même endroit.</p>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="icon">📄</div>
+        <h3>Factures numériques</h3>
+        <p>Conservez vos factures et retrouvez-les facilement à tout moment.</p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">🛡️</div>
+        <h3>Suivi des garanties</h3>
+        <p>Consultez les dates de début et de fin de garantie de vos produits.</p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">🔔</div>
+        <h3>Alertes intelligentes</h3>
+        <p>Recevez des rappels avant l'expiration de vos garanties.</p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">📱</div>
+        <h3>QR Code</h3>
+        <p>Accédez rapidement aux informations de votre garantie.</p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">🔧</div>
+        <h3>Service après-vente</h3>
+        <p>Suivez vos demandes de réparation et d'assistance.</p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">🔒</div>
+        <h3>Espace sécurisé</h3>
+        <p>Vos informations sont accessibles dans votre espace personnel.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="cta" id="contact">
+    <h2>Ne perdez plus jamais votre garantie.</h2>
+    <p>Garantie.tn simplifie la gestion de vos achats et de vos garanties.</p>
+    <a href="mailto:contact@garantie.tn" class="btn">Nous contacter</a>
+  </div>
+</main>
+
+<footer>
+  © 2026 Garantie.tn — Tous droits réservés.
+</footer>
+
+</body>
+</html>
