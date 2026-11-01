@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Garantie.tn | Espace magasin</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,6 +14,7 @@
       padding: 30px 15px;
       color: #183b52;
     }
+
     .container {
       max-width: 550px;
       margin: 40px auto;
@@ -21,7 +23,9 @@
       border-radius: 14px;
       box-shadow: 0 5px 25px #00000010;
     }
+
     h1 { margin-top: 0; }
+
     input, button {
       box-sizing: border-box;
       width: 100%;
@@ -30,16 +34,20 @@
       border-radius: 7px;
       font-size: 15px;
     }
+
     input { border: 1px solid #ddd; }
+
     button {
       border: 0;
       background: #183b52;
       color: white;
       cursor: pointer;
     }
+
     #message { margin-top: 15px; }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>Espace magasin</h1>
@@ -47,8 +55,8 @@
 
     <form id="invoice-form">
       <label for="warranty-id">ID du dossier de garantie</label>
-      <input id="warranty-id" type="text" required
-        placeholder="ID de la garantie">
+      <input id="warranty-id" type="text"
+        placeholder="ID de la garantie" required>
 
       <label for="invoice-file">Facture PDF</label>
       <input id="invoice-file" type="file"
@@ -69,35 +77,88 @@
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        message.textContent = "Veuillez vous connecter.";
-        return;
-      }
-
-      const warrantyId =
-        document.getElementById("warranty-id").value.trim();
-
-      const file =
-        document.getElementById("invoice-file").files[0];
-
-      if (!file || file.type !== "application/pdf") {
-        message.textContent = "Veuillez choisir un fichier PDF.";
-        return;
-      }
-
-      if (file.size > 50 * 1024 * 1024) {
-        message.textContent = "Le fichier dépasse 50 MB.";
-        return;
-      }
-
-      message.textContent = "Envoi en cours...";
+      message.textContent = "Vérification du compte...";
 
       try {
-        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-        const filePath = `${warrantyId}/${crypto.randomUUID()}-${safeName}`;
+        // Vérifier la connexion
+        const { data: { user }, error: userError } =
+          await supabase.auth.getUser();
 
+        if (userError || !user) {
+          throw new Error("Veuillez vous connecter.");
+        }
+
+        // Vérifier le rôle du compte
+        const { data: profile, error: profileError } =
+          await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", user.id)
+            .single();
+
+        if (profileError) throw profileError;
+
+        if (profile.role !== "magasin") {
+          throw new Error(
+            "Accès réservé aux magasins autorisés."
+          );
+        }
+
+        // Récupérer les informations
+        const warrantyId =
+          document.getElementById("warranty-id").value.trim();
+
+        const file =
+          document.getElementById("invoice-file").files[0];
+
+        if (!file || file.type !== "application/pdf") {
+          throw new Error("Veuillez choisir un fichier PDF.");
+        }
+
+        if (file.size > 50 * 1024 * 1024) {
+          throw new Error("Le fichier dépasse 50 MB.");
+        }
+
+        // Vérifier que le magasin possède ce dossier
+        const { data: warranty, error: warrantyError } =
+          await supabase
+            .from("warranties")
+            .select("id")
+            .eq("id", warrantyId)
+            .single();
+
+        if (warrantyError || !warranty) {
+          throw new Error(
+            "Dossier introuvable ou accès non autorisé."
+          );
+        }
+
+        // Vérifier la propriété du dossier
+        const { data: store, error: storeError } =
+          await supabase
+            .from("warranties")
+            .select("store_id, stores!inner(owner_id)")
+            .eq("id", warrantyId)
+            .eq("stores.owner_id", user.id)
+            .single();
+
+        if (storeError || !store) {
+          throw new Error(
+            "Ce dossier ne vous appartient pas."
+          );
+        }
+
+        message.textContent = "Envoi en cours...";
+
+        // Chemin du fichier
+        const safeName = file.name.replace(
+          /[^a-zA-Z0-9._-]/g, "_"
+        );
+
+        const filePath =
+          `${warrantyId}/${crypto.randomUUID()}-${safeName}`;
+
+        // Upload PDF
         const { error: uploadError } = await supabase.storage
           .from("invoices")
           .upload(filePath, file, {
@@ -107,6 +168,7 @@
 
         if (uploadError) throw uploadError;
 
+        // Enregistrer les informations dans la table
         const { error: insertError } = await supabase
           .from("invoices")
           .insert({
@@ -115,9 +177,17 @@
             file_name: file.name
           });
 
-        if (insertError) throw insertError;
+        if (insertError) {
+          await supabase.storage
+            .from("invoices")
+            .remove([filePath]);
 
-        message.textContent = "Facture ajoutée avec succès !";
+          throw insertError;
+        }
+
+        message.textContent =
+          "Facture ajoutée avec succès !";
+
         form.reset();
 
       } catch (error) {
