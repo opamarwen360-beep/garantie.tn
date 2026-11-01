@@ -231,6 +231,11 @@
 <footer>
   © 2026 Garantie.tn — Tous droits réservés.
 </footer>
+<script type="module">
+  import { supabase } from "./supabase.js";
 
+  window.supabase = supabase;
+  console.log("Supabase connecté avec succès !");
+</script>
 </body>
 </html>
