@@ -331,12 +331,39 @@
         if (error) throw error;
 
         message.textContent = "Connexion réussie !";
-        setTimeout(() => location.reload(), 1000);
+        await redirectByRole();
       }
     } catch (error) {
       message.textContent = "Erreur : " + error.message;
     }
   });
+
+  async function redirectByRole() {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      message.textContent = "Impossible de vérifier votre compte. Reconnectez-vous.";
+      return;
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError || !profile?.role) {
+      message.textContent = "Votre profil n'est pas encore prêt. Contactez l'administrateur.";
+      return;
+    }
+
+    if (profile.role === "client") {
+      window.location.href = "./espace-client.html";
+    } else if (profile.role === "magasin") {
+      window.location.href = "./dashboard.html";
+    } else {
+      message.textContent = "Rôle de compte non reconnu. Contactez l'administrateur.";
+    }
+  }
 
   setMode("login");
 
