@@ -51,9 +51,9 @@ async function start() {
  const {data:{user},error:userError}=await supabase.auth.getUser();
  if(userError || !user){location.href="index.html";return;}
  currentUser = user;
- const profileData = profile;
  const {data:profile,error:profileError}=await supabase.from("profiles").select("full_name,role,national_id_number,photo_path").eq("id",user.id).single();
  if(profileError) throw profileError;
+ const profileData = profile;
  if(profile.role !== "client"){location.href=profile.role === "magasin" ? "dashboard.html" : "index.html";return;}
  $("greeting").textContent="Bienvenue"+(profile.full_name ? ", "+profile.full_name : "")+" ! Retrouvez ici vos achats et vos garanties.";
  $("national-id").value=profileData.national_id_number||"";
