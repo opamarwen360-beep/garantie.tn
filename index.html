@@ -243,6 +243,8 @@
 
       <input id="phone" type="tel" placeholder="Téléphone" style="display:none; width:100%; padding:13px; margin-bottom:12px; border:1px solid #ddd; border-radius:7px;">
 
+      <input id="national-id" type="text" inputmode="numeric" maxlength="8" pattern="[0-9]{8}" placeholder="Numéro de carte d’identité (8 chiffres)" style="display:none; width:100%; padding:13px; margin-bottom:12px; border:1px solid #ddd; border-radius:7px;">
+
       <input id="email" type="email" placeholder="Adresse e-mail" required style="width:100%; padding:13px; margin-bottom:12px; border:1px solid #ddd; border-radius:7px;">
 
       <input id="password" type="password" placeholder="Mot de passe (8 caractères minimum)" required minlength="8" style="width:100%; padding:13px; margin-bottom:15px; border:1px solid #ddd; border-radius:7px;">
@@ -266,6 +268,7 @@
   const form = document.getElementById("auth-form");
   const fullName = document.getElementById("full-name");
   const phone = document.getElementById("phone");
+  const nationalId = document.getElementById("national-id");
   const email = document.getElementById("email");
   const password = document.getElementById("password");
   const message = document.getElementById("auth-message");
@@ -307,6 +310,8 @@
 
     fullName.style.display = signup ? "block" : "none";
     phone.style.display = signup ? "block" : "none";
+    nationalId.style.display = signup ? "block" : "none";
+    nationalId.required = signup;
     fullName.required = signup;
 
     message.textContent = "";
@@ -329,13 +334,15 @@
 
     try {
       if (mode === "signup") {
+        if (!/^[0-9]{8}$/.test(nationalId.value.trim())) throw new Error("Le numéro de carte d’identité doit contenir exactement 8 chiffres.");
         const { data, error } = await supabase.auth.signUp({
           email: email.value.trim(),
           password: password.value,
           options: {
             data: {
               full_name: fullName.value.trim(),
-              phone: phone.value.trim()
+              phone: phone.value.trim(),
+              national_id_number: nationalId.value.trim()
             }
           }
         });
