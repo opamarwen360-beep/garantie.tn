@@ -395,6 +395,8 @@
       window.location.href = "./espace-client.html";
     } else if (profile.role === "magasin") {
       window.location.href = "./dashboard.html";
+    } else if (profile.role === "admin") {
+      window.location.href = "./admin.html";
     } else {
       message.textContent = "Rôle de compte non reconnu. Contactez l'administrateur.";
     }
