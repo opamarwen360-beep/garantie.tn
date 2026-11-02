@@ -18,7 +18,29 @@ main{max-width:1250px;margin:30px auto;padding:0 18px}.heading{display:flex;just
 .actions{display:flex;gap:7px}.reject{background:#a94442}.empty{padding:24px;text-align:center;background:#f8fafb;border-radius:9px;color:var(--muted)}#message{margin:10px 0;font-size:14px}.error{color:#b43c32}.success{color:var(--green)}
 .refresh{background:#eaf3f0;color:var(--green)}.small{font-size:12px;color:var(--muted);margin-top:14px}
 @media(max-width:800px){.stats{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.stats{grid-template-columns:1fr 1fr}.heading{align-items:flex-start;flex-direction:column}.stat,.panel{padding:14px}}
-</style></head>
+</style>
+<!-- Garantie.tn Modern Premium design system -->
+<style id="gtn-modern-premium">
+:root{--gtn-primary:#087f5b;--gtn-primary-dark:#066447;--gtn-primary-soft:#e8f7f0;--gtn-ink:#172b25;--gtn-muted:#718078;--gtn-line:#e4eee8;--gtn-bg:#f5f9f6;--gtn-surface:#fff;--gtn-shadow:0 12px 34px rgba(20,65,44,.07);--gtn-radius:18px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif!important;background:radial-gradient(ellipse at 10% 0%,#eaf7ef 0,transparent 36%),var(--gtn-bg)!important;color:var(--gtn-ink)!important;line-height:1.55;-webkit-font-smoothing:antialiased}
+header{background:rgba(255,255,255,.9)!important;border-bottom:1px solid rgba(228,238,232,.9);box-shadow:0 5px 22px rgba(20,65,44,.045)!important;backdrop-filter:blur(14px);position:relative;z-index:20}
+.logo{color:var(--gtn-primary)!important;letter-spacing:-.7px;font-weight:850!important}.logo span{color:var(--gtn-ink)!important}
+main{width:min(1180px,calc(100% - 32px))!important;margin:34px auto!important;padding-left:0!important;padding-right:0!important}
+button,.btn,a.btn,.link-btn{background:linear-gradient(135deg,var(--gtn-primary),#0a9668)!important;color:#fff!important;border:1px solid transparent!important;border-radius:11px!important;padding:12px 18px!important;font-weight:700!important;box-shadow:0 5px 13px rgba(8,127,91,.13);transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}
+button:hover,.btn:hover,a.btn:hover,.link-btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(8,127,91,.2);filter:saturate(1.06)}button:disabled{transform:none;box-shadow:none}
+button.secondary,.secondary,.refresh{background:var(--gtn-primary-soft)!important;color:var(--gtn-primary-dark)!important;border:1px solid #d4eee0!important;box-shadow:none!important}
+input,select,textarea{border:1px solid #dce8e0!important;border-radius:11px!important;background:#fff!important;color:var(--gtn-ink)!important;padding:12px 14px!important;outline:none;transition:border-color .18s,box-shadow .18s}input:focus,select:focus,textarea:focus{border-color:#69b99a!important;box-shadow:0 0 0 4px rgba(8,127,91,.1)!important}
+label{color:#354b40;font-weight:650!important}h1,h2,h3{color:var(--gtn-ink);letter-spacing:-.45px}h1{font-size:clamp(27px,4vw,38px)!important;line-height:1.18}h2{font-size:21px!important}.muted,.hero p,.feature p,.section-title p{color:var(--gtn-muted)!important}
+.panel,.stat,.feature,.hero-card,.card,.warranty,.item{background:var(--gtn-surface)!important;border:1px solid var(--gtn-line)!important;border-radius:var(--gtn-radius)!important;box-shadow:var(--gtn-shadow)!important}
+.panel{padding:24px!important;margin-bottom:20px}.stat{padding:22px!important}.stat strong{color:var(--gtn-primary)!important}.warranty{padding:18px!important}.empty,.notice{background:#f3f8f5!important;border:1px dashed #d8e8de;border-radius:13px!important;color:#718078}
+.pill,.tag{background:var(--gtn-primary-soft)!important;color:var(--gtn-primary-dark)!important;border-radius:999px!important}.pill.expired,.rejected{background:#fff0ee!important;color:#b5473c!important}.pending{background:#fff6df!important;color:#946b11!important}
+.table-wrap{border:1px solid var(--gtn-line)!important;border-radius:14px!important;background:#fff;box-shadow:var(--gtn-shadow);overflow:auto}table{border-collapse:separate!important;border-spacing:0!important}th{background:#f0f7f2!important;color:#426052!important;font-weight:750}td,th{border-bottom:1px solid #edf2ee!important;padding:14px!important}tr:last-child td{border-bottom:0!important}
+.tabs button{border-radius:999px!important}.tabs button.active{background:var(--gtn-primary)!important;color:#fff!important}.hero{background:linear-gradient(125deg,#e9f7ef 0%,#f7fbf8 58%,#eef8f2 100%)!important;border-bottom:1px solid #e2f0e7}.hero-card{border-radius:24px!important}.hero h1 span{color:var(--gtn-primary)!important}.feature{transition:transform .2s,box-shadow .2s}.feature:hover{transform:translateY(-4px);box-shadow:0 16px 38px rgba(20,65,44,.1)!important}.cta{background:linear-gradient(120deg,#075d43,#0b805b)!important}.cta p{color:#e0f2e8!important}footer{background:#123d2e!important}
+.gtn-whatsapp{background:#20bd65!important;color:#fff!important;border-radius:999px!important;box-shadow:0 8px 22px rgba(32,189,101,.25)!important}
+@media(max-width:750px){main{width:calc(100% - 24px)!important;margin:22px auto!important}.panel,.stat{padding:17px!important}.hero{padding:58px 6%!important}.hero-card{width:100%!important}.features{grid-template-columns:1fr!important}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style>
+</head>
 <body>
 <header><a class="logo" href="./index.html">Garantie<span>.tn</span></a><button id="logout">Déconnexion</button></header>
 <main>
