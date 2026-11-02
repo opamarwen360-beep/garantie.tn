@@ -61,7 +61,7 @@ async function start() {
  await loadClientQr();
  await loadPendingWarranties();
  await loadSavHistory();
- const {data,error}=await supabase.from("warranties").select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,products(name,brand,model),invoices(id,file_path,file_name,created_at)").eq("customer_user_id",user.id).order("created_at",{ascending:false});
+ const {data,error}=await supabase.from("warranties").select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,customer_national_id_number,products(name,brand,model),invoices(id,file_path,file_name,created_at)").eq("customer_user_id",user.id).order("created_at",{ascending:false});
  if(error) throw error;
  warranties=data || [];
  const today=new Date().toISOString().slice(0,10);
