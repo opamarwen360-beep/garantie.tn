@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Administration de Garantie.tn">
+<title>Espace Admin | Garantie.tn</title>
+<style>
+:root{--green:#14765c;--navy:#183b52;--muted:#718092;--line:#e8edf0}
+*{box-sizing:border-box}body{margin:0;background:#f4f7f9;color:var(--navy);font-family:Arial,sans-serif}
+header{background:#fff;padding:17px 6%;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 12px #00000008}
+.logo{font-size:24px;font-weight:800;color:var(--green);text-decoration:none}.logo span{color:var(--navy)}
+button,a.btn{border:0;border-radius:8px;padding:10px 15px;background:var(--green);color:#fff;font-weight:700;cursor:pointer;text-decoration:none}
+button:disabled{opacity:.55;cursor:not-allowed}main{max-width:1100px;margin:32px auto;padding:0 18px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px}.top h1{margin:0 0 7px}.muted{color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:22px}
+.stat,.panel{background:#fff;border:1px solid var(--line);border-radius:13px;padding:20px}
+.stat strong{display:block;font-size:28px;color:var(--green);margin-top:7px}
+.panel h2{margin:0 0 16px;font-size:20px}.application{border:1px solid var(--line);border-radius:10px;padding:17px;margin:12px 0;display:flex;justify-content:space-between;gap:15px;align-items:center}
+.application h3{margin:0 0 8px}.application p{margin:5px 0;line-height:1.5}.actions{display:flex;gap:8px;flex-wrap:wrap}.reject{background:#a94442}.status{display:inline-block;padding:5px 10px;border-radius:20px;background:#fff4d8;color:#946b11;font-size:12px;font-weight:700}
+.empty{padding:22px;text-align:center;background:#f8fafb;border-radius:9px;color:var(--muted)}
+#message{margin:12px 0;font-size:14px;line-height:1.5}.error{color:#b43c32}.success{color:var(--green)}
+@media(max-width:650px){.stats{grid-template-columns:1fr}.top,.application{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<header><a class="logo" href="./index.html">Garantie<span>.tn</span></a><button id="logout" type="button">Déconnexion</button></header>
+<main>
+<section class="top"><div><h1>Espace Admin</h1><p class="muted" id="admin-email">Vérification des accès...</p></div><a class="btn" href="./index.html">Accueil</a></section>
+<section class="stats">
+<div class="stat"><span class="muted">Total des demandes</span><strong id="total">—</strong></div>
+<div class="stat"><span class="muted">En attente</span><strong id="pending">—</strong></div>
+<div class="stat"><span class="muted">Traitées</span><strong id="processed">—</strong></div>
+</section>
+<section class="panel"><h2>Demandes d'accès magasin</h2><p class="muted">Consultez les demandes envoyées par les magasins et mettez à jour leur statut.</p><p id="message" role="status"></p><div id="applications"><div class="empty">Chargement des demandes...</div></div></section>
+</main>
+<script type="module">
+import { supabase } from "./supabase.js";
+const $=id=>document.getElementById(id);
+const esc=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const date=value=>value?new Date(value).toLocaleString("fr-FR"):"—";
+let applications=[];
+async function init(){
+ const {data:{user},error:userError}=await supabase.auth.getUser();
+ if(userError||!user){location.href="./index.html";return;}
+ const {data:profile,error}=await supabase.from("profiles").select("role").eq("id",user.id).single();
+ if(error||profile?.role!=="admin"){alert("Accès réservé à l'administration.");location.href="./index.html";return;}
+ $("admin-email").textContent="Connecté en tant que "+user.email;
+ await loadApplications();
+}
+async function loadApplications(){
+ $("applications").innerHTML='<div class="empty">Chargement...</div>';
+ const {data,error}=await supabase.from("store_applications").select("id,user_id,business_name,phone,address,status,created_at").order("created_at",{ascending:false});
+ if(error)throw error;
+ applications=data||[];
+ const pending=applications.filter(a=>a.status==="pending").length;
+ $("total").textContent=applications.length;
+ $("pending").textContent=pending;
+ $("processed").textContent=applications.length-pending;
+ if(!applications.length){$("applications").innerHTML='<div class="empty">Aucune demande pour le moment.</div>';return;}
+ $("applications").innerHTML=applications.map(a=>{
+ const pending=a.status==="pending";
+ const label=a.status==="approved"?"Acceptée":a.status==="rejected"?"Refusée":"En attente";
+ return '<article class="application"><div><h3>'+esc(a.business_name)+'</h3><p class="muted">Téléphone : '+esc(a.phone)+'<br>Adresse : '+esc(a.address)+'<br>Reçue le : '+date(a.created_at)+'</p><span class="status">'+label+'</span></div>'+
+ (pending?'<div class="actions"><button data-status="approved" data-id="'+esc(a.id)+'">Accepter</button><button class="reject" data-status="rejected" data-id="'+esc(a.id)+'">Refuser</button></div>':'')+
+ '</article>';
+ }).join("");
+}
+$("applications").addEventListener("click",async event=>{
+ const button=event.target.closest("button[data-status]");
+ if(!button)return;
+ const id=button.dataset.id,status=button.dataset.status;
+ if(!applications.some(a=>a.id===id&&a.status==="pending"))return;
+ const action=status==="approved"?"accepter":"refuser";
+ if(!confirm("Confirmer : "+action+" cette demande ?"))return;
+ button.disabled=true;$("message").className="";$("message").textContent="Mise à jour...";
+ try{
+  const {data,error}=await supabase.from("store_applications").update({status}).eq("id",id).eq("status","pending").select("id").maybeSingle();
+  if(error)throw error;
+  if(!data)throw new Error("La demande a déjà été traitée.");
+  $("message").className="success";$("message").textContent="Statut de la demande mis à jour.";
+  await loadApplications();
+ }catch(e){$("message").className="error";$("message").textContent="Erreur : "+e.message;button.disabled=false;}
+});
+$("logout").addEventListener("click",async()=>{const {error}=await supabase.auth.signOut();if(error){alert(error.message);return;}location.href="./index.html";});
+init().catch(e=>{$("applications").innerHTML='<div class="empty">Erreur : '+esc(e.message)+'</div>';});
+</script>
+</body>
+</html>
