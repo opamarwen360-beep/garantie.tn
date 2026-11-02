@@ -35,6 +35,7 @@ form{display:grid;gap:10px}select,input,textarea{width:100%;padding:12px;border:
 <section class="panel"><h2>Demander une assistance SAV</h2>
 <form id="sav-form"><label for="sav-warranty">Produit concerné</label><select id="sav-warranty" required><option value="">Choisir une garantie</option></select><label for="sav-subject">Sujet de la demande</label><input id="sav-subject" maxlength="150" required placeholder="Ex. : Problème de fonctionnement"><label for="sav-description">Description</label><textarea id="sav-description" maxlength="2000" placeholder="Décrivez votre problème..."></textarea><button type="submit">Envoyer ma demande</button></form><p id="message" role="status"></p>
 </section>
+<section class="panel"><h2>Historique de mes demandes SAV</h2><div id="sav-history"><div class="empty">Chargement de vos demandes...</div></div></section>
 </main>
 <script type="module">
 import { supabase } from "./supabase.js";
@@ -53,6 +54,7 @@ async function start() {
  if(profile.role !== "client"){location.href=profile.role === "magasin" ? "dashboard.html" : "index.html";return;}
  $("greeting").textContent="Bienvenue"+(profile.full_name ? ", "+profile.full_name : "")+" ! Retrouvez ici vos achats et vos garanties.";
  await loadPendingWarranties();
+ await loadSavHistory();
  const {data,error}=await supabase.from("warranties").select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,products(name,brand,model),invoices(id,file_path,file_name,created_at)").eq("customer_user_id",user.id).order("created_at",{ascending:false});
  if(error) throw error;
  warranties=data || [];
@@ -119,6 +121,24 @@ function renderWarranties(){
  const status=expired?"Expirée":w.status==="claimed"?"En SAV":"Active";
  const cls=expired?"expired":w.status==="claimed"?"claimed":"";
  return '<article class="warranty"><div><h3>'+esc(w.products?.name || "Produit")+'</h3><p class="muted">'+esc([w.products?.brand,w.products?.model].filter(Boolean).join(" · "))+'</p><p class="muted">N° garantie : '+esc(w.warranty_number)+'<br>Achat : '+date(w.purchase_date)+' · Début : '+date(w.start_date)+' · Fin : '+date(w.end_date)+'</p></div><div><span class="pill '+cls+'">'+status+'</span></div></article>';
+ }).join("");
+}
+async function loadSavHistory(){
+ const {data,error}=await supabase.from("sav_requests")
+  .select("id,subject,description,status,created_at,warranties(warranty_number,products(name))")
+  .eq("customer_user_id",currentUser.id)
+  .order("created_at",{ascending:false});
+ if(error) throw error;
+ const requests=data||[];
+ if(!requests.length){
+  $("sav-history").innerHTML='<div class="empty">Vous n’avez pas encore envoyé de demande SAV.</div>';
+  return;
+ }
+ const labels={pending:"En attente",processing:"En cours",completed:"Terminée",rejected:"Refusée"};
+ $("sav-history").innerHTML=requests.map(r=>{
+  const status=labels[r.status]||"Statut inconnu";
+  const cls=r.status==="rejected"?"expired":r.status==="completed"?"":"claimed";
+  return '<article class="warranty"><div><h3>'+esc(r.subject)+'</h3><p class="muted">'+esc(r.warranties?.products?.name||"Produit")+' · Garantie '+esc(r.warranties?.warranty_number||"—")+'</p><p class="muted">Envoyée le '+date(r.created_at?.slice(0,10))+'</p>'+(r.description?'<p>'+esc(r.description)+'</p>':'')+'</div><div><span class="pill '+cls+'">'+status+'</span></div></article>';
  }).join("");
 }
 async function renderInvoices(){
