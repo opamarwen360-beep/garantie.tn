@@ -29,6 +29,7 @@ form{display:grid;gap:10px}select,input,textarea{width:100%;padding:12px;border:
  <div class="stat"><span class="muted">Garanties actives</span><strong id="active">—</strong></div>
  <div class="stat"><span class="muted">Garanties expirées</span><strong id="expired">—</strong></div>
 </section>
+<section class="panel" id="claim-panel"><h2>Garanties à associer à mon compte</h2><p class="muted">Les garanties enregistrées par un magasin avec votre adresse e-mail apparaîtront ici.</p><div id="pending-warranties"><div class="empty">Vérification...</div></div></section>
 <section class="panel"><h2>Mes produits et garanties</h2><div id="warranties"><div class="empty">Chargement de vos garanties...</div></div></section>
 <section class="panel"><h2>Mes factures</h2><div id="invoices"><div class="empty">Chargement de vos factures...</div></div></section>
 <section class="panel"><h2>Demander une assistance SAV</h2>
@@ -41,13 +42,17 @@ const $ = (id) => document.getElementById(id);
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const date = (value) => value ? new Date(value + (value.length === 10 ? "T00:00:00" : "")).toLocaleDateString("fr-FR") : "—";
 let warranties = [];
+let pendingWarranties = [];
+let currentUser = null;
 async function start() {
  const {data:{user},error:userError}=await supabase.auth.getUser();
  if(userError || !user){location.href="index.html";return;}
+ currentUser = user;
  const {data:profile,error:profileError}=await supabase.from("profiles").select("full_name,role").eq("id",user.id).single();
  if(profileError) throw profileError;
  if(profile.role !== "client"){location.href=profile.role === "magasin" ? "dashboard.html" : "index.html";return;}
  $("greeting").textContent="Bienvenue"+(profile.full_name ? ", "+profile.full_name : "")+" ! Retrouvez ici vos achats et vos garanties.";
+ await loadPendingWarranties();
  const {data,error}=await supabase.from("warranties").select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,products(name,brand,model),stores(name),invoices(id,file_path,file_name,created_at)").eq("customer_user_id",user.id).order("created_at",{ascending:false});
  if(error) throw error;
  warranties=data || [];
@@ -60,6 +65,45 @@ async function start() {
  renderInvoices();
  $("sav-warranty").innerHTML='<option value="">Choisir une garantie</option>'+warranties.map(w=>'<option value="'+esc(w.id)+'">'+esc(w.products?.name || "Produit")+' — '+esc(w.warranty_number)+'</option>').join("");
 }
+async function loadPendingWarranties(){
+ const {data,error}=await supabase.from("warranties")
+  .select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,products(name,brand,model),stores(name)")
+  .is("customer_user_id",null)
+  .order("created_at",{ascending:false});
+ if(error) throw error;
+ pendingWarranties=data||[];
+ renderPendingWarranties();
+}
+function renderPendingWarranties(){
+ if(!pendingWarranties.length){
+  $("pending-warranties").innerHTML='<div class="empty">Aucune nouvelle garantie à associer pour le moment.</div>';
+  return;
+ }
+ $("pending-warranties").innerHTML=pendingWarranties.map(w=>
+  '<article class="warranty"><div><h3>'+esc(w.products?.name||"Produit")+'</h3><p class="muted">'+esc([w.products?.brand,w.products?.model].filter(Boolean).join(" · "))+'</p><p class="muted">N° garantie : '+esc(w.warranty_number)+'<br>Magasin : '+esc(w.stores?.name||"—")+'<br>Date d’achat : '+date(w.purchase_date)+'</p></div><div><button type="button" data-claim="'+esc(w.id)+'">Associer à mon compte</button></div></article>'
+ ).join("");
+}
+$("pending-warranties").addEventListener("click",async event=>{
+ const button=event.target.closest("[data-claim]");
+ if(!button || !currentUser) return;
+ const id=button.dataset.claim;
+ if(!pendingWarranties.some(w=>w.id===id)) return;
+ button.disabled=true;button.textContent="Association...";
+ try{
+  const {data,error}=await supabase.from("warranties")
+   .update({customer_user_id:currentUser.id})
+   .eq("id",id)
+   .is("customer_user_id",null)
+   .select("id")
+   .maybeSingle();
+  if(error) throw error;
+  if(!data) throw new Error("Cette garantie a déjà été associée ou n’est plus disponible.");
+  await start();
+ }catch(e){
+  alert("Impossible d’associer cette garantie : "+e.message);
+  button.disabled=false;button.textContent="Associer à mon compte";
+ }
+});
 function renderWarranties(){
  if(!warranties.length){$("warranties").innerHTML='<div class="empty">Aucune garantie associée à votre compte pour le moment. Demandez au magasin d’associer votre garantie à votre compte client.</div>';return;}
  const today=new Date().toISOString().slice(0,10);
