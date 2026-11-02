@@ -271,6 +271,27 @@
   const message = document.getElementById("auth-message");
 
   let mode = "login";
+  let isSubmitting = false;
+  let signupCooldown = false;
+  const submitButton = form.querySelector('button[type="submit"]');
+
+  function startSignupCooldown(seconds = 60) {
+    signupCooldown = true;
+    let remaining = seconds;
+    submitButton.disabled = true;
+    submitButton.textContent = `Attendez ${remaining}s`;
+    const timer = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        clearInterval(timer);
+        signupCooldown = false;
+        submitButton.disabled = false;
+        submitButton.textContent = "Continuer";
+      } else {
+        submitButton.textContent = `Attendez ${remaining}s`;
+      }
+    }, 1000);
+  }
 
   document.getElementById("open-auth").addEventListener("click", () => {
     modal.style.display = "flex";
@@ -301,6 +322,9 @@
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (isSubmitting || signupCooldown) return;
+    isSubmitting = true;
+    submitButton.disabled = true;
     message.textContent = "Veuillez patienter...";
 
     try {
@@ -323,6 +347,7 @@
           : "Compte créé. Vérifiez votre e-mail pour confirmer l'inscription.";
 
         form.reset();
+        startSignupCooldown(60);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email: email.value.trim(),
@@ -335,7 +360,16 @@
         await redirectByRole();
       }
     } catch (error) {
-      message.textContent = "Erreur : " + error.message;
+      const errorText = String(error?.message || "").toLowerCase();
+      if (errorText.includes("email rate limit") || errorText.includes("rate limit")) {
+        message.textContent = "Trop de demandes d’e-mail. Attendez avant de réessayer. Si votre compte existe déjà, utilisez Connexion au lieu de Inscription.";
+        startSignupCooldown(60);
+      } else {
+        message.textContent = "Erreur : " + error.message;
+      }
+    } finally {
+      isSubmitting = false;
+      if (!signupCooldown) submitButton.disabled = false;
     }
   });
 
