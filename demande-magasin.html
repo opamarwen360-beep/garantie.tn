@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Garantie.tn | Demande espace magasin</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 28px 16px; font-family: Arial, sans-serif; background: #f4f7f9; color: #183b52; }
+    .card { max-width: 520px; margin: 30px auto; padding: 30px; background: #fff; border-radius: 16px; box-shadow: 0 6px 28px #00000010; }
+    h1 { margin: 0 0 10px; font-size: 27px; }
+    p { line-height: 1.55; color: #526575; }
+    label { display: block; margin: 15px 0 6px; font-weight: 600; font-size: 14px; }
+    input { width: 100%; padding: 13px; border: 1px solid #d8e0e5; border-radius: 8px; font-size: 15px; }
+    button, .link-btn { display: inline-block; width: 100%; margin-top: 15px; padding: 13px 16px; border: 0; border-radius: 8px; background: #183b52; color: white; text-align: center; text-decoration: none; font-size: 15px; cursor: pointer; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    .secondary { background: #eaf0f4; color: #183b52; }
+    .hidden { display: none; }
+    .notice { margin-top: 14px; padding: 12px; border-radius: 8px; background: #f1f5f8; font-size: 14px; overflow-wrap: anywhere; }
+    .status { font-weight: 700; text-transform: capitalize; }
+    .toplink { display: inline-block; margin-bottom: 20px; color: #183b52; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <a class="toplink" href="./index.html">← Retour à l'accueil</a>
+    <h1>Demande d'accès magasin</h1>
+    <p>Créez un compte ou connectez-vous, puis envoyez les informations de votre magasin. L'accès sera activé après vérification par l'administration.</p>
+
+    <section id="auth-section">
+      <form id="auth-form">
+        <label for="auth-email">Adresse e-mail</label>
+        <input id="auth-email" type="email" autocomplete="email" required>
+        <label for="auth-password">Mot de passe</label>
+        <input id="auth-password" type="password" minlength="8" autocomplete="current-password" required>
+        <div style="display:flex;gap:10px;">
+          <button id="login-btn" type="submit">Connexion</button>
+          <button id="signup-btn" class="secondary" type="button">Créer un compte</button>
+        </div>
+      </form>
+      <div id="auth-message" class="notice" aria-live="polite"></div>
+    </section>
+
+    <section id="application-section" class="hidden">
+      <p id="signed-in-as"></p>
+      <div id="existing-application" class="notice hidden"></div>
+      <form id="application-form">
+        <label for="business-name">Nom du magasin</label>
+        <input id="business-name" type="text" minlength="2" maxlength="120" required>
+        <label for="business-phone">Téléphone</label>
+        <input id="business-phone" type="tel" minlength="6" maxlength="30" required>
+        <label for="business-address">Adresse du magasin</label>
+        <input id="business-address" type="text" minlength="3" maxlength="250" required>
+        <button id="submit-application" type="submit">Envoyer ma demande</button>
+      </form>
+      <button id="logout-btn" class="secondary" type="button">Déconnexion</button>
+      <div id="application-message" class="notice" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { supabase } from "./supabase.js";
+
+    const authSection = document.getElementById("auth-section");
+    const applicationSection = document.getElementById("application-section");
+    const authMessage = document.getElementById("auth-message");
+    const applicationMessage = document.getElementById("application-message");
+    const authForm = document.getElementById("auth-form");
+    const applicationForm = document.getElementById("application-form");
+    const authEmail = document.getElementById("auth-email");
+    const authPassword = document.getElementById("auth-password");
+
+    function showAuth(message = "") {
+      authSection.classList.remove("hidden");
+      applicationSection.classList.add("hidden");
+      authMessage.textContent = message;
+    }
+
+    async function showApplication(user) {
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles").select("role").eq("id", user.id).maybeSingle();
+
+      if (profileError) throw profileError;
+      if (profile?.role === "magasin") {
+        window.location.href = "./dashboard.html";
+        return;
+      }
+
+      authSection.classList.add("hidden");
+      applicationSection.classList.remove("hidden");
+      document.getElementById("signed-in-as").textContent = "Connecté : " + (user.email || "");
+
+      const { data: previous, error } = await supabase
+        .from("store_applications")
+        .select("status, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      const existing = document.getElementById("existing-application");
+      const submit = document.getElementById("submit-application");
+      if (previous?.status === "pending") {
+        existing.textContent = "Votre demande est déjà envoyée et en attente de vérification.";
+        existing.classList.remove("hidden");
+        applicationForm.classList.add("hidden");
+        submit.disabled = true;
+      } else if (previous?.status === "approved") {
+        existing.textContent = "Votre demande a été acceptée. Vous pouvez accéder à votre espace magasin.";
+        existing.classList.remove("hidden");
+        applicationForm.classList.add("hidden");
+        submit.disabled = true;
+      } else {
+        if (previous?.status === "rejected") {
+          existing.textContent = "Votre précédente demande n'a pas été acceptée. Vous pouvez envoyer une nouvelle demande.";
+          existing.classList.remove("hidden");
+        } else {
+          existing.classList.add("hidden");
+        }
+        applicationForm.classList.remove("hidden");
+        submit.disabled = false;
+      }
+    }
+
+    async function refreshSession() {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error) throw error;
+      if (user) await showApplication(user);
+      else showAuth();
+    }
+
+    authForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      document.getElementById("login-btn").disabled = true;
+      authMessage.textContent = "Connexion en cours...";
+      try {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: authEmail.value.trim(),
+          password: authPassword.value
+        });
+        if (error) throw error;
+        await refreshSession();
+      } catch (error) {
+        authMessage.textContent = "Erreur : " + error.message;
+      } finally {
+        document.getElementById("login-btn").disabled = false;
+      }
+    });
+
+    document.getElementById("signup-btn").addEventListener("click", async () => {
+      if (!authEmail.value.trim() || authPassword.value.length < 8) {
+        authMessage.textContent = "Saisissez un e-mail et un mot de passe de 8 caractères minimum.";
+        return;
+      }
+      authMessage.textContent = "Création du compte...";
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email: authEmail.value.trim(),
+          password: authPassword.value
+        });
+        if (error) throw error;
+        if (data.session?.user) {
+          await showApplication(data.session.user);
+        } else {
+          authMessage.textContent = "Compte créé. Confirmez votre adresse e-mail, puis revenez ici pour vous connecter.";
+        }
+      } catch (error) {
+        authMessage.textContent = "Erreur : " + error.message;
+      }
+    });
+
+    applicationForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = document.getElementById("submit-application");
+      button.disabled = true;
+      applicationMessage.textContent = "Envoi de la demande...";
+      try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) throw new Error("Votre session a expiré. Reconnectez-vous.");
+
+        const { error } = await supabase.from("store_applications").insert({
+          business_name: document.getElementById("business-name").value.trim(),
+          phone: document.getElementById("business-phone").value.trim(),
+          address: document.getElementById("business-address").value.trim()
+        });
+        if (error) throw error;
+
+        applicationForm.reset();
+        applicationForm.classList.add("hidden");
+        document.getElementById("existing-application").textContent = "Votre demande a été envoyée. Elle est maintenant en attente de vérification.";
+        document.getElementById("existing-application").classList.remove("hidden");
+        applicationMessage.textContent = "Demande envoyée avec succès.";
+      } catch (error) {
+        applicationMessage.textContent = "Erreur : " + error.message;
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById("logout-btn").addEventListener("click", async () => {
+      const { error } = await supabase.auth.signOut();
+      if (error) applicationMessage.textContent = "Erreur : " + error.message;
+      else showAuth("Vous êtes déconnecté.");
+    });
+
+    try {
+      await refreshSession();
+    } catch (error) {
+      showAuth("Impossible de charger votre espace : " + error.message);
+    }
+  </script>
+</body>
+</html>
