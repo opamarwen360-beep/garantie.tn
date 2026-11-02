@@ -75,10 +75,16 @@ $("applications").addEventListener("click",async event=>{
  if(!confirm("Confirmer : "+action+" cette demande ?"))return;
  button.disabled=true;$("message").className="";$("message").textContent="Mise à jour...";
  try{
-  const {data,error}=await supabase.from("store_applications").update({status}).eq("id",id).eq("status","pending").select("id").maybeSingle();
-  if(error)throw error;
-  if(!data)throw new Error("La demande a déjà été traitée.");
-  $("message").className="success";$("message").textContent="Statut de la demande mis à jour.";
+  if(status==="approved"){
+   const {error}=await supabase.rpc("admin_approve_store_application",{application_id:id});
+   if(error)throw error;
+  }else{
+   const {data,error}=await supabase.from("store_applications").update({status:"rejected"}).eq("id",id).eq("status","pending").select("id").maybeSingle();
+   if(error)throw error;
+   if(!data)throw new Error("La demande a déjà été traitée.");
+  }
+  $("message").className="success";
+  $("message").textContent=status==="approved"?"Demande acceptée : le compte magasin est activé.":"Demande refusée.";
   await loadApplications();
  }catch(e){$("message").className="error";$("message").textContent="Erreur : "+e.message;button.disabled=false;}
 });
