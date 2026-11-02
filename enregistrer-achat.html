@@ -37,6 +37,24 @@ label{color:#354b40;font-weight:650!important}h1,h2,h3{color:var(--gtn-ink);lett
 @media(max-width:750px){main{width:calc(100% - 24px)!important;margin:22px auto!important}.panel,.stat{padding:17px!important}.hero{padding:58px 6%!important}.hero-card{width:100%!important}.features{grid-template-columns:1fr!important}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
+<style id="gtn-form-shell-v2">
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap');
+:root{--navy:#101d35;--green:#16a477;--ink:#17243b;--muted:#738096;--line:#e8edf3;--paper:#f5f7fb}
+*{box-sizing:border-box}body{font-family:'DM Sans',sans-serif!important;background:radial-gradient(circle at 10% 0,#e3f5ed 0,transparent 30%),var(--paper)!important;color:var(--ink)!important}
+main{width:min(850px,calc(100% - 30px))!important;margin:45px auto!important}
+.card,main>section,.panel{background:#fff!important;border:1px solid var(--line)!important;border-radius:20px!important;padding:30px!important;box-shadow:0 18px 50px #14243d0c!important}
+h1,h2{font-family:Manrope,sans-serif!important;color:var(--navy)!important;letter-spacing:-.8px}h1{font-size:clamp(28px,4vw,38px)!important;font-weight:800!important}h2{font-size:20px!important}
+p{color:var(--muted)!important;line-height:1.75}
+label{display:block;color:#34435b!important;font-size:13px;font-weight:700!important;margin:14px 0 7px}
+input,select,textarea{width:100%;min-height:47px;border:1px solid #dce4ed!important;border-radius:10px!important;padding:12px 14px!important;background:#fbfcfe!important;color:var(--ink)!important;font:500 14px 'DM Sans',sans-serif!important}
+input:focus,select:focus,textarea:focus{outline:3px solid #16a47720;border-color:var(--green)!important}
+button,.btn{font:700 14px 'DM Sans',sans-serif!important;background:var(--green)!important;color:white!important;border:1px solid var(--green)!important;border-radius:10px!important;padding:13px 19px!important;box-shadow:0 7px 17px #16a47724!important}
+button.secondary,.secondary{background:#eef3f8!important;color:var(--navy)!important;border-color:var(--line)!important;box-shadow:none!important}
+.notice,.empty,.msg{background:#f5f8fb!important;border:1px dashed #dce5ee!important;border-radius:12px!important;padding:14px!important;color:var(--muted)}
+.toplink{display:inline-block;margin-bottom:20px;color:var(--green);font-weight:700;text-decoration:none}
+.hidden{display:none!important}
+@media(max-width:600px){main{margin:18px auto!important}.card,main>section,.panel{padding:21px!important}}
+</style>
 </head>
 <body>
 <header><a class="logo" href="./index.html">Garantie<span>.tn</span></a></header>
