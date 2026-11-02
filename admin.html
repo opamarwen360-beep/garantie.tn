@@ -76,8 +76,8 @@ async function loadDashboard(){
 
 function renderSavTable(){
  const cf=$("sav-filter-client"),sf=$("sav-filter-store"),cv=cf.value,sv=sf.value;
- const clients=[...new Map(savRows.map(r=>{const w=savWarranties.find(x=>x.id===r.warranty_id),u=savUsers.find(x=>x.id===r.customer_user_id);return [r.customer_user_id||r.id,{id:r.customer_user_id||r.id,name:u?.full_name||w?.customer_name||w?.customer_email||"Client inconnu"}]}).values()];
- const stores=[...new Map(savRows.map(r=>{const w=savWarranties.find(x=>x.id===r.warranty_id),s=savStores.find(x=>x.id===w?.store_id);return [s?.id||"none",{id:s?.id||"none",name:s?.name||"Magasin inconnu"}]}).values()];
+ const clients=[...new Map(savRows.map(r=>{const w=savWarranties.find(x=>x.id===r.warranty_id),u=savUsers.find(x=>x.id===r.customer_user_id);return [r.customer_user_id||r.id,{id:r.customer_user_id||r.id,name:u?.full_name||w?.customer_name||w?.customer_email||"Client inconnu"}]})).values()];
+ const stores=[...new Map(savRows.map(r=>{const w=savWarranties.find(x=>x.id===r.warranty_id),s=savStores.find(x=>x.id===w?.store_id);return [s?.id||"none",{id:s?.id||"none",name:s?.name||"Magasin inconnu"}]})).values()];
  cf.innerHTML='<option value="">Tous les clients</option>'+clients.map(x=>'<option value="'+esc(x.id)+'" '+(cv===x.id?'selected':'')+'>'+esc(x.name)+'</option>').join('');
  sf.innerHTML='<option value="">Tous les magasins</option>'+stores.map(x=>'<option value="'+esc(x.id)+'" '+(sv===x.id?'selected':'')+'>'+esc(x.name)+'</option>').join('');
  const rows=savRows.filter(r=>{const w=savWarranties.find(x=>x.id===r.warranty_id),s=savStores.find(x=>x.id===w?.store_id);return (!cv||(r.customer_user_id||r.id)===cv)&&(!sv||(s?.id||"none")===sv)});
