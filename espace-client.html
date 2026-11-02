@@ -53,7 +53,7 @@ async function start() {
  if(profile.role !== "client"){location.href=profile.role === "magasin" ? "dashboard.html" : "index.html";return;}
  $("greeting").textContent="Bienvenue"+(profile.full_name ? ", "+profile.full_name : "")+" ! Retrouvez ici vos achats et vos garanties.";
  await loadPendingWarranties();
- const {data,error}=await supabase.from("warranties").select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,products(name,brand,model),stores(name),invoices(id,file_path,file_name,created_at)").eq("customer_user_id",user.id).order("created_at",{ascending:false});
+ const {data,error}=await supabase.from("warranties").select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,products(name,brand,model),invoices(id,file_path,file_name,created_at)").eq("customer_user_id",user.id).order("created_at",{ascending:false});
  if(error) throw error;
  warranties=data || [];
  const today=new Date().toISOString().slice(0,10);
@@ -67,7 +67,7 @@ async function start() {
 }
 async function loadPendingWarranties(){
  const {data,error}=await supabase.from("warranties")
-  .select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,products(name,brand,model),stores(name)")
+  .select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,products(name,brand,model)")
   .is("customer_user_id",null)
   .order("created_at",{ascending:false});
  if(error) throw error;
@@ -80,7 +80,7 @@ function renderPendingWarranties(){
   return;
  }
  $("pending-warranties").innerHTML=pendingWarranties.map(w=>
-  '<article class="warranty"><div><h3>'+esc(w.products?.name||"Produit")+'</h3><p class="muted">'+esc([w.products?.brand,w.products?.model].filter(Boolean).join(" · "))+'</p><p class="muted">N° garantie : '+esc(w.warranty_number)+'<br>Magasin : '+esc(w.stores?.name||"—")+'<br>Date d’achat : '+date(w.purchase_date)+'</p></div><div><button type="button" data-claim="'+esc(w.id)+'">Associer à mon compte</button></div></article>'
+  '<article class="warranty"><div><h3>'+esc(w.products?.name||"Produit")+'</h3><p class="muted">'+esc([w.products?.brand,w.products?.model].filter(Boolean).join(" · "))+'</p><p class="muted">N° garantie : '+esc(w.warranty_number)+'<br>Date d’achat : '+date(w.purchase_date)+'</p></div><div><button type="button" data-claim="'+esc(w.id)+'">Associer à mon compte</button></div></article>'
  ).join("");
 }
 $("pending-warranties").addEventListener("click",async event=>{
@@ -111,7 +111,7 @@ function renderWarranties(){
  const expired=w.status==="expired" || w.end_date<today;
  const status=expired?"Expirée":w.status==="claimed"?"En SAV":"Active";
  const cls=expired?"expired":w.status==="claimed"?"claimed":"";
- return '<article class="warranty"><div><h3>'+esc(w.products?.name || "Produit")+'</h3><p class="muted">'+esc([w.products?.brand,w.products?.model].filter(Boolean).join(" · "))+'</p><p class="muted">N° garantie : '+esc(w.warranty_number)+'<br>Magasin : '+esc(w.stores?.name || "—")+'<br>Achat : '+date(w.purchase_date)+' · Début : '+date(w.start_date)+' · Fin : '+date(w.end_date)+'</p></div><div><span class="pill '+cls+'">'+status+'</span></div></article>';
+ return '<article class="warranty"><div><h3>'+esc(w.products?.name || "Produit")+'</h3><p class="muted">'+esc([w.products?.brand,w.products?.model].filter(Boolean).join(" · "))+'</p><p class="muted">N° garantie : '+esc(w.warranty_number)+'<br>Achat : '+date(w.purchase_date)+' · Début : '+date(w.start_date)+' · Fin : '+date(w.end_date)+'</p></div><div><span class="pill '+cls+'">'+status+'</span></div></article>';
  }).join("");
 }
 async function renderInvoices(){
