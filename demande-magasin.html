@@ -184,12 +184,26 @@
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) throw new Error("Votre session a expiré. Reconnectez-vous.");
 
+        const nationalId = document.getElementById("national-id").value.trim();
+        const patentFile = document.getElementById("patent-photo").files[0];
+        if (!/^[0-9]{8}$/.test(nationalId)) throw new Error("Le numéro de carte d’identité doit contenir exactement 8 chiffres.");
+        if (!patentFile || !["image/jpeg", "image/png", "image/webp"].includes(patentFile.type) || patentFile.size > 5242880) throw new Error("Photo JPG, PNG ou WebP obligatoire, 5 Mo maximum.");
+        const safeName = patentFile.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+        const patentPath = user.id + "/" + Date.now() + "-" + safeName;
+        const { error: uploadError } = await supabase.storage.from("store-verification").upload(patentPath, patentFile, { contentType: patentFile.type, upsert: false });
+        if (uploadError) throw uploadError;
+
         const { error } = await supabase.from("store_applications").insert({
           business_name: document.getElementById("business-name").value.trim(),
           phone: document.getElementById("business-phone").value.trim(),
-          address: document.getElementById("business-address").value.trim()
+          address: document.getElementById("business-address").value.trim(),
+          national_id_number: nationalId,
+          patent_photo_path: patentPath
         });
-        if (error) throw error;
+        if (error) {
+          await supabase.storage.from("store-verification").remove([patentPath]);
+          throw error;
+        }
 
         applicationForm.reset();
         applicationForm.classList.add("hidden");
