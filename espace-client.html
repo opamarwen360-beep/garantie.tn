@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Votre espace client Garantie.tn : garanties, factures et service après-vente.">
+<title>Mon espace client | Garantie.tn</title>
+<style>
+:root{--green:#14765c;--navy:#183b52;--muted:#718092;--line:#e8edf0}
+*{box-sizing:border-box}body{margin:0;background:#f4f7f9;color:#183b52;font-family:Arial,sans-serif}
+header{background:#fff;padding:17px 6%;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 12px #00000008}
+.logo{font-size:25px;font-weight:800;color:var(--green);text-decoration:none}.logo span{color:var(--navy)}
+button,a.btn{border:0;border-radius:8px;padding:11px 17px;background:var(--green);color:white;font-weight:700;cursor:pointer;text-decoration:none}
+main{max-width:1100px;margin:35px auto;padding:0 18px}.welcome{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:25px}.welcome h1{margin:0 0 7px}.muted{color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:25px}.stat,.panel{background:white;border:1px solid var(--line);border-radius:13px;padding:20px}.stat strong{display:block;font-size:27px;margin-top:7px;color:var(--green)}
+.panel{margin-bottom:22px}.panel h2{margin:0 0 16px;font-size:20px}.warranty{border:1px solid var(--line);border-radius:10px;padding:17px;margin:12px 0;display:grid;grid-template-columns:1fr auto;gap:12px}.warranty h3{margin:0 0 7px}.pill{display:inline-block;padding:6px 10px;border-radius:20px;background:#e3f4ec;color:#14765c;font-size:12px;font-weight:700}.pill.expired{background:#fff0ed;color:#b64b3b}.pill.claimed{background:#fff6df;color:#946b11}
+.invoice{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.invoice button{padding:8px 12px;font-size:13px}
+form{display:grid;gap:10px}select,input,textarea{width:100%;padding:12px;border:1px solid #dce3e8;border-radius:8px;font:inherit}textarea{min-height:90px;resize:vertical}#message{margin-top:10px;color:var(--green)}
+.empty{padding:22px;text-align:center;color:var(--muted);background:#f8fafb;border-radius:9px}
+@media(max-width:650px){.stats{grid-template-columns:1fr}.welcome{align-items:flex-start;flex-direction:column}.warranty{grid-template-columns:1fr}.invoice{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<header><a class="logo" href="index.html">Garantie<span>.tn</span></a><button id="logout">Déconnexion</button></header>
+<main>
+<section class="welcome"><div><h1>Mon espace client</h1><p class="muted" id="greeting">Bienvenue sur votre espace personnel.</p></div><a class="btn" href="index.html">Accueil</a></section>
+<section class="stats">
+ <div class="stat"><span class="muted">Mes garanties</span><strong id="total">—</strong></div>
+ <div class="stat"><span class="muted">Garanties actives</span><strong id="active">—</strong></div>
+ <div class="stat"><span class="muted">Garanties expirées</span><strong id="expired">—</strong></div>
+</section>
+<section class="panel"><h2>Mes produits et garanties</h2><div id="warranties"><div class="empty">Chargement de vos garanties...</div></div></section>
+<section class="panel"><h2>Mes factures</h2><div id="invoices"><div class="empty">Chargement de vos factures...</div></div></section>
+<section class="panel"><h2>Demander une assistance SAV</h2>
+<form id="sav-form"><label for="sav-warranty">Produit concerné</label><select id="sav-warranty" required><option value="">Choisir une garantie</option></select><label for="sav-subject">Sujet de la demande</label><input id="sav-subject" maxlength="150" required placeholder="Ex. : Problème de fonctionnement"><label for="sav-description">Description</label><textarea id="sav-description" maxlength="2000" placeholder="Décrivez votre problème..."></textarea><button type="submit">Envoyer ma demande</button></form><p id="message" role="status"></p>
+</section>
+</main>
+<script type="module">
+import { supabase } from "./supabase.js";
+const $ = (id) => document.getElementById(id);
+const esc = (value) => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const date = (value) => value ? new Date(value + (value.length === 10 ? "T00:00:00" : "")).toLocaleDateString("fr-FR") : "—";
+let warranties = [];
+async function start() {
+ const {data:{user},error:userError}=await supabase.auth.getUser();
+ if(userError || !user){location.href="index.html";return;}
+ const {data:profile,error:profileError}=await supabase.from("profiles").select("full_name,role").eq("id",user.id).single();
+ if(profileError) throw profileError;
+ if(profile.role !== "client"){location.href=profile.role === "magasin" ? "dashboard.html" : "index.html";return;}
+ $("greeting").textContent="Bienvenue"+(profile.full_name ? ", "+profile.full_name : "")+" ! Retrouvez ici vos achats et vos garanties.";
+ const {data,error}=await supabase.from("warranties").select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,products(name,brand,model),stores(name),invoices(id,file_path,file_name,created_at)").eq("customer_user_id",user.id).order("created_at",{ascending:false});
+ if(error) throw error;
+ warranties=data || [];
+ const today=new Date().toISOString().slice(0,10);
+ const active=warranties.filter(w=>w.status==="active" && w.end_date>=today).length;
+ $("total").textContent=warranties.length;
+ $("active").textContent=active;
+ $("expired").textContent=warranties.length-active;
+ renderWarranties();
+ renderInvoices();
+ $("sav-warranty").innerHTML='<option value="">Choisir une garantie</option>'+warranties.map(w=>'<option value="'+esc(w.id)+'">'+esc(w.products?.name || "Produit")+' — '+esc(w.warranty_number)+'</option>').join("");
+}
+function renderWarranties(){
+ if(!warranties.length){$("warranties").innerHTML='<div class="empty">Aucune garantie associée à votre compte pour le moment. Demandez au magasin d’associer votre garantie à votre compte client.</div>';return;}
+ const today=new Date().toISOString().slice(0,10);
+ $("warranties").innerHTML=warranties.map(w=>{
+ const expired=w.status==="expired" || w.end_date<today;
+ const status=expired?"Expirée":w.status==="claimed"?"En SAV":"Active";
+ const cls=expired?"expired":w.status==="claimed"?"claimed":"";
+ return '<article class="warranty"><div><h3>'+esc(w.products?.name || "Produit")+'</h3><p class="muted">'+esc([w.products?.brand,w.products?.model].filter(Boolean).join(" · "))+'</p><p class="muted">N° garantie : '+esc(w.warranty_number)+'<br>Magasin : '+esc(w.stores?.name || "—")+'<br>Achat : '+date(w.purchase_date)+' · Début : '+date(w.start_date)+' · Fin : '+date(w.end_date)+'</p></div><div><span class="pill '+cls+'">'+status+'</span></div></article>';
+ }).join("");
+}
+async function renderInvoices(){
+ const items=warranties.flatMap(w=>(w.invoices||[]).map(inv=>({...inv,warranty_number:w.warranty_number,product:w.products?.name||"Produit"})));
+ if(!items.length){$("invoices").innerHTML='<div class="empty">Aucune facture disponible pour le moment.</div>';return;}
+ $("invoices").innerHTML=items.map((inv,i)=>'<div class="invoice"><div><strong>'+esc(inv.file_name||"Facture PDF")+'</strong><div class="muted">'+esc(inv.product)+' · Garantie '+esc(inv.warranty_number)+'</div></div><button data-invoice="'+i+'">Voir / télécharger</button></div>').join("");
+ $("invoices").querySelectorAll("[data-invoice]").forEach(btn=>btn.addEventListener("click",async()=>{
+ const inv=items[Number(btn.dataset.invoice)];btn.disabled=true;btn.textContent="Préparation...";
+ try{const {data,error}=await supabase.storage.from("invoices").createSignedUrl(inv.file_path,60);if(error)throw error;window.open(data.signedUrl,"_blank","noopener");}
+ catch(e){alert("Impossible d’ouvrir la facture : "+e.message);}
+ finally{btn.disabled=false;btn.textContent="Voir / télécharger";}
+ }));
+}
+$("sav-form").addEventListener("submit",async event=>{
+ event.preventDefault();$("message").textContent="Envoi en cours...";
+ const warrantyId=$("sav-warranty").value;
+ try{
+ if(!warranties.some(w=>w.id===warrantyId))throw new Error("Choisissez une garantie valide.");
+ const {data:{user}}=await supabase.auth.getUser();
+ const {error}=await supabase.from("sav_requests").insert({warranty_id:warrantyId,customer_user_id:user.id,subject:$("sav-subject").value.trim(),description:$("sav-description").value.trim()||null});
+ if(error)throw error;
+ $("message").textContent="Votre demande SAV a été envoyée avec succès.";
+ $("sav-form").reset();
+ }catch(e){$("message").textContent="Erreur : "+e.message;}
+});
+$("logout").addEventListener("click",async()=>{const {error}=await supabase.auth.signOut();if(error){alert(error.message);return;}location.href="index.html";});
+start().catch(e=>{console.error(e);$("warranties").innerHTML='<div class="empty">Erreur de chargement : '+esc(e.message)+'</div>';});
+</script>
+</body>
+</html>
