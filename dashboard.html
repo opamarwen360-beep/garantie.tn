@@ -74,6 +74,36 @@
     const form = document.getElementById("invoice-form");
     const message = document.getElementById("message");
 
+    const container = document.querySelector(".container");
+    container.style.display = "none";
+
+    async function checkDashboardAccess() {
+      try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+          window.location.href = "./index.html";
+          return;
+        }
+
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError || profile?.role !== "magasin") {
+          window.location.href = "./index.html";
+          return;
+        }
+
+        container.style.display = "block";
+      } catch (error) {
+        message.textContent = "Impossible de vérifier votre accès : " + error.message;
+      }
+    }
+
+    checkDashboardAccess();
+
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
 
