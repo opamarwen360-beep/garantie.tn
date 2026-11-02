@@ -66,9 +66,16 @@ async function start() {
  $("sav-warranty").innerHTML='<option value="">Choisir une garantie</option>'+warranties.map(w=>'<option value="'+esc(w.id)+'">'+esc(w.products?.name || "Produit")+' — '+esc(w.warranty_number)+'</option>').join("");
 }
 async function loadPendingWarranties(){
+ const email = currentUser?.email?.trim().toLowerCase();
+ if(!email){
+  pendingWarranties=[];
+  $("pending-warranties").innerHTML='<div class="empty">Votre compte ne contient pas d’adresse e-mail vérifiable.</div>';
+  return;
+ }
  const {data,error}=await supabase.from("warranties")
   .select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,products(name,brand,model)")
   .is("customer_user_id",null)
+  .eq("customer_email",email)
   .order("created_at",{ascending:false});
  if(error) throw error;
  pendingWarranties=data||[];
