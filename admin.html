@@ -69,7 +69,8 @@ async function loadDashboard(){
  $("stores-data").innerHTML=table(["Magasin","Téléphone","Adresse","Création"],stores.map(s=>'<tr><td>'+esc(s.name)+'</td><td>'+esc(s.phone)+'</td><td>'+esc(s.address)+'</td><td>'+fmt(s.created_at)+'</td></tr>'));
  $("products-data").innerHTML=table(["Produit","Marque","Modèle","N° série","Ajouté le"],products.map(p=>'<tr><td>'+esc(p.name)+'</td><td>'+esc(p.brand)+'</td><td>'+esc(p.model)+'</td><td>'+esc(p.serial_number)+'</td><td>'+fmt(p.created_at)+'</td></tr>'));
  $("warranties-data").innerHTML=table(["N° garantie","Client","E-mail","Début","Fin","Statut"],warranties.map(w=>'<tr><td>'+esc(w.warranty_number)+'</td><td>'+esc(w.customer_name)+'</td><td>'+esc(w.customer_email)+'</td><td>'+fmt(w.start_date)+'</td><td>'+fmt(w.end_date)+'</td><td>'+statusPill(w.status)+'</td></tr>'));
- renderSavTable();\n $("invoices-data").innerHTML=table(["Nom du fichier","Garantie ID","Date","Fichier"],invoices.map(i=>'<tr><td>'+esc(i.file_name)+'</td><td>'+esc(i.warranty_id)+'</td><td>'+fmt(i.created_at)+'</td><td>'+(i.file_path?'<button class="refresh" data-invoice-path="'+esc(i.file_path)+'">Ouvrir</button>':'—')+'</td></tr>'));
+ renderSavTable();
+ $("invoices-data").innerHTML=table(["Nom du fichier","Garantie ID","Date","Fichier"],invoices.map(i=>'<tr><td>'+esc(i.file_name)+'</td><td>'+esc(i.warranty_id)+'</td><td>'+fmt(i.created_at)+'</td><td>'+(i.file_path?'<button class="refresh" data-invoice-path="'+esc(i.file_path)+'">Ouvrir</button>':'—')+'</td></tr>'));
  await loadApplications();
 }
 
@@ -83,7 +84,8 @@ function renderSavTable(){
  $("sav-data").innerHTML=table(["Client","Magasin","N° garantie","Demande","Statut","Date","Gestion"],rows.map(r=>{const w=savWarranties.find(x=>x.id===r.warranty_id),u=savUsers.find(x=>x.id===r.customer_user_id),s=savStores.find(x=>x.id===w?.store_id);return '<tr><td>'+esc(u?.full_name||w?.customer_name||w?.customer_email||"Client inconnu")+'</td><td>'+esc(s?.name||"Magasin inconnu")+'</td><td>'+esc(w?.warranty_number)+'</td><td><strong>'+esc(r.subject)+'</strong><br>'+esc(r.description)+'</td><td>'+statusPill(r.status)+'</td><td>'+fmt(r.created_at)+'</td><td><div class="actions"><select aria-label="Statut SAV" data-sav-status="'+esc(r.id)+'" data-old-status="'+esc(r.status)+'"><option value="pending" '+(r.status==="pending"?"selected":"")+'>En attente</option><option value="processing" '+(r.status==="processing"?"selected":"")+'>En cours</option><option value="completed" '+(r.status==="completed"?"selected":"")+'>Terminée</option><option value="rejected" '+(r.status==="rejected"?"selected":"")+'>Refusée</option></select><button data-sav-update="'+esc(r.id)+'">Enregistrer</button></div></td></tr>'}));
 }
 $("sav-filter-client").addEventListener("change",renderSavTable);$("sav-filter-store").addEventListener("change",renderSavTable);
-\nasync function loadApplications(){
+
+async function loadApplications(){
  const {data,error}=await supabase.from("store_applications").select("id,user_id,business_name,phone,address,status,created_at").order("created_at",{ascending:false});
  if(error)throw error;applications=data||[];
  const pending=applications.filter(a=>a.status==="pending").length;
