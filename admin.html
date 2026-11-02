@@ -70,7 +70,7 @@ async function loadDashboard(){
  $("products-data").innerHTML=table(["Produit","Marque","Modèle","N° série","Ajouté le"],products.map(p=>'<tr><td>'+esc(p.name)+'</td><td>'+esc(p.brand)+'</td><td>'+esc(p.model)+'</td><td>'+esc(p.serial_number)+'</td><td>'+fmt(p.created_at)+'</td></tr>'));
  $("warranties-data").innerHTML=table(["N° garantie","Client","E-mail","Début","Fin","Statut"],warranties.map(w=>'<tr><td>'+esc(w.warranty_number)+'</td><td>'+esc(w.customer_name)+'</td><td>'+esc(w.customer_email)+'</td><td>'+fmt(w.start_date)+'</td><td>'+fmt(w.end_date)+'</td><td>'+statusPill(w.status)+'</td></tr>'));
  $("sav-data").innerHTML=table(["Sujet","Description","Client ID","Statut","Date"],sav.map(s=>'<tr><td>'+esc(s.subject)+'</td><td>'+esc(s.description)+'</td><td>'+esc(s.customer_user_id)+'</td><td>'+statusPill(s.status)+'</td><td>'+fmt(s.created_at)+'</td></tr>'));
- $("invoices-data").innerHTML=table(["Nom du fichier","Garantie ID","Date"],invoices.map(i=>'<tr><td>'+esc(i.file_name)+'</td><td>'+esc(i.warranty_id)+'</td><td>'+fmt(i.created_at)+'</td></tr>'));
+ $("invoices-data").innerHTML=table(["Nom du fichier","Garantie ID","Date","Fichier"],invoices.map(i=>'<tr><td>'+esc(i.file_name)+'</td><td>'+esc(i.warranty_id)+'</td><td>'+fmt(i.created_at)+'</td><td>'+(i.file_path?'<button class="refresh" data-invoice-path="'+esc(i.file_path)+'">Ouvrir</button>':'—')+'</td></tr>'));
  await loadApplications();
 }
 async function loadApplications(){
@@ -100,6 +100,7 @@ $("applications-data").addEventListener("click",async e=>{
   $("message").textContent="Demande mise à jour.";await loadDashboard();
  }catch(err){$("message").textContent="Erreur : "+err.message;b.disabled=false;}
 });
+$("invoices-data").addEventListener("click",async e=>{const b=e.target.closest("button[data-invoice-path]");if(!b)return;const path=b.dataset.invoicePath;b.disabled=true;try{const {data,error}=await supabase.storage.from("invoices").createSignedUrl(path,60);if(error)throw error;if(!data?.signedUrl)throw new Error("Lien sécurisé indisponible.");window.open(data.signedUrl,"_blank","noopener,noreferrer");}catch(err){alert("Impossible d'ouvrir la facture : "+err.message);}finally{b.disabled=false;}});
 $("refresh").addEventListener("click",()=>loadDashboard().catch(showError));
 $("logout").addEventListener("click",async()=>{const {error}=await supabase.auth.signOut();if(error){alert(error.message);return;}location.href="./index.html";});
 function showError(e){$("overview-content").innerHTML='<div class="empty error">Erreur de chargement : '+esc(e.message)+'</div>';}
