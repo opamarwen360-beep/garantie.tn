@@ -24,6 +24,7 @@ form{display:grid;gap:10px}select,input,textarea{width:100%;padding:12px;border:
 <header><a class="logo" href="index.html">Garantie<span>.tn</span></a><button id="logout">Déconnexion</button></header>
 <main>
 <section class="welcome"><div><h1>Mon espace client</h1><p class="muted" id="greeting">Bienvenue sur votre espace personnel.</p></div><a class="btn" href="index.html">Accueil</a></section>
+<section class="panel"><h2>Mon QR Code client</h2><p class="muted">Présentez ce QR code au magasin pour enregistrer vos achats et activer vos garanties automatiquement.</p><div id="client-qr" style="display:grid;place-items:center;min-height:180px;padding:12px"><div class="empty">Génération de votre QR code...</div></div><p class="muted" style="text-align:center">Ce QR code est personnel. Présentez-le uniquement à un magasin de confiance.</p></section>
 <section class="stats">
  <div class="stat"><span class="muted">Mes garanties</span><strong id="total">—</strong></div>
  <div class="stat"><span class="muted">Garanties actives</span><strong id="active">—</strong></div>
@@ -37,6 +38,7 @@ form{display:grid;gap:10px}select,input,textarea{width:100%;padding:12px;border:
 </section>
 <section class="panel"><h2>Historique de mes demandes SAV</h2><div id="sav-history"><div class="empty">Chargement de vos demandes...</div></div></section>
 </main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script type="module">
 import { supabase } from "./supabase.js";
 const $ = (id) => document.getElementById(id);
@@ -53,6 +55,7 @@ async function start() {
  if(profileError) throw profileError;
  if(profile.role !== "client"){location.href=profile.role === "magasin" ? "dashboard.html" : "index.html";return;}
  $("greeting").textContent="Bienvenue"+(profile.full_name ? ", "+profile.full_name : "")+" ! Retrouvez ici vos achats et vos garanties.";
+ await loadClientQr();
  await loadPendingWarranties();
  await loadSavHistory();
  const {data,error}=await supabase.from("warranties").select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,products(name,brand,model),invoices(id,file_path,file_name,created_at)").eq("customer_user_id",user.id).order("created_at",{ascending:false});
@@ -66,6 +69,17 @@ async function start() {
  renderWarranties();
  renderInvoices();
  $("sav-warranty").innerHTML='<option value="">Choisir une garantie</option>'+warranties.map(w=>'<option value="'+esc(w.id)+'">'+esc(w.products?.name || "Produit")+' — '+esc(w.warranty_number)+'</option>').join("");
+}
+async function loadClientQr(){
+ const box=$("client-qr");
+ try{
+  const {data:token,error}=await supabase.rpc("get_my_client_qr_token");
+  if(error)throw error;
+  const url=new URL("enregistrer-achat.html",window.location.href);
+  url.searchParams.set("token",token);
+  box.innerHTML="";
+  new QRCode(box,{text:url.toString(),width:220,height:220,colorDark:"#183b52",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
+ }catch(e){box.innerHTML='<div class="empty">Impossible de générer le QR code : '+esc(e.message)+'</div>';}
 }
 async function loadPendingWarranties(){
  const email = currentUser?.email?.trim().toLowerCase();
