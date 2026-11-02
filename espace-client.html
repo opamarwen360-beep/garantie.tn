@@ -25,7 +25,7 @@ form{display:grid;gap:10px}select,input,textarea{width:100%;padding:12px;border:
 <main>
 <section class="welcome"><div><h1>Mon espace client</h1><p class="muted" id="greeting">Bienvenue sur votre espace personnel.</p></div><a class="btn" href="index.html">Accueil</a></section>
 <section class="panel"><h2>Mon QR Code client</h2><p class="muted">Présentez ce QR code au magasin pour enregistrer vos achats et activer vos garanties automatiquement.</p><div id="client-qr" style="display:grid;place-items:center;min-height:180px;padding:12px"><div class="empty">Génération de votre QR code...</div></div><p class="muted" style="text-align:center">Ce QR code est personnel. Présentez-le uniquement à un magasin de confiance.</p></section>
-<section class="stats">
+<section class="panel"><h2>Mon profil</h2><form id="client-profile-form"><label for="national-id">Numéro de carte d’identité</label><input id="national-id" inputmode="numeric" maxlength="20" placeholder="Votre numéro de carte d’identité"><label for="client-photo">Photo personnelle (JPG, PNG ou WebP — 5 Mo max.)</label><input id="client-photo" type="file" accept="image/jpeg,image/png,image/webp"><img id="client-photo-preview" alt="Ma photo" style="display:none;width:110px;height:110px;object-fit:cover;border-radius:50%"><button type="submit">Enregistrer mon profil</button></form><p id="profile-message" role="status"></p></section><section class="stats">
  <div class="stat"><span class="muted">Mes garanties</span><strong id="total">—</strong></div>
  <div class="stat"><span class="muted">Garanties actives</span><strong id="active">—</strong></div>
  <div class="stat"><span class="muted">Garanties expirées</span><strong id="expired">—</strong></div>
@@ -51,10 +51,13 @@ async function start() {
  const {data:{user},error:userError}=await supabase.auth.getUser();
  if(userError || !user){location.href="index.html";return;}
  currentUser = user;
- const {data:profile,error:profileError}=await supabase.from("profiles").select("full_name,role").eq("id",user.id).single();
+ const profileData = profile;
+ const {data:profile,error:profileError}=await supabase.from("profiles").select("full_name,role,national_id_number,photo_path").eq("id",user.id).single();
  if(profileError) throw profileError;
  if(profile.role !== "client"){location.href=profile.role === "magasin" ? "dashboard.html" : "index.html";return;}
  $("greeting").textContent="Bienvenue"+(profile.full_name ? ", "+profile.full_name : "")+" ! Retrouvez ici vos achats et vos garanties.";
+ $("national-id").value=profileData.national_id_number||"";
+ if(profileData.photo_path){const {data:photo}=await supabase.storage.from("profile-photos").createSignedUrl(profileData.photo_path,3600);if(photo?.signedUrl){$("client-photo-preview").src=photo.signedUrl;$("client-photo-preview").style.display="block";}}
  await loadClientQr();
  await loadPendingWarranties();
  await loadSavHistory();
@@ -106,6 +109,28 @@ function renderPendingWarranties(){
   '<article class="warranty"><div><h3>'+esc(w.products?.name||"Produit")+'</h3><p class="muted">'+esc([w.products?.brand,w.products?.model].filter(Boolean).join(" · "))+'</p><p class="muted">N° garantie : '+esc(w.warranty_number)+'<br>Date d’achat : '+date(w.purchase_date)+'</p></div><div><button type="button" data-claim="'+esc(w.id)+'">Associer à mon compte</button></div></article>'
  ).join("");
 }
+
+$("client-profile-form").addEventListener("submit",async e=>{
+ e.preventDefault();const msg=$("profile-message"),btn=e.currentTarget.querySelector("button");btn.disabled=true;
+ let photoPath=null;
+ try{
+  const idNumber=$("national-id").value.trim();
+  if(idNumber && !/^[0-9]{6,20}$/.test(idNumber))throw new Error("Le numéro de carte d’identité doit contenir entre 6 et 20 chiffres.");
+  const {data:oldProfile,error:readError}=await supabase.from("profiles").select("photo_path").eq("id",currentUser.id).single();if(readError)throw readError;
+  const file=$("client-photo").files[0];
+  if(file){
+   if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>5*1024*1024)throw new Error("Image invalide ou supérieure à 5 Mo.");
+   photoPath=currentUser.id+"/"+crypto.randomUUID()+"-"+file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+   const {error:up}=await supabase.storage.from("profile-photos").upload(photoPath,file,{upsert:false,contentType:file.type});if(up)throw up;
+  }
+  const update={national_id_number:idNumber||null};if(photoPath)update.photo_path=photoPath;
+  const {error}=await supabase.from("profiles").update(update).eq("id",currentUser.id);if(error){if(photoPath)await supabase.storage.from("profile-photos").remove([photoPath]);throw error;}
+  if(photoPath&&oldProfile.photo_path)await supabase.storage.from("profile-photos").remove([oldProfile.photo_path]);
+  if(photoPath){const {data}=await supabase.storage.from("profile-photos").createSignedUrl(photoPath,3600);$("client-photo-preview").src=data.signedUrl;$("client-photo-preview").style.display="block";}
+  msg.textContent="Profil mis à jour. Votre numéro sera associé aux prochaines garanties.";
+ }catch(err){msg.textContent="Erreur : "+err.message;}finally{btn.disabled=false;}
+});
+
 $("pending-warranties").addEventListener("click",async event=>{
  const button=event.target.closest("[data-claim]");
  if(!button || !currentUser) return;
