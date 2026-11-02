@@ -51,6 +51,10 @@
         <input id="business-phone" type="tel" minlength="6" maxlength="30" required>
         <label for="business-address">Adresse du magasin</label>
         <input id="business-address" type="text" minlength="3" maxlength="250" required>
+        <label for="national-id">Numéro de carte d’identité du propriétaire</label>
+        <input id="national-id" type="text" inputmode="numeric" maxlength="8" pattern="[0-9]{8}" required>
+        <label for="patent-photo">Photo de la patente (JPG, PNG ou WebP — 5 Mo max.)</label>
+        <input id="patent-photo" type="file" accept="image/jpeg,image/png,image/webp" required>
         <button id="submit-application" type="submit">Envoyer ma demande</button>
       </form>
       <button id="logout-btn" class="secondary" type="button">Déconnexion</button>
