@@ -1,229 +1,234 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Garantie.tn | Espace magasin</title>
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f7f9;
-      margin: 0;
-      padding: 30px 15px;
-      color: #183b52;
-    }
-
-    .container {
-      max-width: 550px;
-      margin: 40px auto;
-      background: white;
-      padding: 30px;
-      border-radius: 14px;
-      box-shadow: 0 5px 25px #00000010;
-    }
-
-    h1 { margin-top: 0; }
-
-    input, button {
-      box-sizing: border-box;
-      width: 100%;
-      padding: 13px;
-      margin-top: 12px;
-      border-radius: 7px;
-      font-size: 15px;
-    }
-
-    input { border: 1px solid #ddd; }
-
-    button {
-      border: 0;
-      background: #183b52;
-      color: white;
-      cursor: pointer;
-    }
-
-    #message { margin-top: 15px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Gestion des produits et garanties de votre magasin sur Garantie.tn.">
+<title>Espace magasin | Garantie.tn</title>
+<style>
+:root{--green:#14765c;--navy:#183b52;--muted:#718092;--line:#e8edf0}
+*{box-sizing:border-box}body{margin:0;background:#f4f7f9;color:var(--navy);font-family:Arial,sans-serif}
+header{background:white;padding:17px 6%;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 12px #00000008}
+.logo{font-size:24px;font-weight:800;color:var(--green);text-decoration:none}.logo span{color:var(--navy)}
+button{border:0;border-radius:8px;padding:11px 16px;background:var(--green);color:white;font-weight:700;cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}
+main{max-width:1050px;margin:32px auto;padding:0 18px}.intro{margin-bottom:22px}.intro h1{margin:0 0 8px}.muted{color:var(--muted)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.panel{background:white;border:1px solid var(--line);border-radius:13px;padding:22px;margin-bottom:20px}
+.panel h2{margin:0 0 17px;font-size:20px}form{display:grid;gap:9px}label{font-size:14px;font-weight:700;margin-top:4px}
+input{width:100%;padding:12px;border:1px solid #dce3e8;border-radius:8px;font:inherit}input[type=file]{padding:9px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.message{margin-top:12px;font-size:14px;line-height:1.5}.error{color:#b43c32}.success{color:var(--green)}
+.warranty{border:1px solid var(--line);border-radius:10px;padding:16px;margin:12px 0;background:#fff}
+.warranty h3{margin:0 0 7px}.warranty p{margin:5px 0;line-height:1.45}.warranty small{color:var(--muted)}
+.invoice-form{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:end;margin-top:12px}.empty{padding:22px;text-align:center;background:#f8fafb;border-radius:9px;color:var(--muted)}
+@media(max-width:720px){.grid{grid-template-columns:1fr}.fields{grid-template-columns:1fr}.invoice-form{grid-template-columns:1fr}}
+</style>
 </head>
-
 <body>
-  <div class="container">
-    <h1>Espace magasin</h1>
-    <p>Ajouter une facture PDF à un dossier de garantie.</p>
+<header><a class="logo" href="./index.html">Garantie<span>.tn</span></a><button id="logout" type="button">Déconnexion</button></header>
+<main id="app" style="display:none">
+<section class="intro"><h1>Espace magasin</h1><p class="muted" id="store-label">Gérez vos produits et les garanties de vos clients.</p></section>
+<div class="grid">
+<section class="panel">
+<h2>Ajouter un produit et sa garantie</h2>
+<form id="warranty-form">
+<label for="product-name">Nom du produit *</label><input id="product-name" maxlength="150" required placeholder="Ex. : Téléviseur 55 pouces">
+<div class="fields">
+<div><label for="brand">Marque</label><input id="brand" maxlength="100" placeholder="Marque"></div>
+<div><label for="model">Modèle</label><input id="model" maxlength="100" placeholder="Modèle"></div>
+</div>
+<label for="serial">Numéro de série (facultatif)</label><input id="serial" maxlength="120" placeholder="N° de série">
+<hr style="border:0;border-top:1px solid var(--line);width:100%;margin:8px 0">
+<label for="customer-name">Nom du client</label><input id="customer-name" maxlength="150" placeholder="Nom et prénom">
+<label for="customer-email">E-mail du client *</label><input id="customer-email" type="email" maxlength="254" required placeholder="client@email.com">
+<div class="fields">
+<div><label for="purchase-date">Date d'achat *</label><input id="purchase-date" type="date" required></div>
+<div><label for="duration">Durée (mois) *</label><input id="duration" type="number" min="1" max="120" value="12" required></div>
+</div>
+<button id="create-btn" type="submit">Enregistrer le produit et la garantie</button>
+</form>
+<p id="create-message" class="message" role="status"></p>
+</section>
+<section class="panel">
+<h2>Mes garanties enregistrées</h2>
+<p class="muted">Retrouvez ici les dossiers créés par votre magasin et ajoutez la facture PDF à chaque dossier.</p>
+<div id="warranty-list"><div class="empty">Chargement...</div></div>
+<p id="list-message" class="message" role="status"></p>
+</section>
+</div>
+</main>
+<script type="module">
+import { supabase } from "./supabase.js";
+const $ = id => document.getElementById(id);
+let currentUser = null;
+let currentStore = null;
+const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const dateLabel = value => value ? new Date(value + "T00:00:00").toLocaleDateString("fr-FR") : "—";
 
-    <form id="invoice-form">
-      <label for="warranty-id">ID du dossier de garantie</label>
-      <input id="warranty-id" type="text"
-        placeholder="ID de la garantie" required>
+function addMonths(dateValue, months) {
+  const [year, month, day] = dateValue.split("-").map(Number);
+  const first = new Date(Date.UTC(year, month - 1 + months, 1));
+  const lastDay = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 0)).getUTCDate();
+  const result = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth(), Math.min(day, lastDay)));
+  return result.toISOString().slice(0, 10);
+}
 
-      <label for="invoice-file">Facture PDF</label>
-      <input id="invoice-file" type="file"
-        accept="application/pdf,.pdf" required>
+async function init() {
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) { location.href = "./index.html"; return; }
+  currentUser = user;
 
-      <button type="submit">Envoyer la facture</button>
-    </form>
+  const { data: profile, error: profileError } = await supabase.from("profiles")
+    .select("role").eq("id", user.id).single();
+  if (profileError || profile?.role !== "magasin") { location.href = "./index.html"; return; }
 
-    <p id="message"></p>
-  </div>
+  const { data: store, error: storeError } = await supabase.from("stores")
+    .select("id,name").eq("owner_id", user.id).order("created_at", {ascending:true}).limit(1).maybeSingle();
+  if (storeError) throw storeError;
+  if (!store) {
+    $("app").style.display = "block";
+    $("store-label").textContent = "Votre compte magasin est activé, mais aucun magasin n'est encore associé. Contactez l'administration.";
+    $("warranty-form").classList.add("hidden");
+    $("warranty-list").innerHTML = '<div class="empty">Aucun magasin associé à ce compte.</div>';
+    return;
+  }
+  currentStore = store;
+  $("store-label").textContent = "Magasin : " + store.name + " — Gérez vos produits et garanties.";
+  $("purchase-date").value = new Date().toISOString().slice(0,10);
+  $("app").style.display = "block";
+  await loadWarranties();
+}
 
-  <script type="module">
-    import { supabase } from "./supabase.js";
+async function loadWarranties() {
+  $("warranty-list").innerHTML = '<div class="empty">Chargement des garanties...</div>';
+  const { data, error } = await supabase.from("warranties")
+    .select("id,warranty_number,purchase_date,start_date,end_date,duration_months,customer_name,customer_email,products(name,brand,model),invoices(id,file_name)")
+    .eq("store_id", currentStore.id).order("created_at", {ascending:false});
+  if (error) throw error;
+  if (!data?.length) {
+    $("warranty-list").innerHTML = '<div class="empty">Aucune garantie enregistrée pour le moment.</div>';
+    return;
+  }
+  $("warranty-list").innerHTML = data.map(w => {
+    const product = w.products || {};
+    const hasInvoice = Array.isArray(w.invoices) && w.invoices.length > 0;
+    return '<article class="warranty"><h3>'+esc(product.name || "Produit")+'</h3>'+
+      '<p>'+esc([product.brand,product.model].filter(Boolean).join(" · "))+'</p>'+
+      '<p><strong>N° garantie :</strong> '+esc(w.warranty_number)+'</p>'+
+      '<p><strong>Client :</strong> '+esc(w.customer_name || "—")+' · '+esc(w.customer_email || "—")+'</p>'+
+      '<p><strong>Achat :</strong> '+dateLabel(w.purchase_date)+' · <strong>Fin :</strong> '+dateLabel(w.end_date)+'</p>'+
+      (hasInvoice ? '<p class="success">Facture ajoutée : '+esc(w.invoices.map(i=>i.file_name).join(", "))+'</p>' :
+      '<form class="invoice-form" data-warranty="'+esc(w.id)+'"><div><label>Facture PDF</label><input type="file" accept="application/pdf,.pdf" required></div><button type="submit">Ajouter facture</button></form>')+
+      '</article>';
+  }).join("");
+}
 
-    const form = document.getElementById("invoice-form");
-    const message = document.getElementById("message");
-
-    const container = document.querySelector(".container");
-    container.style.display = "none";
-
-    async function checkDashboardAccess() {
-      try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
-          window.location.href = "./index.html";
-          return;
-        }
-
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", user.id)
-          .single();
-
-        if (profileError || profile?.role !== "magasin") {
-          window.location.href = "./index.html";
-          return;
-        }
-
-        container.style.display = "block";
-      } catch (error) {
-        message.textContent = "Impossible de vérifier votre accès : " + error.message;
-      }
+$("warranty-form").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!currentStore || !currentUser) return;
+  const button = $("create-btn");
+  button.disabled = true;
+  $("create-message").className = "message";
+  $("create-message").textContent = "Enregistrement en cours...";
+  let productId = null;
+  try {
+    const purchaseDate = $("purchase-date").value;
+    const duration = Number($("duration").value);
+    if (!purchaseDate || !Number.isInteger(duration) || duration < 1 || duration > 120) {
+      throw new Error("Vérifiez la date d'achat et la durée du garantie.");
     }
 
-    checkDashboardAccess();
+    const { data: product, error: productError } = await supabase.from("products").insert({
+      store_id: currentStore.id,
+      name: $("product-name").value.trim(),
+      brand: $("brand").value.trim() || null,
+      model: $("model").value.trim() || null,
+      serial_number: $("serial").value.trim() || null
+    }).select("id").single();
+    if (productError) throw productError;
+    productId = product.id;
 
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      message.textContent = "Vérification du compte...";
-
-      try {
-        // Vérifier la connexion
-        const { data: { user }, error: userError } =
-          await supabase.auth.getUser();
-
-        if (userError || !user) {
-          throw new Error("Veuillez vous connecter.");
-        }
-
-        // Vérifier le rôle du compte
-        const { data: profile, error: profileError } =
-          await supabase
-            .from("profiles")
-            .select("role")
-            .eq("id", user.id)
-            .single();
-
-        if (profileError) throw profileError;
-
-        if (profile.role !== "magasin") {
-          throw new Error(
-            "Accès réservé aux magasins autorisés."
-          );
-        }
-
-        // Récupérer les informations
-        const warrantyId =
-          document.getElementById("warranty-id").value.trim();
-
-        const file =
-          document.getElementById("invoice-file").files[0];
-
-        if (!file || file.type !== "application/pdf") {
-          throw new Error("Veuillez choisir un fichier PDF.");
-        }
-
-        if (file.size > 50 * 1024 * 1024) {
-          throw new Error("Le fichier dépasse 50 MB.");
-        }
-
-        // Vérifier que le magasin possède ce dossier
-        const { data: warranty, error: warrantyError } =
-          await supabase
-            .from("warranties")
-            .select("id")
-            .eq("id", warrantyId)
-            .single();
-
-        if (warrantyError || !warranty) {
-          throw new Error(
-            "Dossier introuvable ou accès non autorisé."
-          );
-        }
-
-        // Vérifier la propriété du dossier
-        const { data: store, error: storeError } =
-          await supabase
-            .from("warranties")
-            .select("store_id, stores!inner(owner_id)")
-            .eq("id", warrantyId)
-            .eq("stores.owner_id", user.id)
-            .single();
-
-        if (storeError || !store) {
-          throw new Error(
-            "Ce dossier ne vous appartient pas."
-          );
-        }
-
-        message.textContent = "Envoi en cours...";
-
-        // Chemin du fichier
-        const safeName = file.name.replace(
-          /[^a-zA-Z0-9._-]/g, "_"
-        );
-
-        const filePath =
-          `${warrantyId}/${crypto.randomUUID()}-${safeName}`;
-
-        // Upload PDF
-        const { error: uploadError } = await supabase.storage
-          .from("invoices")
-          .upload(filePath, file, {
-            contentType: "application/pdf",
-            upsert: false
-          });
-
-        if (uploadError) throw uploadError;
-
-        // Enregistrer les informations dans la table
-        const { error: insertError } = await supabase
-          .from("invoices")
-          .insert({
-            warranty_id: warrantyId,
-            file_path: filePath,
-            file_name: file.name
-          });
-
-        if (insertError) {
-          await supabase.storage
-            .from("invoices")
-            .remove([filePath]);
-
-          throw insertError;
-        }
-
-        message.textContent =
-          "Facture ajoutée avec succès !";
-
-        form.reset();
-
-      } catch (error) {
-        message.textContent = "Erreur : " + error.message;
-      }
+    const warrantyNumber = "GTN-" + purchaseDate.replaceAll("-","") + "-" + crypto.randomUUID().slice(0,8).toUpperCase();
+    const { error: warrantyError } = await supabase.from("warranties").insert({
+      store_id: currentStore.id,
+      product_id: productId,
+      customer_user_id: null,
+      customer_name: $("customer-name").value.trim() || null,
+      customer_email: $("customer-email").value.trim().toLowerCase(),
+      purchase_date: purchaseDate,
+      start_date: purchaseDate,
+      end_date: addMonths(purchaseDate, duration),
+      duration_months: duration,
+      warranty_number: warrantyNumber,
+      status: "active"
     });
-  </script>
+    if (warrantyError) {
+      await supabase.from("products").delete().eq("id", productId);
+      productId = null;
+      throw warrantyError;
+    }
+
+    $("create-message").className = "message success";
+    $("create-message").textContent = "Garantie enregistrée ! Numéro : " + warrantyNumber;
+    $("warranty-form").reset();
+    $("purchase-date").value = new Date().toISOString().slice(0,10);
+    $("duration").value = "12";
+    await loadWarranties();
+  } catch (error) {
+    $("create-message").className = "message error";
+    $("create-message").textContent = "Erreur : " + error.message;
+  } finally {
+    button.disabled = false;
+  }
+});
+
+$("warranty-list").addEventListener("submit", async event => {
+  const form = event.target.closest(".invoice-form");
+  if (!form) return;
+  event.preventDefault();
+  const warrantyId = form.dataset.warranty;
+  const file = form.querySelector('input[type="file"]').files[0];
+  const button = form.querySelector("button");
+  button.disabled = true;
+  $("list-message").className = "message";
+  $("list-message").textContent = "Envoi de la facture...";
+  let filePath = null;
+  try {
+    if (!file || (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf"))) {
+      throw new Error("Choisissez un fichier PDF.");
+    }
+    if (file.size > 50 * 1024 * 1024) throw new Error("Le fichier dépasse 50 MB.");
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    filePath = warrantyId + "/" + crypto.randomUUID() + "-" + safeName;
+    const { error: uploadError } = await supabase.storage.from("invoices").upload(filePath,file,{
+      contentType:"application/pdf",upsert:false
+    });
+    if (uploadError) throw uploadError;
+    const { error: insertError } = await supabase.from("invoices").insert({
+      warranty_id:warrantyId,file_path:filePath,file_name:file.name
+    });
+    if (insertError) {
+      await supabase.storage.from("invoices").remove([filePath]);
+      throw insertError;
+    }
+    $("list-message").className = "message success";
+    $("list-message").textContent = "Facture ajoutée avec succès.";
+    await loadWarranties();
+  } catch (error) {
+    $("list-message").className = "message error";
+    $("list-message").textContent = "Erreur : " + error.message;
+    button.disabled = false;
+  }
+});
+
+$("logout").addEventListener("click", async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) { alert(error.message); return; }
+  location.href = "./index.html";
+});
+
+init().catch(error => {
+  $("app").style.display = "block";
+  $("warranty-list").innerHTML = '<div class="empty">Erreur : '+esc(error.message)+'</div>';
+});
+</script>
 </body>
 </html>
