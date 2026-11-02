@@ -26,7 +26,7 @@ input{width:100%;padding:12px;border:1px solid #dce3e8;border-radius:8px;font:in
 <header><a class="logo" href="./index.html">Garantie<span>.tn</span></a><button id="logout" type="button">Déconnexion</button></header>
 <main id="app" style="display:none">
 <section class="intro"><h1>Espace magasin</h1><p class="muted" id="store-label">Gérez vos produits et les garanties de vos clients.</p></section>
-<section class="panel"><h2>Enregistrement par QR code</h2><p class="muted">Demandez au client d’ouvrir son QR code personnel dans son espace client, puis scannez-le avec l’appareil photo du téléphone. Le formulaire d’enregistrement des articles s’ouvrira automatiquement. Connectez-vous au compte magasin sur ce téléphone avant le scan.</p></section>
+<section class="panel"><h2>Photo de mon magasin</h2><form id="store-photo-form"><input id="store-photo" type="file" accept="image/jpeg,image/png,image/webp" required><button type="submit">Enregistrer la photo</button></form><img id="store-photo-preview" alt="Photo du magasin" style="display:none;max-width:180px;margin-top:12px"><p id="store-photo-message" class="message"></p></section><section class="panel"><h2>Enregistrement par QR code</h2><p class="muted">Demandez au client d’ouvrir son QR code personnel dans son espace client, puis scannez-le avec l’appareil photo du téléphone. Le formulaire d’enregistrement des articles s’ouvrira automatiquement. Connectez-vous au compte magasin sur ce téléphone avant le scan.</p></section>
 <div class="grid">
 <section class="panel">
 <h2>Ajouter un produit et sa garantie</h2>
@@ -83,7 +83,7 @@ async function init() {
   if (profileError || profile?.role !== "magasin") { location.href = "./index.html"; return; }
 
   const { data: store, error: storeError } = await supabase.from("stores")
-    .select("id,name").eq("owner_id", user.id).order("created_at", {ascending:true}).limit(1).maybeSingle();
+    .select("id,name,photo_path").eq("owner_id", user.id).order("created_at", {ascending:true}).limit(1).maybeSingle();
   if (storeError) throw storeError;
   if (!store) {
     $("app").style.display = "block";
@@ -93,6 +93,7 @@ async function init() {
     return;
   }
   currentStore = store;
+  if(store.photo_path){const {data:photo}=await supabase.storage.from("profile-photos").createSignedUrl(store.photo_path,3600);if(photo?.signedUrl){$("store-photo-preview").src=photo.signedUrl;$("store-photo-preview").style.display="block";}}
   $("store-label").textContent = "Magasin : " + store.name + " — Gérez vos produits et garanties.";
   $("purchase-date").value = new Date().toISOString().slice(0,10);
   $("app").style.display = "block";
@@ -112,7 +113,7 @@ $("store-sav-list").addEventListener("submit",async e=>{const form=e.target.clos
 async function loadWarranties() {
   $("warranty-list").innerHTML = '<div class="empty">Chargement des garanties...</div>';
   const { data, error } = await supabase.from("warranties")
-    .select("id,warranty_number,purchase_date,start_date,end_date,duration_months,customer_name,customer_email,products(name,brand,model),invoices(id,file_name)")
+    .select("id,warranty_number,purchase_date,start_date,end_date,duration_months,customer_name,customer_email,customer_national_id_number,products(name,brand,model),invoices(id,file_name)")
     .eq("store_id", currentStore.id).order("created_at", {ascending:false});
   if (error) throw error;
   if (!data?.length) {
@@ -125,13 +126,30 @@ async function loadWarranties() {
     return '<article class="warranty"><h3>'+esc(product.name || "Produit")+'</h3>'+
       '<p>'+esc([product.brand,product.model].filter(Boolean).join(" · "))+'</p>'+
       '<p><strong>N° garantie :</strong> '+esc(w.warranty_number)+'</p>'+
-      '<p><strong>Client :</strong> '+esc(w.customer_name || "—")+' · '+esc(w.customer_email || "—")+'</p>'+
+      '<p><strong>Client :</strong> '+esc(w.customer_name || "—")+' · '+esc(w.customer_email || "—")+'</p><p><strong>N° carte d’identité :</strong> '+esc(w.customer_national_id_number || "Non renseigné")+'</p>'+
       '<p><strong>Achat :</strong> '+dateLabel(w.purchase_date)+' · <strong>Fin :</strong> '+dateLabel(w.end_date)+'</p>'+
       (hasInvoice ? '<p class="success">Facture ajoutée : '+esc(w.invoices.map(i=>i.file_name).join(", "))+'</p>' :
       '<form class="invoice-form" data-warranty="'+esc(w.id)+'"><div><label>Facture PDF</label><input type="file" accept="application/pdf,.pdf" required></div><button type="submit">Ajouter facture</button></form>')+
       '</article>';
   }).join("");
 }
+
+
+$("store-photo-form").addEventListener("submit",async e=>{
+ e.preventDefault();const file=$("store-photo").files[0],msg=$("store-photo-message");
+ if(!file||!currentStore)return;
+ if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>5*1024*1024){msg.textContent="Image invalide ou supérieure à 5 Mo.";return;}
+ const path="stores/"+currentStore.id+"/"+crypto.randomUUID()+"-"+file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+ const btn=e.currentTarget.querySelector("button");btn.disabled=true;
+ try{
+  const {error:up}=await supabase.storage.from("profile-photos").upload(path,file,{upsert:false,contentType:file.type});if(up)throw up;
+  const {error:db}=await supabase.from("stores").update({photo_path:path}).eq("id",currentStore.id);
+  if(db){await supabase.storage.from("profile-photos").remove([path]);throw db;}
+  if(currentStore.photo_path)await supabase.storage.from("profile-photos").remove([currentStore.photo_path]);
+  currentStore.photo_path=path;const {data}=await supabase.storage.from("profile-photos").createSignedUrl(path,3600);
+  $("store-photo-preview").src=data.signedUrl;$("store-photo-preview").style.display="block";msg.textContent="Photo du magasin enregistrée.";
+ }catch(err){msg.textContent="Erreur : "+err.message;}finally{btn.disabled=false;}
+});
 
 $("warranty-form").addEventListener("submit", async event => {
   event.preventDefault();
