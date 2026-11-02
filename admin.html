@@ -159,7 +159,9 @@ async function init(){
  await loadDashboard();
 }
 document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".section").forEach(x=>x.classList.toggle("active",x.id==="section-"+b.dataset.tab));});
-$("applications-data").addEventListener("click",async e=>{\n const patentButton=e.target.closest("button[data-patent-path]");\n if(patentButton){patentButton.disabled=true;try{const {data,error}=await supabase.storage.from("store-verification").createSignedUrl(patentButton.dataset.patentPath,60);if(error)throw error;if(!data?.signedUrl)throw new Error("Lien sécurisé indisponible.");window.open(data.signedUrl,"_blank","noopener,noreferrer");}catch(err){$("message").textContent="Impossible d’ouvrir la patente : "+err.message;}finally{patentButton.disabled=false;}return;}
+$("applications-data").addEventListener("click",async e=>{
+ const patentButton=e.target.closest("button[data-patent-path]");
+ if(patentButton){patentButton.disabled=true;try{const {data,error}=await supabase.storage.from("store-verification").createSignedUrl(patentButton.dataset.patentPath,60);if(error)throw error;if(!data?.signedUrl)throw new Error("Lien sécurisé indisponible.");window.open(data.signedUrl,"_blank","noopener,noreferrer");}catch(err){$("message").textContent="Impossible d’ouvrir la patente : "+err.message;}finally{patentButton.disabled=false;}return;}
  const b=e.target.closest("button[data-status]");if(!b)return;
  const id=b.dataset.id,status=b.dataset.status;if(!applications.some(a=>a.id===id&&a.status==="pending"))return;
  if(!confirm("Confirmer "+(status==="approved"?"l'acceptation":"le refus")+" de cette demande ?"))return;
