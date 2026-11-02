@@ -48,7 +48,7 @@ const $=id=>document.getElementById(id);
 const esc=v=>String(v??"—").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=v=>v?new Date(v).toLocaleDateString("fr-FR"):"—";
 const roleLabel=v=>({client:"Client",magasin:"Magasin",admin:"Admin"}[v]||v||"—");
-const statusPill=v=>'<span class="pill '+(v==="pending"?"pending":v==="rejected"?"rejected":"")+'">'+esc(({pending:"En attente",approved:"Acceptée",rejected:"Refusée",open:"Ouverte",in_progress:"En cours",resolved:"Résolue",closed:"Fermée",active:"Active",expired:"Expirée"}[v]||v||"—"))+'</span>';
+const statusPill=v=>'<span class="pill '+(v==="pending"?"pending":v==="rejected"?"rejected":"")+'">'+esc(({pending:"En attente",approved:"Acceptée",rejected:"Refusée",processing:"En cours",completed:"Terminée",open:"Ouverte",in_progress:"En cours",resolved:"Résolue",closed:"Fermée",active:"Active",expired:"Expirée"}[v]||v||"—"))+'</span>';
 let applications=[];
 function table(headers,rows){if(!rows.length)return '<div class="empty">Aucune donnée disponible.</div>';return '<div class="table-wrap"><table><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table></div>'}
 async function fetchRows(tableName,columns,order="created_at"){const q=supabase.from(tableName).select(columns).order(order,{ascending:false}).limit(250);const {data,error}=await q;if(error)throw error;return data||[]}
