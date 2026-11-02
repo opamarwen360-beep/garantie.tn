@@ -158,7 +158,9 @@ $("sav-form").addEventListener("submit",async event=>{
  try{
  if(!warranties.some(w=>w.id===warrantyId))throw new Error("Choisissez une garantie valide.");
  const {data:{user}}=await supabase.auth.getUser();
- const {error}=await supabase.from("sav_requests").insert({warranty_id:warrantyId,customer_user_id:user.id,subject:$("sav-subject").value.trim(),description:$("sav-description").value.trim()||null});
+ const {data:profile,error:profileError}=await supabase.from("profiles").select("phone").eq("id",user.id).single();
+ if(profileError)throw profileError;
+ const {error}=await supabase.from("sav_requests").insert({warranty_id:warrantyId,customer_user_id:user.id,customer_phone:profile?.phone||null,subject:$("sav-subject").value.trim(),description:$("sav-description").value.trim()||null});
  if(error)throw error;
  $("message").textContent="Votre demande SAV a été envoyée avec succès.";
  $("sav-form").reset();
