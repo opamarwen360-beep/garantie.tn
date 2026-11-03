@@ -393,7 +393,7 @@ footer{background:#101d35!important;color:#aebbd0!important;padding:28px!importa
     // Validation explicite : évite que les navigateurs mobiles bloquent
     // l'envoi du formulaire sans afficher notre message d'erreur.
     const emailValue = email.value.trim();
-    if (!emailValue || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(emailValue)) {
+    if (!emailValue || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
       message.textContent = "Veuillez saisir une adresse e-mail valide.";
       email.focus();
       return;
