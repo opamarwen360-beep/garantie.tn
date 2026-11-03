@@ -91,7 +91,7 @@ a{color:var(--green)}
 <button class="active" data-tab="overview">Vue générale</button><button data-tab="users">Utilisateurs</button><button data-tab="stores">Magasins</button><button data-tab="products">Produits</button><button data-tab="warranties">Garanties</button><button data-tab="sav">SAV</button><button data-tab="invoices">Factures</button><button data-tab="applications">Demandes magasins</button>
 </nav>
 <section class="panel section active" id="section-overview"><h2>Bienvenue dans l'administration</h2><p class="muted">Choisissez une rubrique pour consulter les données de la plateforme.</p><div id="overview-content" class="empty">Chargement des statistiques...</div></section>
-<section class="panel section" id="section-users"><h2>Utilisateurs</h2><p class="muted">Comptes clients, magasins et administrateurs.</p><div id="users-data" class="empty">Chargement...</div></section>
+<section class="panel section" id="section-users"><h2>Utilisateurs</h2><p class="muted">Comptes clients, magasins et administrateurs.</p><div class="user-tools"><input id="user-search" type="search" placeholder="Rechercher par nom ou téléphone..." aria-label="Rechercher un utilisateur"><select id="user-role-filter" aria-label="Filtrer par rôle"><option value="">Tous les rôles</option><option value="client">Clients</option><option value="magasin">Magasins</option><option value="admin">Administrateurs</option></select><span id="user-count" class="small" aria-live="polite"></span></div><div id="users-data" class="empty">Chargement...</div></section>
 <section class="panel section" id="section-stores"><h2>Magasins</h2><p class="muted">Liste des magasins enregistrés.</p><div id="stores-data" class="empty">Chargement...</div></section>
 <section class="panel section" id="section-products"><h2>Produits</h2><p class="muted">Produits enregistrés sur la plateforme.</p><div id="products-data" class="empty">Chargement...</div></section>
 <section class="panel section" id="section-warranties"><h2>Garanties</h2><p class="muted">Suivi des garanties enregistrées.</p><div id="warranties-data" class="empty">Chargement...</div></section>
@@ -108,7 +108,7 @@ const esc=v=>String(v??"—").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">"
 const fmt=v=>v?new Date(v).toLocaleDateString("fr-FR"):"—";
 const roleLabel=v=>({client:"Client",magasin:"Magasin",admin:"Admin"}[v]||v||"—");
 const statusPill=v=>'<span class="pill '+(v==="pending"?"pending":v==="rejected"?"rejected":"")+'">'+esc(({pending:"En attente",approved:"Acceptée",rejected:"Refusée",processing:"En cours",completed:"Terminée",open:"Ouverte",in_progress:"En cours",resolved:"Résolue",closed:"Fermée",active:"Active",expired:"Expirée"}[v]||v||"—"))+'</span>';
-let applications=[];let savRows=[],savWarranties=[],savStores=[],savUsers=[];
+let applications=[];let adminUsers=[];let savRows=[],savWarranties=[],savStores=[],savUsers=[];
 function table(headers,rows){if(!rows.length)return '<div class="empty">Aucune donnée disponible.</div>';return '<div class="table-wrap"><table><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table></div>'}
 async function fetchRows(tableName,columns,order="created_at"){const q=supabase.from(tableName).select(columns).order(order,{ascending:false}).limit(250);const {data,error}=await q;if(error)throw error;return data||[]}
 async function loadDashboard(){
@@ -121,16 +121,24 @@ async function loadDashboard(){
   ["invoices","id,warranty_id,file_name,file_path,created_at","created_at",null]
  ];
  const results=await Promise.all(specs.map(s=>fetchRows(s[0],s[1],s[2])));
- const [users,stores,products,warranties,sav,invoices]=results;savRows=sav;savWarranties=warranties;savStores=stores;savUsers=users;
+ const [users,stores,products,warranties,sav,invoices]=results;adminUsers=users;savRows=sav;savWarranties=warranties;savStores=stores;savUsers=users;
  specs.forEach((s,i)=>{if(s[3])$(s[3]).textContent=results[i].length});
  $("overview-content").innerHTML='<div class="stats"><div class="stat"><span>Produits</span><strong>'+products.length+'</strong></div><div class="stat"><span>Factures</span><strong>'+invoices.length+'</strong></div><div class="stat"><span>Clients</span><strong>'+users.filter(u=>u.role==="client").length+'</strong></div><div class="stat"><span>Comptes magasins</span><strong>'+users.filter(u=>u.role==="magasin").length+'</strong></div></div>';
- $("users-data").innerHTML=table(["Nom","Téléphone","Rôle","Inscription"],users.map(u=>'<tr><td>'+esc(u.full_name)+'</td><td>'+esc(u.phone)+'</td><td>'+statusPill(roleLabel(u.role))+'</td><td>'+fmt(u.created_at)+'</td></tr>'));
+ renderUsers();
  $("stores-data").innerHTML=table(["Magasin","Téléphone","Adresse","Création"],stores.map(s=>'<tr><td>'+esc(s.name)+'</td><td>'+esc(s.phone)+'</td><td>'+esc(s.address)+'</td><td>'+fmt(s.created_at)+'</td></tr>'));
  $("products-data").innerHTML=table(["Produit","Marque","Modèle","N° série","Ajouté le"],products.map(p=>'<tr><td>'+esc(p.name)+'</td><td>'+esc(p.brand)+'</td><td>'+esc(p.model)+'</td><td>'+esc(p.serial_number)+'</td><td>'+fmt(p.created_at)+'</td></tr>'));
  $("warranties-data").innerHTML=table(["N° garantie","Client","E-mail","Début","Fin","Statut"],warranties.map(w=>'<tr><td>'+esc(w.warranty_number)+'</td><td>'+esc(w.customer_name)+'</td><td>'+esc(w.customer_email)+'</td><td>'+fmt(w.start_date)+'</td><td>'+fmt(w.end_date)+'</td><td>'+statusPill(w.status)+'</td></tr>'));
  renderSavTable();
  $("invoices-data").innerHTML=table(["Nom du fichier","Garantie ID","Date","Fichier"],invoices.map(i=>'<tr><td>'+esc(i.file_name)+'</td><td>'+esc(i.warranty_id)+'</td><td>'+fmt(i.created_at)+'</td><td>'+(i.file_path?'<button class="refresh" data-invoice-path="'+esc(i.file_path)+'">Ouvrir</button>':'—')+'</td></tr>'));
  await loadApplications();
+}
+
+
+function renderUsers(){
+ const query=$("user-search").value.trim().toLocaleLowerCase("fr"),role=$("user-role-filter").value;
+ const rows=adminUsers.filter(u=>(!role||u.role===role)&&(!query||[u.full_name,u.phone].some(v=>String(v||"").toLocaleLowerCase("fr").includes(query))));
+ $("user-count").textContent=rows.length+" / "+adminUsers.length+" compte(s)";
+ $("users-data").innerHTML=table(["Nom","Téléphone","Rôle","Inscription"],rows.map(u=>'<tr><td>'+esc(u.full_name)+'</td><td>'+esc(u.phone)+'</td><td>'+statusPill(roleLabel(u.role))+'</td><td>'+fmt(u.created_at)+'</td></tr>'));
 }
 
 function renderSavTable(){
@@ -175,7 +183,7 @@ async function init(){
  await loadDashboard();
 }
 document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".section").forEach(x=>x.classList.toggle("active",x.id==="section-"+b.dataset.tab));});
-$("application-search").addEventListener("input",renderApplications);$("application-filter").addEventListener("change",renderApplications);
+$("application-search").addEventListener("input",renderApplications);$("application-filter").addEventListener("change",renderApplications);$("user-search").addEventListener("input",renderUsers);$("user-role-filter").addEventListener("change",renderUsers);
 $("close-application-modal").addEventListener("click",()=>$("application-modal").hidden=true);
 $("application-modal").addEventListener("click",e=>{if(e.target.id==="application-modal")e.currentTarget.hidden=true;});
 $("application-detail-content").addEventListener("click",e=>{const action=e.target.closest("button[data-status]");if(!action)return;const rowAction=$("applications-data").querySelector('button[data-id="'+CSS.escape(action.dataset.id)+'"][data-status="'+action.dataset.status+'"]');if(rowAction)rowAction.click();});
