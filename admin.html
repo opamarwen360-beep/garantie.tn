@@ -109,7 +109,7 @@ a{color:var(--green)}
 <section class="panel section" id="section-users"><h2>Utilisateurs</h2><p class="muted">Comptes clients, magasins et administrateurs.</p><div class="user-tools"><input id="user-search" type="search" placeholder="Rechercher par nom ou téléphone..." aria-label="Rechercher un utilisateur"><select id="user-role-filter" aria-label="Filtrer par rôle"><option value="">Tous les rôles</option><option value="client">Clients</option><option value="magasin">Magasins</option><option value="admin">Administrateurs</option></select><span id="user-count" class="small" aria-live="polite"></span></div><div id="users-data" class="empty">Chargement...</div></section>
 <section class="panel section" id="section-stores"><h2>Magasins</h2><p class="muted">Liste des magasins enregistrés.</p><div id="stores-data" class="empty">Chargement...</div></section>
 <section class="panel section" id="section-products"><h2>Produits</h2><p class="muted">Produits enregistrés sur la plateforme.</p><div class="product-tools"><input id="product-search" type="search" placeholder="Rechercher par produit, marque, modèle ou numéro de série..." aria-label="Rechercher un produit"><select id="product-store-filter" aria-label="Filtrer par magasin"><option value="">Tous les magasins</option></select><span id="product-count" class="small" aria-live="polite"></span></div><div id="products-data" class="empty">Chargement...</div></section>
-<section class="panel section" id="section-warranties"><h2>Garanties</h2><p class="muted">Suivi des garanties enregistrées.</p><div id="warranties-data" class="empty">Chargement...</div></section>
+<section class="panel section" id="section-warranties"><h2>Garanties</h2><p class="muted">Suivi des garanties enregistrées.</p><div class="product-tools"><input id="warranty-search" type="search" placeholder="Rechercher par N° garantie, client ou e-mail..." aria-label="Rechercher une garantie"><select id="warranty-status-filter" aria-label="Filtrer par statut"><option value="">Tous les statuts</option><option value="active">Active</option><option value="expired">Expirée</option><option value="pending">En attente</option></select><span id="warranty-count" class="small" aria-live="polite"></span></div><div id="warranties-data" class="empty">Chargement...</div></section>
 <section class="panel section" id="section-sav"><h2>Demandes SAV</h2><p class="muted">Demandes envoyées par les clients et attribuées au magasin concerné.</p><div class="actions" style="margin:12px 0;flex-wrap:wrap"><select id="sav-filter-client"><option value="">Tous les clients</option></select><select id="sav-filter-store"><option value="">Tous les magasins</option></select></div><div id="sav-data" class="empty">Chargement...</div></section>
 <section class="panel section" id="section-invoices"><h2>Factures</h2><p class="muted">Historique des factures téléversées.</p><div id="invoices-data" class="empty">Chargement...</div></section>
 <section class="panel section" id="section-applications"><h2>Demandes d'accès magasin</h2><p class="muted">Consultez les informations et documents, puis acceptez ou refusez chaque demande.</p><p id="message" role="status"></p><div class="application-tools"><input id="application-search" type="search" placeholder="Rechercher un commerce, téléphone ou adresse..." aria-label="Rechercher une demande magasin"><select id="application-filter" aria-label="Filtrer les demandes"><option value="">Tous les statuts</option><option value="pending">En attente</option><option value="approved">Acceptées</option><option value="rejected">Refusées</option></select></div><div id="applications-data" class="empty">Chargement...</div></section>
@@ -124,7 +124,7 @@ const esc=v=>String(v??"—").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">"
 const fmt=v=>v?new Date(v).toLocaleDateString("fr-FR"):"—";
 const roleLabel=v=>({client:"Client",magasin:"Magasin",admin:"Admin"}[v]||v||"—");
 const statusPill=v=>'<span class="pill '+(v==="pending"?"pending":v==="rejected"?"rejected":"")+'">'+esc(({pending:"En attente",approved:"Acceptée",rejected:"Refusée",processing:"En cours",completed:"Terminée",open:"Ouverte",in_progress:"En cours",resolved:"Résolue",closed:"Fermée",active:"Active",expired:"Expirée"}[v]||v||"—"))+'</span>';
-let applications=[];let adminUsers=[];let adminStores=[];let adminProducts=[];let savRows=[],savWarranties=[],savStores=[],savUsers=[];
+let applications=[];let adminUsers=[];let adminStores=[];let adminProducts=[];let adminWarranties=[];let savRows=[],savWarranties=[],savStores=[],savUsers=[];
 function table(headers,rows){if(!rows.length)return '<div class="empty">Aucune donnée disponible.</div>';return '<div class="table-wrap"><table><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table></div>'}
 async function fetchRows(tableName,columns,order="created_at"){const q=supabase.from(tableName).select(columns).order(order,{ascending:false}).limit(250);const {data,error}=await q;if(error)throw error;return data||[]}
 async function loadDashboard(){
@@ -137,13 +137,13 @@ async function loadDashboard(){
   ["invoices","id,warranty_id,file_name,file_path,created_at","created_at",null]
  ];
  const results=await Promise.all(specs.map(s=>fetchRows(s[0],s[1],s[2])));
- const [users,stores,products,warranties,sav,invoices]=results;adminUsers=users;adminStores=stores;adminProducts=products;refreshProductStoreFilter();savRows=sav;savWarranties=warranties;savStores=stores;savUsers=users;
+ const [users,stores,products,warranties,sav,invoices]=results;adminUsers=users;adminStores=stores;adminProducts=products;adminWarranties=warranties;refreshProductStoreFilter();savRows=sav;savWarranties=warranties;savStores=stores;savUsers=users;
  specs.forEach((s,i)=>{if(s[3])$(s[3]).textContent=results[i].length});
  $("overview-content").innerHTML='<div class="stats"><div class="stat"><span>Produits</span><strong>'+products.length+'</strong></div><div class="stat"><span>Factures</span><strong>'+invoices.length+'</strong></div><div class="stat"><span>Clients</span><strong>'+users.filter(u=>u.role==="client").length+'</strong></div><div class="stat"><span>Comptes magasins</span><strong>'+users.filter(u=>u.role==="magasin").length+'</strong></div></div>';
  renderUsers();
  $("stores-data").innerHTML=table(["Magasin","Téléphone","Adresse","Création"],stores.map(s=>'<tr><td>'+esc(s.name)+'</td><td>'+esc(s.phone)+'</td><td>'+esc(s.address)+'</td><td>'+fmt(s.created_at)+'</td></tr>'));
  renderProducts();
- $("warranties-data").innerHTML=table(["N° garantie","Client","E-mail","Début","Fin","Statut"],warranties.map(w=>'<tr><td>'+esc(w.warranty_number)+'</td><td>'+esc(w.customer_name)+'</td><td>'+esc(w.customer_email)+'</td><td>'+fmt(w.start_date)+'</td><td>'+fmt(w.end_date)+'</td><td>'+statusPill(w.status)+'</td></tr>'));
+ renderWarranties();
  renderSavTable();
  $("invoices-data").innerHTML=table(["Nom du fichier","Garantie ID","Date","Fichier"],invoices.map(i=>'<tr><td>'+esc(i.file_name)+'</td><td>'+esc(i.warranty_id)+'</td><td>'+fmt(i.created_at)+'</td><td>'+(i.file_path?'<button class="refresh" data-invoice-path="'+esc(i.file_path)+'">Ouvrir</button>':'—')+'</td></tr>'));
  await loadApplications();
@@ -184,6 +184,15 @@ function refreshProductStoreFilter(){
  const unique=[...new Map(adminProducts.map(p=>{const store=adminStores.find(s=>s.id===p.store_id);return store?[store.id,store]:null}).filter(Boolean)).values()];
  select.innerHTML='<option value="">Tous les magasins</option>'+unique.map(s=>'<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>').join("");
  if(unique.some(s=>s.id===selected))select.value=selected;
+}
+
+
+function renderWarranties(){
+ const query=$("warranty-search").value.trim().toLocaleLowerCase("fr"),status=$("warranty-status-filter").value;
+ const rows=adminWarranties.filter(w=>(!status||String(w.status||"").toLowerCase()===status)&&(!query||[w.warranty_number,w.customer_name,w.customer_email].some(v=>String(v||"").toLocaleLowerCase("fr").includes(query))));
+ $("warranty-count").textContent=rows.length+" / "+adminWarranties.length+" garantie(s)";
+ $("warranties-data").innerHTML=table(["N° garantie","Client","E-mail","Magasin","Début","Fin","Statut"],rows.map(w=>{const store=adminStores.find(s=>s.id===w.store_id);return '<tr><td>'+esc(w.warranty_number)+'</td><td>'+esc(w.customer_name)+'</td><td>'+esc(w.customer_email)+'</td><td>'+esc(store?.name||"—")+'</td><td>'+fmt(w.start_date)+'</td><td>'+fmt(w.end_date)+'</td><td>'+statusPill(w.status)+'</td></tr>'}));
+ if(!rows.length)$("warranties-data").innerHTML='<div class="empty">Aucune garantie ne correspond à votre recherche.</div>';
 }
 
 function renderSavTable(){
@@ -228,7 +237,7 @@ async function init(){
  await loadDashboard();
 }
 document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".section").forEach(x=>x.classList.toggle("active",x.id==="section-"+b.dataset.tab));});
-$("product-search").addEventListener("input",renderProducts);$("product-store-filter").addEventListener("change",renderProducts);
+$("product-search").addEventListener("input",renderProducts);$("product-store-filter").addEventListener("change",renderProducts);$("warranty-search").addEventListener("input",renderWarranties);$("warranty-status-filter").addEventListener("change",renderWarranties);
 $("application-search").addEventListener("input",renderApplications);$("application-filter").addEventListener("change",renderApplications);$("user-search").addEventListener("input",renderUsers);$("user-role-filter").addEventListener("change",renderUsers);
 
 $("users-data").addEventListener("click",e=>{const b=e.target.closest("button[data-user-detail]");if(b)showUserDetails(b.dataset.userDetail);});
