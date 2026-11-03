@@ -80,6 +80,32 @@ a{color:var(--green)}
 @media(max-width:760px){main{width:calc(100% - 24px)!important;margin:20px auto 45px!important}.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.welcome,.intro,.heading{align-items:flex-start;flex-direction:column;padding:21px!important}.panel{padding:18px!important}.fields{grid-template-columns:1fr}.tabs{overflow-x:auto;flex-wrap:nowrap}.tabs button{white-space:nowrap}}
 @media(max-width:420px){.stats{grid-template-columns:1fr}.stat strong{font-size:25px!important}}
 </style>
+<style id="gtn-mobile-refinements">
+/* Mobile layout refinements */
+main,.panel,.warranty,.grid,.fields{min-width:0}
+.store-tools{display:grid;grid-template-columns:minmax(0,1fr);width:100%}
+.store-tools input,.store-tools select{width:100%;min-width:0}
+.table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{min-width:620px}
+button,a.btn{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.warranty{overflow-wrap:anywhere}
+@media(max-width:560px){
+ header{min-height:68px;height:auto;padding:12px 14px!important;gap:10px}
+ header .logo{font-size:21px!important}
+ header button{padding:10px 12px!important}
+ main{width:calc(100% - 20px)!important;margin:16px auto 38px!important}
+ .panel{padding:15px!important}
+ .intro{padding:18px!important}
+ .stats{grid-template-columns:1fr 1fr!important}
+ .stat{min-width:0;padding:14px!important}
+ .stat strong{font-size:24px!important;overflow-wrap:anywhere}
+ .store-tools{gap:8px}
+ .warranty{padding:14px!important}
+ .invoice-form{grid-template-columns:1fr!important}
+}
+@media(max-width:360px){.stats{grid-template-columns:1fr!important}}
+
+</style>
 </head>
 <body>
 <header><a class="logo" href="./index.html">Garantie<span>.tn</span></a><button id="logout" type="button">Déconnexion</button></header>
