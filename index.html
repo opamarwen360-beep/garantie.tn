@@ -244,6 +244,75 @@ footer{background:#101d35!important;color:#aebbd0!important;padding:28px!importa
 @media(min-width:751px){header nav#gtn-mobile-menu{display:flex!important}}
 </style>
 
+
+<style id="gtn-mobile-home-polish">
+/* Mobile-first homepage layout */
+@media(max-width:750px){
+  html{scroll-padding-top:18px}
+  body{overflow-x:hidden}
+  header{
+    position:relative!important;top:auto!important;display:flex!important;
+    flex-direction:column!important;align-items:stretch!important;gap:12px!important;
+    height:auto!important;min-height:0!important;padding:15px 18px 13px!important;
+    border-bottom:1px solid #e8edf3!important
+  }
+  header .logo{font-size:27px!important;align-self:center;line-height:1.1}
+  header .mobile-menu-toggle{display:none!important}
+  header nav#gtn-mobile-menu{
+    display:flex!important;order:2;flex:0 0 auto!important;width:100%!important;
+    flex-direction:row!important;flex-wrap:wrap!important;justify-content:center!important;
+    align-items:center!important;gap:7px!important;padding:0!important;margin:0!important;
+    overflow:visible!important;background:transparent!important;border:0!important;box-shadow:none!important
+  }
+  header nav#gtn-mobile-menu a{
+    display:inline-flex!important;align-items:center!important;justify-content:center!important;
+    min-height:36px;padding:8px 11px!important;border-radius:9px!important;
+    background:#f0f6f2!important;color:#385247!important;font-size:12px!important;
+    font-weight:700!important;white-space:nowrap;text-decoration:none
+  }
+  header nav#gtn-mobile-menu button{
+    display:inline-flex!important;align-items:center!important;justify-content:center!important;
+    min-height:36px;width:auto!important;margin:0!important;padding:8px 13px!important;
+    border-radius:9px!important;font-size:12px!important;white-space:nowrap
+  }
+  .hero{
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;
+    justify-content:flex-start!important;gap:27px!important;min-height:0!important;
+    padding:48px 22px 35px!important;text-align:left!important
+  }
+  .hero-content{width:100%;max-width:none!important}
+  .hero .tag{font-size:11px!important;padding:8px 11px!important;max-width:100%;white-space:normal}
+  .hero h1{font-size:clamp(36px,10vw,46px)!important;line-height:1.12!important;
+    letter-spacing:-1.8px!important;margin:18px 0 15px!important}
+  .hero p{font-size:15px!important;line-height:1.7!important;margin-bottom:22px!important}
+  .hero .btn{display:flex!important;width:100%;min-height:48px;align-items:center;
+    justify-content:center;text-align:center;margin:9px 0!important;padding:13px 16px!important}
+  .hero .btn.secondary-link{margin-left:0!important}
+  .hero-card{width:100%!important;max-width:none!important;margin:0!important;padding:20px!important}
+  .preview-stat{padding:15px!important}
+  .preview-stat strong{font-size:30px!important}
+  section#services{padding:52px 20px!important}
+  #services .section-title{text-align:center!important;margin:0 auto 26px!important}
+  #services .section-title h2{font-size:27px!important;line-height:1.2!important}
+  #services .section-title p{font-size:14px!important;line-height:1.65}
+  #services .features{grid-template-columns:1fr!important;gap:12px!important}
+  #services .feature{padding:21px!important;border-radius:15px!important}
+  #services .feature .icon{margin-bottom:14px!important}
+  .cta{padding:48px 20px!important}
+  .cta h2{font-size:27px!important;line-height:1.2}
+  .cta p{font-size:14px!important;line-height:1.7}
+  .cta a{display:flex!important;width:100%;min-height:46px;align-items:center;justify-content:center;margin:10px 0!important}
+  footer{padding:22px 16px!important;line-height:1.6}
+}
+@media(max-width:380px){
+  header{padding-left:13px!important;padding-right:13px!important}
+  header nav#gtn-mobile-menu{gap:5px!important}
+  header nav#gtn-mobile-menu a,header nav#gtn-mobile-menu button{font-size:11px!important;padding:8px 9px!important}
+  .hero{padding-left:18px!important;padding-right:18px!important}
+  .hero h1{font-size:35px!important}
+}
+</style>
+
 </head>
 <body>
 
