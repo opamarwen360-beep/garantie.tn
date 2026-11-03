@@ -260,9 +260,14 @@ footer{background:#101d35!important;color:#aebbd0!important;padding:28px!importa
   header .mobile-menu-toggle{display:none!important}
   header nav#gtn-mobile-menu{
     display:flex!important;order:2;flex:0 0 auto!important;width:100%!important;
-    flex-direction:row!important;flex-wrap:wrap!important;justify-content:center!important;
-    align-items:center!important;gap:7px!important;padding:0!important;margin:0!important;
-    overflow:visible!important;background:transparent!important;border:0!important;box-shadow:none!important
+    flex-direction:row!important;flex-wrap:nowrap!important;justify-content:flex-start!important;
+    align-items:center!important;gap:7px!important;padding:0 0 3px!important;margin:0!important;
+    overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none!important;
+    background:transparent!important;border:0!important;box-shadow:none!important
+  }
+  header nav#gtn-mobile-menu::-webkit-scrollbar{display:none!important}
+  header nav#gtn-mobile-menu a,header nav#gtn-mobile-menu button{flex:0 0 auto!important}
   }
   header nav#gtn-mobile-menu a{
     display:inline-flex!important;align-items:center!important;justify-content:center!important;
