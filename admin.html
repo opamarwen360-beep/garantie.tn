@@ -195,7 +195,24 @@ function renderWarranties(){
  if(!rows.length)$("warranties-data").innerHTML='<div class="empty">Aucune garantie ne correspond à votre recherche.</div>';
 }
 
-function renderInvoices(){const q=$("invoice-search").value.trim().toLowerCase();const rows=adminInvoices.filter(i=>{const w=adminWarranties.find(x=>x.id===i.warranty_id),s=adminStores.find(x=>x.id===w?.store_id);return !q||[i.file_name,i.warranty_id,w?.warranty_number,w?.customer_name,w?.customer_email,s?.name].some(v=>String(v||"").toLowerCase().includes(q))});$("invoice-count").textContent=rows.length+" / "+adminInvoices.length+" facture(s)";$("invoices-data").innerHTML=table(["Fichier","Client","Magasin","N° garantie","Date","Document"],rows.map(i=>{const w=adminWarranties.find(x=>x.id===i.warranty_id),s=adminStores.find(x=>x.id===w?.store_id);return '<tr><td>'+esc(i.file_name)+'</td><td>'+esc(w?.customer_name||w?.customer_email||"—")+'</td><td>'+esc(s?.name||"—")+'</td><td>'+esc(w?.warranty_number||i.warranty_id||"—")+'</td><td>'+fmt(i.created_at)+'</td><td>'+(i.file_path?'<button class="refresh" data-invoice-path="'+esc(i.file_path)+'">Ouvrir</button>':"—")+'</td></tr>')}));if(!rows.length)$("invoices-data").innerHTML='<div class="empty">Aucune facture trouvée.</div>'}
+function renderInvoices(){
+ const q=$("invoice-search").value.trim().toLowerCase();
+ const rows=adminInvoices.filter(i=>{
+  const w=adminWarranties.find(x=>x.id===i.warranty_id);
+  const s=adminStores.find(x=>x.id===w?.store_id);
+  const fields=[i.file_name,i.warranty_id,w?.warranty_number,w?.customer_name,w?.customer_email,s?.name];
+  return !q||fields.some(v=>String(v||"").toLowerCase().includes(q));
+ });
+ $("invoice-count").textContent=rows.length+" / "+adminInvoices.length+" facture(s)";
+ const data=rows.map(i=>{
+  const w=adminWarranties.find(x=>x.id===i.warranty_id);
+  const s=adminStores.find(x=>x.id===w?.store_id);
+  const link=i.file_path?'<button class="refresh" data-invoice-path="'+esc(i.file_path)+'">Ouvrir</button>':"—";
+  return '<tr><td>'+esc(i.file_name)+'</td><td>'+esc(w?.customer_name||w?.customer_email||"—")+'</td><td>'+esc(s?.name||"—")+'</td><td>'+esc(w?.warranty_number||i.warranty_id||"—")+'</td><td>'+fmt(i.created_at)+'</td><td>'+link+'</td></tr>';
+ });
+ $("invoices-data").innerHTML=table(["Fichier","Client","Magasin","N° garantie","Date","Document"],data);
+ if(!rows.length)$("invoices-data").innerHTML='<div class="empty">Aucune facture trouvée.</div>';
+}
 
 function renderSavTable(){
  const cf=$("sav-filter-client"),sf=$("sav-filter-store"),cv=cf.value,sv=sf.value;const query=$("sav-search").value.trim().toLocaleLowerCase("fr"),status=$("sav-filter-status").value;
