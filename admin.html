@@ -97,7 +97,8 @@ a{color:var(--green)}
 <section class="panel section" id="section-warranties"><h2>Garanties</h2><p class="muted">Suivi des garanties enregistrées.</p><div id="warranties-data" class="empty">Chargement...</div></section>
 <section class="panel section" id="section-sav"><h2>Demandes SAV</h2><p class="muted">Demandes envoyées par les clients et attribuées au magasin concerné.</p><div class="actions" style="margin:12px 0;flex-wrap:wrap"><select id="sav-filter-client"><option value="">Tous les clients</option></select><select id="sav-filter-store"><option value="">Tous les magasins</option></select></div><div id="sav-data" class="empty">Chargement...</div></section>
 <section class="panel section" id="section-invoices"><h2>Factures</h2><p class="muted">Historique des factures téléversées.</p><div id="invoices-data" class="empty">Chargement...</div></section>
-<section class="panel section" id="section-applications"><h2>Demandes d'accès magasin</h2><p class="muted">Acceptez ou refusez les demandes d'ouverture de compte magasin.</p><p id="message" role="status"></p><div id="applications-data" class="empty">Chargement...</div></section>
+<section class="panel section" id="section-applications"><h2>Demandes d'accès magasin</h2><p class="muted">Consultez les informations et documents, puis acceptez ou refusez chaque demande.</p><p id="message" role="status"></p><div class="application-tools"><input id="application-search" type="search" placeholder="Rechercher un commerce, téléphone ou adresse..." aria-label="Rechercher une demande magasin"><select id="application-filter" aria-label="Filtrer les demandes"><option value="">Tous les statuts</option><option value="pending">En attente</option><option value="approved">Acceptées</option><option value="rejected">Refusées</option></select></div><div id="applications-data" class="empty">Chargement...</div></section>
+<div class="detail-backdrop" id="application-modal" hidden><section class="detail-modal" role="dialog" aria-modal="true" aria-labelledby="application-modal-title"><div class="detail-head"><div><span class="detail-kicker">DOSSIER MAGASIN</span><h2 id="application-modal-title">Détails de la demande</h2></div><button type="button" class="refresh" id="close-application-modal" aria-label="Fermer">✕</button></div><div id="application-detail-content"></div></section></div>
 <p class="small">Espace sécurisé réservé aux administrateurs autorisés.</p>
 </main>
 <script type="module">
@@ -143,12 +144,27 @@ function renderSavTable(){
 }
 $("sav-filter-client").addEventListener("change",renderSavTable);$("sav-filter-store").addEventListener("change",renderSavTable);
 
+function renderApplications(){
+ const query=$("application-search").value.trim().toLocaleLowerCase("fr"),filter=$("application-filter").value;
+ const rows=applications.filter(a=>(!filter||a.status===filter)&&(!query||[a.business_name,a.phone,a.address,a.national_id_number].some(v=>String(v||"").toLocaleLowerCase("fr").includes(query))));
+ $("applications-data").innerHTML=table(["Commerce","Téléphone","Adresse","Identité","Date","Statut","Détails / Action"],rows.map(a=>'<tr><td><strong>'+esc(a.business_name)+'</strong></td><td>'+esc(a.phone)+'</td><td>'+esc(a.address)+'</td><td>'+esc(a.national_id_number)+'</td><td>'+fmt(a.created_at)+'</td><td>'+statusPill(a.status)+'</td><td><div class="actions"><button class="refresh" data-application-detail="'+esc(a.id)+'">Détails</button>'+(a.status==="pending"?'<button data-status="approved" data-id="'+esc(a.id)+'">Accepter</button><button class="reject" data-status="rejected" data-id="'+esc(a.id)+'">Refuser</button>':'')+'</div></td></tr>'));
+ if(!rows.length)$("applications-data").innerHTML='<div class="empty">Aucune demande ne correspond à votre recherche.</div>';
+}
 async function loadApplications(){
  const {data,error}=await supabase.from("store_applications").select("id,user_id,business_name,phone,address,national_id_number,patent_photo_path,status,created_at").order("created_at",{ascending:false});
- if(error)throw error;applications=data||[];
- const pending=applications.filter(a=>a.status==="pending").length;
- $("applications-data").innerHTML=table(["Commerce","Téléphone","Adresse","N° carte identité","Patente","Date","Statut","Action"],applications.map(a=>'<tr><td>'+esc(a.business_name)+'</td><td>'+esc(a.phone)+'</td><td>'+esc(a.address)+'</td><td>'+esc(a.national_id_number)+'</td><td>'+(a.patent_photo_path?'<button class="refresh" data-patent-path="'+esc(a.patent_photo_path)+'">Voir la patente</button>':'Non fournie')+'</td><td>'+fmt(a.created_at)+'</td><td>'+statusPill(a.status)+'</td><td>'+(a.status==="pending"?'<div class="actions"><button data-status="approved" data-id="'+esc(a.id)+'">Accepter</button><button class="reject" data-status="rejected" data-id="'+esc(a.id)+'">Refuser</button></div>':'—')+'</td></tr>'));
- $("message").textContent=pending+" demande(s) en attente.";
+ if(error)throw error;applications=data||[];renderApplications();
+ $("message").textContent=applications.filter(a=>a.status==="pending").length+" demande(s) en attente.";
+}
+async function openApplicationDocument(path){
+ const {data,error}=await supabase.storage.from("store-verification").createSignedUrl(path,300);
+ if(error)throw error;if(!data?.signedUrl)throw new Error("Lien sécurisé indisponible.");window.open(data.signedUrl,"_blank","noopener,noreferrer");
+}
+function showApplicationDetails(id){
+ const a=applications.find(x=>x.id===id);if(!a)return;
+ const fields=[["Commerce",a.business_name],["Téléphone",a.phone],["Adresse",a.address],["N° carte d’identité",a.national_id_number],["Date de demande",fmt(a.created_at)],["Statut",({pending:"En attente",approved:"Acceptée",rejected:"Refusée"}[a.status]||a.status)],["Identifiant du compte",a.user_id]];
+ $("application-detail-content").innerHTML='<div class="detail-grid">'+fields.map(([label,value])=>'<div class="detail-field"><span>'+esc(label)+'</span><strong>'+esc(value)+'</strong></div>').join("")+'</div><div class="detail-actions">'+(a.patent_photo_path?'<button type="button" class="detail-doc" id="open-application-patent">Voir le document patente</button>':'<div class="empty">Aucun document patente joint.</div>')+(a.status==="pending"?'<button type="button" data-status="approved" data-id="'+esc(a.id)+'">Accepter la demande</button><button type="button" class="reject" data-status="rejected" data-id="'+esc(a.id)+'">Refuser</button>':'')+'</div>';
+ $("application-modal").hidden=false;
+ $("open-application-patent")?.addEventListener("click",async e=>{const button=e.currentTarget;button.disabled=true;try{await openApplicationDocument(a.patent_photo_path);}catch(err){$("message").textContent="Impossible d’ouvrir le document : "+err.message;}finally{button.disabled=false;}});
 }
 async function init(){
  const {data:{user},error:userError}=await supabase.auth.getUser();
@@ -159,9 +175,12 @@ async function init(){
  await loadDashboard();
 }
 document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".section").forEach(x=>x.classList.toggle("active",x.id==="section-"+b.dataset.tab));});
+$("application-search").addEventListener("input",renderApplications);$("application-filter").addEventListener("change",renderApplications);
+$("close-application-modal").addEventListener("click",()=>$("application-modal").hidden=true);
+$("application-modal").addEventListener("click",e=>{if(e.target.id==="application-modal")e.currentTarget.hidden=true;});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("application-modal").hidden=true;});
 $("applications-data").addEventListener("click",async e=>{
- const patentButton=e.target.closest("button[data-patent-path]");
- if(patentButton){patentButton.disabled=true;try{const {data,error}=await supabase.storage.from("store-verification").createSignedUrl(patentButton.dataset.patentPath,60);if(error)throw error;if(!data?.signedUrl)throw new Error("Lien sécurisé indisponible.");window.open(data.signedUrl,"_blank","noopener,noreferrer");}catch(err){$("message").textContent="Impossible d’ouvrir la patente : "+err.message;}finally{patentButton.disabled=false;}return;}
+ const detail=e.target.closest("button[data-application-detail]");if(detail){showApplicationDetails(detail.dataset.applicationDetail);return;}
  const b=e.target.closest("button[data-status]");if(!b)return;
  const id=b.dataset.id,status=b.dataset.status;if(!applications.some(a=>a.id===id&&a.status==="pending"))return;
  if(!confirm("Confirmer "+(status==="approved"?"l'acceptation":"le refus")+" de cette demande ?"))return;
@@ -169,7 +188,7 @@ $("applications-data").addEventListener("click",async e=>{
  try{
   if(status==="approved"){const {error}=await supabase.rpc("admin_approve_store_application",{application_id:id});if(error)throw error;}
   else{const {data,error}=await supabase.from("store_applications").update({status:"rejected"}).eq("id",id).eq("status","pending").select("id").maybeSingle();if(error)throw error;if(!data)throw new Error("Demande déjà traitée.");}
-  $("message").textContent="Demande mise à jour.";await loadDashboard();
+  $("message").textContent="Demande mise à jour."; $("application-modal").hidden=true; await loadDashboard();
  }catch(err){$("message").textContent="Erreur : "+err.message;b.disabled=false;}
 });
 $("sav-data").addEventListener("click",async e=>{const b=e.target.closest("button[data-sav-update]");if(!b)return;const id=b.dataset.savUpdate;const select=$("sav-data").querySelector('select[data-sav-status="'+CSS.escape(id)+'"]');if(!select)return;const nextStatus=select.value,oldStatus=select.dataset.oldStatus;if(nextStatus===oldStatus){$("message").textContent="Aucun changement de statut.";return;}if(!confirm("Confirmer le changement du statut SAV ?"))return;b.disabled=true;try{const {data,error}=await supabase.from("sav_requests").update({status:nextStatus}).eq("id",id).eq("status",oldStatus).select("id").maybeSingle();if(error)throw error;if(!data)throw new Error("La demande a déjà été modifiée.");$("message").textContent="Statut SAV mis à jour.";await loadDashboard();}catch(err){$("message").textContent="Erreur SAV : "+err.message;b.disabled=false;}});
