@@ -224,12 +224,33 @@ footer{background:#101d35!important;color:#aebbd0!important;padding:28px!importa
  header nav button,header nav .btn{padding:9px 12px!important;font-size:11px!important}
 }
 </style>
+
+<style id="gtn-mobile-menu">
+.mobile-menu-toggle{display:none!important}
+@media(max-width:750px){
+ header{position:sticky!important;display:flex!important;flex-wrap:wrap!important;justify-content:space-between!important;align-items:center!important;height:auto!important;min-height:68px;padding:13px 18px!important;gap:12px!important}
+ header .logo{font-size:25px!important;line-height:1.2;white-space:nowrap}
+ header .mobile-menu-toggle{display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;gap:5px!important;width:44px!important;height:42px!important;padding:9px!important;margin-left:auto!important;background:#f0f7f3!important;border:1px solid #dcece3!important;border-radius:11px!important;box-shadow:none!important}
+ header .mobile-menu-toggle span{display:block;width:20px;height:2px;border-radius:2px;background:#101d35;transition:transform .2s,opacity .2s}
+ header .mobile-menu-toggle[aria-expanded="true"] span:first-child{transform:translateY(7px) rotate(45deg)}
+ header .mobile-menu-toggle[aria-expanded="true"] span:nth-child(2){opacity:0}
+ header .mobile-menu-toggle[aria-expanded="true"] span:last-child{transform:translateY(-7px) rotate(-45deg)}
+ header nav#gtn-mobile-menu{display:none!important;order:3;flex:0 0 100%;width:100%;padding:12px!important;margin:0!important;gap:8px!important;flex-direction:column!important;align-items:stretch!important;background:#fff!important;border:1px solid #e8edf3;border-radius:14px;box-shadow:0 12px 28px #101d3518}
+ header nav#gtn-mobile-menu.is-open{display:flex!important}
+ header nav#gtn-mobile-menu a{display:flex!important;align-items:center;min-height:42px;padding:10px 12px!important;border-radius:9px;background:#f4f8f5;color:#344b43!important;font-size:14px!important;text-decoration:none}
+ header nav#gtn-mobile-menu a:hover{background:#e5f7f0;color:#087f5b!important}
+ header nav#gtn-mobile-menu button{width:100%;margin-top:3px}
+}
+@media(min-width:751px){header nav#gtn-mobile-menu{display:flex!important}}
+</style>
+
 </head>
 <body>
 
 <header>
   <a class="logo" href="#accueil">Garantie<span>.tn</span></a>
-  <nav><a href="#accueil">Accueil</a><a href="#services">Fonctionnalités</a><a href="#contact">Pour les magasins</a><button type="button" id="open-auth">Se connecter ↗</button></nav>
+  <button class="mobile-menu-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="gtn-mobile-menu"><span></span><span></span><span></span></button>
+  <nav id="gtn-mobile-menu"><a href="#accueil">Accueil</a><a href="#services">Fonctionnalités</a><a href="#contact">Pour les magasins</a><button type="button" id="open-auth">Se connecter ↗</button></nav>
 </header>
 <main>
   <section class="hero" id="accueil">
@@ -312,9 +333,30 @@ footer{background:#101d35!important;color:#aebbd0!important;padding:28px!importa
     }, 1000);
   }
 
+
+  const mobileMenuToggle = document.querySelector(".mobile-menu-toggle");
+  const mobileMenu = document.getElementById("gtn-mobile-menu");
+  function closeMobileMenu() {
+    if (!mobileMenuToggle || !mobileMenu) return;
+    mobileMenu.classList.remove("is-open");
+    mobileMenuToggle.setAttribute("aria-expanded", "false");
+    mobileMenuToggle.setAttribute("aria-label", "Ouvrir le menu");
+  }
+  mobileMenuToggle?.addEventListener("click", () => {
+    const isOpen = mobileMenuToggle.getAttribute("aria-expanded") === "true";
+    mobileMenu.classList.toggle("is-open", !isOpen);
+    mobileMenuToggle.setAttribute("aria-expanded", String(!isOpen));
+    mobileMenuToggle.setAttribute("aria-label", isOpen ? "Ouvrir le menu" : "Fermer le menu");
+  });
+  mobileMenu?.querySelectorAll("a").forEach(link => link.addEventListener("click", closeMobileMenu));
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeMobileMenu();
+  });
   document.getElementById("open-auth").addEventListener("click", () => {
+    closeMobileMenu();
     modal.style.display = "flex";
   });
+
 
   document.getElementById("close-auth").addEventListener("click", () => {
     modal.style.display = "none";
