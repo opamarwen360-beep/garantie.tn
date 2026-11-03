@@ -135,13 +135,14 @@ table{min-width:620px}
 </nav>
 <section class="panel section active" id="section-overview"><h2>Bienvenue dans l'administration</h2><p class="muted">Choisissez une rubrique pour consulter les données de la plateforme.</p><div id="overview-content" class="empty">Chargement des statistiques...</div></section>
 <section class="panel section" id="section-users"><h2>Utilisateurs</h2><p class="muted">Comptes clients, magasins et administrateurs.</p><div class="user-tools"><input id="user-search" type="search" placeholder="Rechercher par nom ou téléphone..." aria-label="Rechercher un utilisateur"><select id="user-role-filter" aria-label="Filtrer par rôle"><option value="">Tous les rôles</option><option value="client">Clients</option><option value="magasin">Magasins</option><option value="admin">Administrateurs</option></select><span id="user-count" class="small" aria-live="polite"></span></div><div id="users-data" class="empty">Chargement...</div></section>
-<section class="panel section" id="section-stores"><h2>Magasins</h2><p class="muted">Liste des magasins enregistrés.</p><div id="stores-data" class="empty">Chargement...</div></section>
+<section class="panel section" id="section-stores"><h2>Magasins</h2><p class="muted">Consultez les coordonnées et l’activité de chaque magasin.</p><div class="user-tools"><input id="store-search" type="search" placeholder="Rechercher par nom, téléphone ou adresse..." aria-label="Rechercher un magasin"><span id="store-count" class="small" aria-live="polite"></span></div><div id="stores-data" class="empty">Chargement...</div></section>
 <section class="panel section" id="section-products"><h2>Produits</h2><p class="muted">Produits enregistrés sur la plateforme.</p><div class="product-tools"><input id="product-search" type="search" placeholder="Rechercher par produit, marque, modèle ou numéro de série..." aria-label="Rechercher un produit"><select id="product-store-filter" aria-label="Filtrer par magasin"><option value="">Tous les magasins</option></select><span id="product-count" class="small" aria-live="polite"></span></div><div id="products-data" class="empty">Chargement...</div></section>
 <section class="panel section" id="section-warranties"><h2>Garanties</h2><p class="muted">Suivi des garanties enregistrées.</p><div class="product-tools"><input id="warranty-search" type="search" placeholder="Rechercher par N° garantie, client ou e-mail..." aria-label="Rechercher une garantie"><select id="warranty-status-filter" aria-label="Filtrer par statut"><option value="">Tous les statuts</option><option value="active">Active</option><option value="expired">Expirée</option><option value="pending">En attente</option></select><span id="warranty-count" class="small" aria-live="polite"></span></div><div id="warranties-data" class="empty">Chargement...</div></section>
 <section class="panel section" id="section-sav"><h2>Demandes SAV</h2><p class="muted">Demandes envoyées par les clients et attribuées au magasin concerné.</p><div class="product-tools"><input id="sav-search" type="search" placeholder="Rechercher client, téléphone, garantie ou demande..." aria-label="Rechercher une demande SAV"><select id="sav-filter-status" aria-label="Filtrer par statut"><option value="">Tous les statuts</option><option value="pending">En attente</option><option value="processing">En cours</option><option value="completed">Terminée</option><option value="rejected">Refusée</option></select><span id="sav-count" class="small" aria-live="polite"></span></div><div class="actions" style="margin:12px 0;flex-wrap:wrap"><select id="sav-filter-client"><option value="">Tous les clients</option></select><select id="sav-filter-store"><option value="">Tous les magasins</option></select></div><div id="sav-data" class="empty">Chargement...</div></section>
 <section class="panel section" id="section-invoices"><h2>Factures</h2><p class="muted">Historique des factures téléversées.</p><div class="product-tools"><input id="invoice-search" type="search" placeholder="Rechercher fichier, client, magasin ou garantie..."><span id="invoice-count" class="small"></span></div><div id="invoices-data" class="empty">Chargement...</div></section>
 <section class="panel section" id="section-applications"><h2>Demandes d'accès magasin</h2><p class="muted">Consultez les informations et documents, puis acceptez ou refusez chaque demande.</p><p id="message" role="status"></p><div class="application-tools"><input id="application-search" type="search" placeholder="Rechercher un commerce, téléphone ou adresse..." aria-label="Rechercher une demande magasin"><select id="application-filter" aria-label="Filtrer les demandes"><option value="">Tous les statuts</option><option value="pending">En attente</option><option value="approved">Acceptées</option><option value="rejected">Refusées</option></select></div><div id="applications-data" class="empty">Chargement...</div></section>
 <div class="user-detail-backdrop" id="user-modal" hidden><section class="user-detail-modal" role="dialog" aria-modal="true" aria-labelledby="user-modal-title"><div class="user-detail-head"><div><span class="user-detail-kicker">COMPTE UTILISATEUR</span><h2 id="user-modal-title">Détails du compte</h2></div><button type="button" class="refresh" id="close-user-modal" aria-label="Fermer">✕</button></div><div id="user-detail-content"></div></section></div>
+<div class="user-detail-backdrop" id="store-modal" hidden><section class="user-detail-modal" role="dialog" aria-modal="true" aria-labelledby="store-modal-title"><div class="user-detail-head"><div><span class="user-detail-kicker">FICHE MAGASIN</span><h2 id="store-modal-title">Détails du magasin</h2></div><button type="button" class="refresh" id="close-store-modal" aria-label="Fermer">✕</button></div><div id="store-detail-content"></div></section></div>
 <div class="detail-backdrop" id="application-modal" hidden><section class="detail-modal" role="dialog" aria-modal="true" aria-labelledby="application-modal-title"><div class="detail-head"><div><span class="detail-kicker">DOSSIER MAGASIN</span><h2 id="application-modal-title">Détails de la demande</h2></div><button type="button" class="refresh" id="close-application-modal" aria-label="Fermer">✕</button></div><div id="application-detail-content"></div></section></div>
 <p class="small">Espace sécurisé réservé aux administrateurs autorisés.</p>
 </main>
@@ -173,7 +174,7 @@ async function loadDashboard(){
  const completedSav=sav.filter(r=>String(r.status||"").toLowerCase()==="completed").length;
  $("overview-content").innerHTML='<div class="stats"><div class="stat"><span>Produits</span><strong>'+products.length+'</strong></div><div class="stat"><span>Factures</span><strong>'+invoices.length+'</strong></div><div class="stat"><span>Clients</span><strong>'+users.filter(u=>u.role==="client").length+'</strong></div><div class="stat"><span>Comptes magasins</span><strong>'+users.filter(u=>u.role==="magasin").length+'</strong></div><div class="stat"><span>Garanties actives</span><strong>'+activeWarranties+'</strong></div><div class="stat"><span>Garanties expirées</span><strong>'+expiredWarranties+'</strong></div><div class="stat"><span>SAV à traiter</span><strong>'+openSav+'</strong></div><div class="stat"><span>SAV terminées</span><strong>'+completedSav+'</strong></div></div>';
  renderUsers();
- $("stores-data").innerHTML=table(["Magasin","Téléphone","Adresse","Création"],stores.map(s=>'<tr><td>'+esc(s.name)+'</td><td>'+esc(s.phone)+'</td><td>'+esc(s.address)+'</td><td>'+fmt(s.created_at)+'</td></tr>'));
+  renderStores();
  renderProducts();
  renderWarranties();
  renderSavTable();
@@ -182,6 +183,21 @@ async function loadDashboard(){
 }
 
 
+function renderStores(){
+ const query=$("store-search").value.trim().toLocaleLowerCase("fr");
+ const rows=adminStores.filter(s=>!query||[s.name,s.phone,s.address].some(v=>String(v||"").toLocaleLowerCase("fr").includes(query)));
+ $("store-count").textContent=rows.length+" / "+adminStores.length+" magasin(s)";
+ $("stores-data").innerHTML=table(["Magasin","Téléphone","Adresse","Création","Activité"],rows.map(s=>'<tr><td>'+esc(s.name)+'</td><td>'+esc(s.phone)+'</td><td>'+esc(s.address)+'</td><td>'+fmt(s.created_at)+'</td><td><button type="button" class="refresh" data-store-detail="'+esc(s.id)+'">Consulter</button></td></tr>'));
+}
+function showStoreDetails(id){
+ const s=adminStores.find(x=>x.id===id);if(!s)return;
+ const products=adminProducts.filter(p=>p.store_id===id),warranties=adminWarranties.filter(w=>w.store_id===id);
+ const warrantyIds=new Set(warranties.map(w=>w.id)),requests=savRows.filter(r=>warrantyIds.has(r.warranty_id));
+ const owner=adminUsers.find(u=>u.id===s.owner_id);
+ const fields=[["Nom du magasin",s.name],["Téléphone",s.phone],["Adresse",s.address],["Responsable du compte",owner?.full_name||"—"],["Téléphone du responsable",owner?.phone||"—"],["Date de création",fmt(s.created_at)],["Produits enregistrés",products.length],["Garanties enregistrées",warranties.length],["Demandes SAV liées",requests.length],["SAV en attente / en cours",requests.filter(r=>["pending","processing"].includes(String(r.status||"").toLowerCase())).length]];
+ $("store-detail-content").innerHTML='<div class="user-detail-grid">'+fields.map(([label,value])=>'<div class="user-detail-field"><span>'+esc(label)+'</span><strong>'+esc(value)+'</strong></div>').join("")+'</div>';
+ $("store-modal").hidden=false;
+}
 function renderUsers(){
  const query=$("user-search").value.trim().toLocaleLowerCase("fr"),role=$("user-role-filter").value;
  const rows=adminUsers.filter(u=>(!role||u.role===role)&&(!query||[u.full_name,u.phone].some(v=>String(v||"").toLocaleLowerCase("fr").includes(query))));
@@ -298,13 +314,17 @@ document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.cl
 $("product-search").addEventListener("input",renderProducts);$("product-store-filter").addEventListener("change",renderProducts);$("warranty-search").addEventListener("input",renderWarranties);$("warranty-status-filter").addEventListener("change",renderWarranties);$("invoice-search").addEventListener("input",renderInvoices);
 $("application-search").addEventListener("input",renderApplications);$("application-filter").addEventListener("change",renderApplications);$("user-search").addEventListener("input",renderUsers);$("user-role-filter").addEventListener("change",renderUsers);
 
+$("store-search").addEventListener("input",renderStores);
+$("stores-data").addEventListener("click",e=>{const b=e.target.closest("button[data-store-detail]");if(b)showStoreDetails(b.dataset.storeDetail);});
+$("close-store-modal").addEventListener("click",()=>$("store-modal").hidden=true);
+$("store-modal").addEventListener("click",e=>{if(e.target.id==="store-modal")e.currentTarget.hidden=true;});
 $("users-data").addEventListener("click",e=>{const b=e.target.closest("button[data-user-detail]");if(b)showUserDetails(b.dataset.userDetail);});
 $("close-user-modal").addEventListener("click",()=>$("user-modal").hidden=true);
 $("user-modal").addEventListener("click",e=>{if(e.target.id==="user-modal")e.currentTarget.hidden=true;});
 $("close-application-modal").addEventListener("click",()=>$("application-modal").hidden=true);
 $("application-modal").addEventListener("click",e=>{if(e.target.id==="application-modal")e.currentTarget.hidden=true;});
 $("application-detail-content").addEventListener("click",e=>{const action=e.target.closest("button[data-status]");if(!action)return;const rowAction=$("applications-data").querySelector('button[data-id="'+CSS.escape(action.dataset.id)+'"][data-status="'+action.dataset.status+'"]');if(rowAction)rowAction.click();});
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){$("application-modal").hidden=true;$("user-modal").hidden=true;}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){$("application-modal").hidden=true;$("user-modal").hidden=true;$("store-modal").hidden=true;}});
 $("applications-data").addEventListener("click",async e=>{
  const detail=e.target.closest("button[data-application-detail]");if(detail){showApplicationDetails(detail.dataset.applicationDetail);return;}
  const b=e.target.closest("button[data-status]");if(!b)return;
