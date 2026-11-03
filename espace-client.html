@@ -18,6 +18,17 @@ main{max-width:1100px;margin:35px auto;padding:0 18px}.welcome{display:flex;just
 form{display:grid;gap:10px}select,input,textarea{width:100%;padding:12px;border:1px solid #dce3e8;border-radius:8px;font:inherit}textarea{min-height:90px;resize:vertical}#message{margin-top:10px;color:var(--green)}
 .empty{padding:22px;text-align:center;color:var(--muted);background:#f8fafb;border-radius:9px}
 @media(max-width:650px){.stats{grid-template-columns:1fr}.welcome{align-items:flex-start;flex-direction:column}.warranty{grid-template-columns:1fr}.invoice{align-items:flex-start;flex-direction:column}}
+
+.client-tools{display:grid;grid-template-columns:minmax(220px,1fr) 210px auto;gap:12px;align-items:center;margin:16px 0}
+.client-tools input,.client-tools select{min-height:46px}
+.result-count{font-size:13px;color:var(--muted);font-weight:700}
+.warranty-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.warranty-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:13px}
+.warranty-meta span{display:block;padding:9px 11px;background:#f5f8fb;border-radius:9px;font-size:12px;color:var(--muted)}
+.warranty-meta strong{display:block;color:var(--navy);font-size:12px;margin-top:3px}
+.warranty .warranty-number{font-size:12px;font-weight:800;color:var(--green);letter-spacing:.2px}
+@media(max-width:650px){.client-tools{grid-template-columns:1fr}.warranty-meta{grid-template-columns:1fr 1fr}.warranty-top{flex-direction:column}}
+
 </style>
 
 <!-- Garantie.tn Modern Premium design system -->
@@ -89,7 +100,7 @@ a{color:var(--green)}
  <div class="stat"><span class="muted">Garanties expirées</span><strong id="expired">—</strong></div>
 </section>
 <section class="panel" id="claim-panel"><h2>Garanties à associer à mon compte</h2><p class="muted">Les garanties enregistrées par un magasin avec votre adresse e-mail apparaîtront ici.</p><div id="pending-warranties"><div class="empty">Vérification...</div></div></section>
-<section class="panel"><h2>Mes produits et garanties</h2><div id="warranties"><div class="empty">Chargement de vos garanties...</div></div></section>
+<section class="panel"><h2>Mes produits et garanties</h2><p class="muted">Retrouvez rapidement un achat et vérifiez son statut ou ses dates de garantie.</p><div class="client-tools"><input id="client-warranty-search" type="search" placeholder="Rechercher un produit, une marque, un modèle ou un N° de garantie..." aria-label="Rechercher dans mes garanties"><select id="client-warranty-status" aria-label="Filtrer par statut"><option value="all">Tous les statuts</option><option value="active">Garanties actives</option><option value="expired">Garanties expirées</option><option value="claimed">En SAV</option></select><span class="result-count" id="client-warranty-count" aria-live="polite">0 garantie</span></div><div id="warranties"><div class="empty">Chargement de vos garanties...</div></div></section>
 <section class="panel"><h2>Mes factures</h2><div id="invoices"><div class="empty">Chargement de vos factures...</div></div></section>
 <section class="panel"><h2>Demander une assistance SAV</h2>
 <form id="sav-form"><label for="sav-warranty">Produit concerné</label><select id="sav-warranty" required><option value="">Choisir une garantie</option></select><label for="sav-subject">Sujet de la demande</label><input id="sav-subject" maxlength="150" required placeholder="Ex. : Problème de fonctionnement"><label for="sav-description">Description</label><textarea id="sav-description" maxlength="2000" placeholder="Décrivez votre problème..."></textarea><button type="submit">Envoyer ma demande</button></form><p id="message" role="status"></p>
@@ -211,15 +222,27 @@ $("pending-warranties").addEventListener("click",async event=>{
  }
 });
 function renderWarranties(){
- if(!warranties.length){$("warranties").innerHTML='<div class="empty">Aucune garantie associée à votre compte pour le moment. Demandez au magasin d’associer votre garantie à votre compte client.</div>';return;}
  const today=new Date().toISOString().slice(0,10);
- $("warranties").innerHTML=warranties.map(w=>{
- const expired=w.status==="expired" || w.end_date<today;
- const status=expired?"Expirée":w.status==="claimed"?"En SAV":"Active";
- const cls=expired?"expired":w.status==="claimed"?"claimed":"";
- return '<article class="warranty"><div><h3>'+esc(w.products?.name || "Produit")+'</h3><p class="muted">'+esc([w.products?.brand,w.products?.model].filter(Boolean).join(" · "))+'</p><p class="muted">N° garantie : '+esc(w.warranty_number)+'<br>Achat : '+date(w.purchase_date)+' · Début : '+date(w.start_date)+' · Fin : '+date(w.end_date)+'</p></div><div><span class="pill '+cls+'">'+status+'</span></div></article>';
+ const query=($("client-warranty-search")?.value||"").trim().toLocaleLowerCase("fr");
+ const selectedStatus=$("client-warranty-status")?.value||"all";
+ const filtered=warranties.filter(w=>{
+  const expired=w.status==="expired" || w.end_date<today;
+  const status=w.status==="claimed"?"claimed":expired?"expired":"active";
+  const haystack=[w.products?.name,w.products?.brand,w.products?.model,w.warranty_number,w.status].filter(Boolean).join(" ").toLocaleLowerCase("fr");
+  return (!query||haystack.includes(query))&&(selectedStatus==="all"||selectedStatus===status);
+ });
+ const count=$("client-warranty-count");
+ if(count) count.textContent=filtered.length+" / "+warranties.length+" garantie"+(warranties.length>1?"s":"");
+ if(!warranties.length){$("warranties").innerHTML='<div class="empty">Aucune garantie associée à votre compte pour le moment. Demandez au magasin d’associer votre garantie à votre compte client.</div>';return;}
+ if(!filtered.length){$("warranties").innerHTML='<div class="empty">Aucune garantie ne correspond à votre recherche ou à ce filtre.</div>';return;}
+ $("warranties").innerHTML=filtered.map(w=>{
+  const expired=w.status==="expired" || w.end_date<today;
+  const status=w.status==="claimed"?"En SAV":expired?"Expirée":"Active";
+  const cls=w.status==="claimed"?"claimed":expired?"expired":"";
+  return '<article class="warranty"><div class="warranty-top"><div><h3>'+esc(w.products?.name||"Produit")+'</h3><p class="muted">'+esc([w.products?.brand,w.products?.model].filter(Boolean).join(" · "))+'</p><p class="warranty-number">N° garantie : '+esc(w.warranty_number)+'</p></div><span class="pill '+cls+'">'+status+'</span></div><div class="warranty-meta"><span>Date d’achat<strong>'+date(w.purchase_date)+'</strong></span><span>Début de garantie<strong>'+date(w.start_date)+'</strong></span><span>Fin de garantie<strong>'+date(w.end_date)+'</strong></span></div></article>';
  }).join("");
 }
+
 async function loadSavHistory(){
  const {data,error}=await supabase.from("sav_requests")
   .select("id,subject,description,status,created_at,warranties(warranty_number,products(name))")
@@ -238,6 +261,8 @@ async function loadSavHistory(){
   return '<article class="warranty"><div><h3>'+esc(r.subject)+'</h3><p class="muted">'+esc(r.warranties?.products?.name||"Produit")+' · Garantie '+esc(r.warranties?.warranty_number||"—")+'</p><p class="muted">Envoyée le '+date(r.created_at?.slice(0,10))+'</p>'+(r.description?'<p>'+esc(r.description)+'</p>':'')+'</div><div><span class="pill '+cls+'">'+status+'</span></div></article>';
  }).join("");
 }
+$("client-warranty-search").addEventListener("input",renderWarranties);
+$("client-warranty-status").addEventListener("change",renderWarranties);
 async function renderInvoices(){
  const items=warranties.flatMap(w=>(w.invoices||[]).map(inv=>({...inv,warranty_number:w.warranty_number,product:w.products?.name||"Produit"})));
  if(!items.length){$("invoices").innerHTML='<div class="empty">Aucune facture disponible pour le moment.</div>';return;}
