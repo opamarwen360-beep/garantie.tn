@@ -139,7 +139,11 @@ async function loadDashboard(){
  const results=await Promise.all(specs.map(s=>fetchRows(s[0],s[1],s[2])));
  const [users,stores,products,warranties,sav,invoices]=results;adminUsers=users;adminStores=stores;adminProducts=products;adminWarranties=warranties;adminInvoices=invoices;refreshProductStoreFilter();savRows=sav;savWarranties=warranties;savStores=stores;savUsers=users;
  specs.forEach((s,i)=>{if(s[3])$(s[3]).textContent=results[i].length});
- $("overview-content").innerHTML='<div class="stats"><div class="stat"><span>Produits</span><strong>'+products.length+'</strong></div><div class="stat"><span>Factures</span><strong>'+invoices.length+'</strong></div><div class="stat"><span>Clients</span><strong>'+users.filter(u=>u.role==="client").length+'</strong></div><div class="stat"><span>Comptes magasins</span><strong>'+users.filter(u=>u.role==="magasin").length+'</strong></div></div>';
+ const activeWarranties=warranties.filter(w=>String(w.status||"").toLowerCase()==="active").length;
+ const expiredWarranties=warranties.filter(w=>String(w.status||"").toLowerCase()==="expired").length;
+ const openSav=sav.filter(r=>["pending","processing"].includes(String(r.status||"").toLowerCase())).length;
+ const completedSav=sav.filter(r=>String(r.status||"").toLowerCase()==="completed").length;
+ $("overview-content").innerHTML='<div class="stats"><div class="stat"><span>Produits</span><strong>'+products.length+'</strong></div><div class="stat"><span>Factures</span><strong>'+invoices.length+'</strong></div><div class="stat"><span>Clients</span><strong>'+users.filter(u=>u.role==="client").length+'</strong></div><div class="stat"><span>Comptes magasins</span><strong>'+users.filter(u=>u.role==="magasin").length+'</strong></div><div class="stat"><span>Garanties actives</span><strong>'+activeWarranties+'</strong></div><div class="stat"><span>Garanties expirées</span><strong>'+expiredWarranties+'</strong></div><div class="stat"><span>SAV à traiter</span><strong>'+openSav+'</strong></div><div class="stat"><span>SAV terminées</span><strong>'+completedSav+'</strong></div></div>';
  renderUsers();
  $("stores-data").innerHTML=table(["Magasin","Téléphone","Adresse","Création"],stores.map(s=>'<tr><td>'+esc(s.name)+'</td><td>'+esc(s.phone)+'</td><td>'+esc(s.address)+'</td><td>'+fmt(s.created_at)+'</td></tr>'));
  renderProducts();
