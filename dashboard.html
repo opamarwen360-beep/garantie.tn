@@ -20,6 +20,7 @@ input{width:100%;padding:12px;border:1px solid #dce3e8;border-radius:8px;font:in
 .warranty h3{margin:0 0 7px}.warranty p{margin:5px 0;line-height:1.45}.warranty small{color:var(--muted)}
 .invoice-form{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:end;margin-top:12px}.empty{padding:22px;text-align:center;background:#f8fafb;border-radius:9px;color:var(--muted)}
 @media(max-width:720px){.grid{grid-template-columns:1fr}.fields{grid-template-columns:1fr}.invoice-form{grid-template-columns:1fr}}
+.store-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}.store-tools input{flex:1;min-width:220px}.store-tools select{padding:12px;border:1px solid #dce3e8;border-radius:8px;font:inherit;background:#fff}
 </style>
 
 <!-- Garantie.tn Modern Premium design system -->
@@ -109,17 +110,19 @@ a{color:var(--green)}
 <section class="panel">
 <h2>Mes garanties enregistrées</h2>
 <p class="muted">Retrouvez ici les dossiers créés par votre magasin et ajoutez la facture PDF à chaque dossier.</p>
-<div id="warranty-list"><div class="empty">Chargement...</div></div>
+<div class="store-tools"><input id="warranty-search" type="search" placeholder="Rechercher produit, client ou N° garantie..."><span id="warranty-count" class="muted"></span></div><div id="warranty-list"><div class="empty">Chargement...</div></div>
 <p id="list-message" class="message" role="status"></p>
 </section>
 </div>
-<section class="panel"><h2>Demandes SAV reçues</h2><p class="muted">Demandes envoyées par vos clients pour les garanties de votre magasin.</p><div id="store-sav-list"><div class="empty">Chargement...</div></div><p id="store-sav-message" class="message" role="status"></p></section>
+<section class="panel"><h2>Demandes SAV reçues</h2><p class="muted">Demandes envoyées par vos clients pour les garanties de votre magasin.</p><div class="store-tools"><input id="sav-search" type="search" placeholder="Rechercher client, téléphone ou demande..."><select id="sav-status-filter"><option value="">Tous les statuts</option><option value="pending">En attente</option><option value="processing">En cours</option><option value="completed">Terminée</option><option value="rejected">Refusée</option></select><span id="sav-count" class="muted"></span></div><div id="store-sav-list"><div class="empty">Chargement...</div></div><p id="store-sav-message" class="message" role="status"></p></section>
 </main>
 <script type="module">
 import { supabase } from "./supabase.js";
 const $ = id => document.getElementById(id);
 let currentUser = null;
 let currentStore = null;
+let storeWarranties=[];
+let storeSavRequests=[];
 const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const dateLabel = value => value ? new Date(value + "T00:00:00").toLocaleDateString("fr-FR") : "—";
 
@@ -162,10 +165,16 @@ async function init() {
 
 async function loadStoreSav(){
  const {data,error}=await supabase.from("sav_requests").select("id,warranty_id,customer_phone,subject,description,status,created_at,warranties(warranty_number,customer_name,customer_email,products(name))").order("created_at",{ascending:false});
- if(error)throw error;const rows=data||[];if(!rows.length){$("store-sav-list").innerHTML='<div class="empty">Aucune demande SAV reçue pour le moment.</div>';return;}
+ if(error)throw error;storeSavRequests=data||[];renderStoreSav();
+}
+function renderStoreSav(){
+ const q=$("sav-search").value.trim().toLocaleLowerCase("fr"),status=$("sav-status-filter").value;
+ const rows=storeSavRequests.filter(r=>{const w=r.warranties||{},p=w.products||{};const hay=[r.subject,r.description,r.customer_phone,w.customer_name,w.customer_email,w.warranty_number,p.name].join(" ").toLocaleLowerCase("fr");return (!status||r.status===status)&&(!q||hay.includes(q))});
+ $("sav-count").textContent=rows.length+" / "+storeSavRequests.length+" demande(s)";
+ if(!rows.length){$("store-sav-list").innerHTML='<div class="empty">Aucune demande ne correspond aux filtres.</div>';return;}
  const labels={pending:"En attente",processing:"En cours",completed:"Terminée",rejected:"Refusée"};
  $("store-sav-list").innerHTML=rows.map(r=>'<article class="warranty"><h3>'+esc(r.subject)+'</h3><p><strong>Client :</strong> '+esc(r.warranties?.customer_name||r.warranties?.customer_email||"Client")+'</p><p><strong>Téléphone :</strong> '+esc(r.customer_phone||"Non renseigné")+'</p><p><strong>Produit :</strong> '+esc(r.warranties?.products?.name||"Produit")+' · <strong>Garantie :</strong> '+esc(r.warranties?.warranty_number||"—")+'</p><p>'+esc(r.description||"—")+'</p><p><strong>Statut :</strong> '+esc(labels[r.status]||r.status)+' · '+dateLabel(r.created_at?.slice(0,10))+'</p><form class="sav-status-form" data-sav-id="'+esc(r.id)+'"><label>Modifier le statut</label><select name="status"><option value="pending" '+(r.status==="pending"?"selected":"")+'>En attente</option><option value="processing" '+(r.status==="processing"?"selected":"")+'>En cours</option><option value="completed" '+(r.status==="completed"?"selected":"")+'>Terminée</option><option value="rejected" '+(r.status==="rejected"?"selected":"")+'>Refusée</option></select><button type="submit">Enregistrer</button></form></article>').join("");
-}
+
 $("store-sav-list").addEventListener("submit",async e=>{const form=e.target.closest(".sav-status-form");if(!form)return;e.preventDefault();const btn=form.querySelector("button");btn.disabled=true;try{const {data,error}=await supabase.from("sav_requests").update({status:form.status.value}).eq("id",form.dataset.savId).select("id").maybeSingle();if(error)throw error;if(!data)throw new Error("Demande introuvable ou accès refusé.");$("store-sav-message").textContent="Statut SAV mis à jour.";await loadStoreSav();}catch(err){$("store-sav-message").textContent="Erreur : "+err.message;btn.disabled=false;}});
 
 async function loadWarranties() {
@@ -174,11 +183,15 @@ async function loadWarranties() {
     .select("id,warranty_number,purchase_date,start_date,end_date,duration_months,customer_name,customer_email,customer_national_id_number,products(name,brand,model),invoices(id,file_name)")
     .eq("store_id", currentStore.id).order("created_at", {ascending:false});
   if (error) throw error;
-  if (!data?.length) {
-    $("warranty-list").innerHTML = '<div class="empty">Aucune garantie enregistrée pour le moment.</div>';
-    return;
-  }
-  $("warranty-list").innerHTML = data.map(w => {
+  storeWarranties=data||[];renderStoreWarranties();
+}
+
+function renderStoreWarranties(){
+ const q=$("warranty-search").value.trim().toLocaleLowerCase("fr");
+ const rows=storeWarranties.filter(w=>{const p=w.products||{};return !q||[p.name,p.brand,p.model,w.warranty_number,w.customer_name,w.customer_email].some(v=>String(v||"").toLocaleLowerCase("fr").includes(q))});
+ $("warranty-count").textContent=rows.length+" / "+storeWarranties.length+" garantie(s)";
+ if(!rows.length){$("warranty-list").innerHTML='<div class="empty">Aucune garantie ne correspond à la recherche.</div>';return;}
+ $("warranty-list").innerHTML = rows.map(w => {
     const product = w.products || {};
     const hasInvoice = Array.isArray(w.invoices) && w.invoices.length > 0;
     return '<article class="warranty"><h3>'+esc(product.name || "Produit")+'</h3>'+
@@ -192,6 +205,9 @@ async function loadWarranties() {
   }).join("");
 }
 
+$("warranty-search").addEventListener("input",renderStoreWarranties);
+$("sav-search").addEventListener("input",renderStoreSav);
+$("sav-status-filter").addEventListener("change",renderStoreSav);
 
 $("store-photo-form").addEventListener("submit",async e=>{
  e.preventDefault();const file=$("store-photo").files[0],msg=$("store-photo-message");
