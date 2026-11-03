@@ -101,7 +101,7 @@ a{color:var(--green)}
 </section>
 <section class="panel" id="claim-panel"><h2>Garanties à associer à mon compte</h2><p class="muted">Les garanties enregistrées par un magasin avec votre adresse e-mail apparaîtront ici.</p><div id="pending-warranties"><div class="empty">Vérification...</div></div></section>
 <section class="panel"><h2>Mes produits et garanties</h2><p class="muted">Retrouvez rapidement un achat et vérifiez son statut ou ses dates de garantie.</p><div class="client-tools"><input id="client-warranty-search" type="search" placeholder="Rechercher un produit, une marque, un modèle ou un N° de garantie..." aria-label="Rechercher dans mes garanties"><select id="client-warranty-status" aria-label="Filtrer par statut"><option value="all">Tous les statuts</option><option value="active">Garanties actives</option><option value="expired">Garanties expirées</option><option value="claimed">En SAV</option></select><span class="result-count" id="client-warranty-count" aria-live="polite">0 garantie</span></div><div id="warranties"><div class="empty">Chargement de vos garanties...</div></div></section>
-<section class="panel"><h2>Mes factures</h2><div id="invoices"><div class="empty">Chargement de vos factures...</div></div></section>
+<section class="panel"><h2>Mes factures</h2><p class="muted">Retrouvez et ouvrez les factures associées à vos garanties.</p><div class="client-tools"><input id="client-invoice-search" type="search" placeholder="Rechercher par nom de facture, produit ou N° de garantie..." aria-label="Rechercher dans mes factures"><span class="result-count" id="client-invoice-count" aria-live="polite">0 facture</span></div><div id="invoices"><div class="empty">Chargement de vos factures...</div></div></section>
 <section class="panel"><h2>Demander une assistance SAV</h2>
 <form id="sav-form"><label for="sav-warranty">Produit concerné</label><select id="sav-warranty" required><option value="">Choisir une garantie</option></select><label for="sav-subject">Sujet de la demande</label><input id="sav-subject" maxlength="150" required placeholder="Ex. : Problème de fonctionnement"><label for="sav-description">Description</label><textarea id="sav-description" maxlength="2000" placeholder="Décrivez votre problème..."></textarea><button type="submit">Envoyer ma demande</button></form><p id="message" role="status"></p>
 </section>
@@ -139,6 +139,7 @@ async function start() {
  $("active").textContent=active;
  $("expired").textContent=warranties.length-active;
  renderWarranties();
+ clientInvoiceItems=warranties.flatMap(w=>(w.invoices||[]).map(inv=>({...inv,warranty_number:w.warranty_number,product:w.products?.name||"Produit"})));
  renderInvoices();
  $("sav-warranty").innerHTML='<option value="">Choisir une garantie</option>'+warranties.map(w=>'<option value="'+esc(w.id)+'">'+esc(w.products?.name || "Produit")+' — '+esc(w.warranty_number)+'</option>').join("");
 }
@@ -263,17 +264,32 @@ async function loadSavHistory(){
 }
 $("client-warranty-search").addEventListener("input",renderWarranties);
 $("client-warranty-status").addEventListener("change",renderWarranties);
-async function renderInvoices(){
- const items=warranties.flatMap(w=>(w.invoices||[]).map(inv=>({...inv,warranty_number:w.warranty_number,product:w.products?.name||"Produit"})));
- if(!items.length){$("invoices").innerHTML='<div class="empty">Aucune facture disponible pour le moment.</div>';return;}
- $("invoices").innerHTML=items.map((inv,i)=>'<div class="invoice"><div><strong>'+esc(inv.file_name||"Facture PDF")+'</strong><div class="muted">'+esc(inv.product)+' · Garantie '+esc(inv.warranty_number)+'</div></div><button data-invoice="'+i+'">Voir / télécharger</button></div>').join("");
+let clientInvoiceItems=[];
+function renderInvoices(){
+ const query=($("client-invoice-search")?.value||"").trim().toLocaleLowerCase("fr");
+ const filtered=clientInvoiceItems.filter(inv=>[inv.file_name,inv.product,inv.warranty_number].filter(Boolean).join(" ").toLocaleLowerCase("fr").includes(query));
+ const count=$("client-invoice-count");
+ if(count)count.textContent=filtered.length+" / "+clientInvoiceItems.length+" facture"+(clientInvoiceItems.length>1?"s":"");
+ if(!clientInvoiceItems.length){$("invoices").innerHTML='<div class="empty">Aucune facture disponible pour le moment.</div>';return;}
+ if(!filtered.length){$("invoices").innerHTML='<div class="empty">Aucune facture ne correspond à votre recherche.</div>';return;}
+ $("invoices").innerHTML=filtered.map(inv=>'<div class="invoice"><div><strong>'+esc(inv.file_name||"Facture PDF")+'</strong><div class="muted">'+esc(inv.product)+' · Garantie '+esc(inv.warranty_number)+'</div><div class="small">Ajoutée le '+date(inv.created_at?.slice(0,10))+'</div></div><button data-invoice="'+esc(inv.id)+'">Voir / télécharger</button></div>').join("");
  $("invoices").querySelectorAll("[data-invoice]").forEach(btn=>btn.addEventListener("click",async()=>{
- const inv=items[Number(btn.dataset.invoice)];btn.disabled=true;btn.textContent="Préparation...";
- try{const {data,error}=await supabase.storage.from("invoices").createSignedUrl(inv.file_path,60);if(error)throw error;window.open(data.signedUrl,"_blank","noopener");}
- catch(e){alert("Impossible d’ouvrir la facture : "+e.message);}
- finally{btn.disabled=false;btn.textContent="Voir / télécharger";}
+  const inv=clientInvoiceItems.find(item=>item.id===btn.dataset.invoice);
+  if(!inv||!inv.file_path)return;
+  const newTab=window.open("about:blank","_blank");
+  btn.disabled=true;btn.textContent="Préparation...";
+  try{
+   const {data,error}=await supabase.storage.from("invoices").createSignedUrl(inv.file_path,60);
+   if(error)throw error;
+   if(newTab)newTab.location.href=data.signedUrl;
+   else window.location.href=data.signedUrl;
+  }catch(e){
+   if(newTab)newTab.close();
+   alert("Impossible d’ouvrir la facture : "+e.message);
+  }finally{btn.disabled=false;btn.textContent="Voir / télécharger";}
  }));
 }
+$("client-invoice-search").addEventListener("input",renderInvoices);
 $("sav-form").addEventListener("submit",async event=>{
  event.preventDefault();$("message").textContent="Envoi en cours...";
  const warrantyId=$("sav-warranty").value;
