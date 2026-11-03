@@ -421,11 +421,12 @@ footer{background:#101d35!important;color:#aebbd0!important;padding:28px!importa
 }
 @media(min-width:751px){header .mobile-menu-toggle{display:none!important}header nav#gtn-mobile-menu{display:flex!important}}
 </style>
-\n</head>
+\n<style id="gtn-logo-branding">header .logo{display:inline-flex;align-items:center;gap:10px;text-decoration:none;white-space:nowrap}header .logo img{width:38px;height:38px;display:block;flex:0 0 38px} @media(max-width:750px){header .logo{font-size:22px}header .logo img{width:34px;height:34px;flex-basis:34px}}</style>
+</head>
 <body>
 
 <header>
-  <a class="logo" href="#accueil">Garantie<span>.tn</span></a>
+  <a class="logo" href="#accueil" aria-label="Garantie.tn - Accueil"><img src="logo.svg" alt="" width="38" height="38">Garantie<span>.tn</span></a>
   <button class="mobile-menu-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="gtn-mobile-menu"><span></span><span></span><span></span></button>
   <nav id="gtn-mobile-menu"><a href="#accueil">Accueil</a><a href="#services">Fonctionnalités</a><a href="#contact">Pour les magasins</a><button type="button" id="open-auth">Se connecter ↗</button></nav>
 </header>
