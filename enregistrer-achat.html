@@ -55,6 +55,22 @@ button.secondary,.secondary{background:#eef3f8!important;color:var(--navy)!impor
 .hidden{display:none!important}
 @media(max-width:600px){main{margin:18px auto!important}.card,main>section,.panel{padding:21px!important}}
 </style>
+<style id="gtn-mobile-refinements">
+/* Mobile layout refinements */
+main,.panel,.item,.grid{min-width:0}
+input,button{max-width:100%}
+.actions{display:flex;flex-wrap:wrap}
+.actions button{flex:1 1 150px}
+@media(max-width:560px){
+ header{padding:13px 16px!important}
+ main{width:calc(100% - 20px)!important;margin:16px auto!important;padding:0!important}
+ .panel{padding:16px!important}
+ .item{padding:13px!important;overflow-wrap:anywhere}
+ .actions{display:grid;grid-template-columns:1fr}
+ .actions button{width:100%}
+}
+
+</style>
 </head>
 <body>
 <header><a class="logo" href="./index.html">Garantie<span>.tn</span></a></header>
