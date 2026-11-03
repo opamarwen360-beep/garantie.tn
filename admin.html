@@ -195,8 +195,15 @@ function showUserDetails(id){
  const fields=[["Nom complet",u.full_name],["Téléphone",u.phone],["Rôle",roleLabel(u.role)],["Date d’inscription",fmt(u.created_at)],["Identifiant du compte",u.id]];
  if(u.role==="magasin"){
   const store=storesForUser(u.id);
-  if(store){fields.push(["Magasin associé",store.name],["Téléphone du magasin",store.phone],["Adresse du magasin",store.address]);}
-  else fields.push(["Magasin associé","Aucune fiche magasin trouvée"]);
+  if(store){
+   const products=adminProducts.filter(p=>p.store_id===store.id).length;
+   const warranties=adminWarranties.filter(w=>w.store_id===store.id).length;
+   const warrantyIds=new Set(adminWarranties.filter(w=>w.store_id===store.id).map(w=>w.id));
+   const savCount=savRows.filter(r=>warrantyIds.has(r.warranty_id)).length;
+   fields.push(["Magasin associé",store.name],["Téléphone du magasin",store.phone],["Adresse du magasin",store.address],["Produits enregistrés",products],["Garanties enregistrées",warranties],["Demandes SAV liées",savCount]);
+  }else fields.push(["Magasin associé","Aucune fiche magasin trouvée"]);
+ }else if(u.role==="client"){
+  fields.push(["Demandes SAV envoyées",savRows.filter(r=>r.customer_user_id===u.id).length]);
  }
  $("user-detail-content").innerHTML='<div class="user-detail-grid">'+fields.map(([label,value])=>'<div class="user-detail-field"><span>'+esc(label)+'</span><strong>'+esc(value)+'</strong></div>').join("")+'</div>';
  $("user-modal").hidden=false;
