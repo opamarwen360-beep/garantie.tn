@@ -246,73 +246,80 @@ footer{background:#101d35!important;color:#aebbd0!important;padding:28px!importa
 
 
 <style id="gtn-mobile-home-polish">
-/* Mobile-first homepage layout */
+/* Refined responsive homepage */
 @media(max-width:750px){
-  html{scroll-padding-top:18px}
+  html{scroll-padding-top:16px}
   body{overflow-x:hidden}
   header{
-    position:relative!important;top:auto!important;display:flex!important;
-    flex-direction:column!important;align-items:stretch!important;gap:12px!important;
-    height:auto!important;min-height:0!important;padding:15px 18px 13px!important;
+    position:relative!important;top:auto!important;z-index:30!important;
+    display:flex!important;flex-direction:row!important;align-items:center!important;
+    justify-content:space-between!important;gap:12px!important;
+    width:100%!important;height:auto!important;min-height:70px!important;
+    padding:13px 20px!important;background:#fff!important;
     border-bottom:1px solid #e8edf3!important
   }
-  header .logo{font-size:27px!important;align-self:center;line-height:1.1}
-  header .mobile-menu-toggle{display:none!important}
+  header .logo{font-size:27px!important;line-height:1.1!important;align-self:center!important}
+  header .mobile-menu-toggle{
+    display:flex!important;flex:0 0 44px!important;width:44px!important;height:42px!important;
+    align-items:center!important;justify-content:center!important;flex-direction:column!important;
+    gap:5px!important;padding:8px!important;border:1px solid #e5eee9!important;
+    border-radius:12px!important;background:#f3f8f5!important;cursor:pointer!important
+  }
+  header .mobile-menu-toggle span{display:block!important;width:20px!important;height:2px!important;background:#153b31!important;border-radius:3px!important}
   header nav#gtn-mobile-menu{
-    display:flex!important;order:2;flex:0 0 auto!important;width:100%!important;
-    flex-direction:row!important;flex-wrap:nowrap!important;justify-content:flex-start!important;
-    align-items:center!important;gap:7px!important;padding:0 0 3px!important;margin:0!important;
-    overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;
-    -webkit-overflow-scrolling:touch;scrollbar-width:none!important;
-    background:transparent!important;border:0!important;box-shadow:none!important
+    display:none!important;position:absolute!important;top:calc(100% + 1px)!important;
+    left:12px!important;right:12px!important;width:auto!important;
+    flex-direction:column!important;align-items:stretch!important;gap:7px!important;
+    padding:12px!important;margin:0!important;background:#fff!important;
+    border:1px solid #e7eee9!important;border-radius:15px!important;
+    box-shadow:0 14px 35px rgba(12,35,28,.14)!important
   }
-  header nav#gtn-mobile-menu::-webkit-scrollbar{display:none!important}
-  header nav#gtn-mobile-menu a,header nav#gtn-mobile-menu button{flex:0 0 auto!important}
-  }
+  header nav#gtn-mobile-menu.is-open{display:flex!important}
   header nav#gtn-mobile-menu a{
-    display:inline-flex!important;align-items:center!important;justify-content:center!important;
-    min-height:36px;padding:8px 11px!important;border-radius:9px!important;
-    background:#f0f6f2!important;color:#385247!important;font-size:12px!important;
-    font-weight:700!important;white-space:nowrap;text-decoration:none
+    display:flex!important;align-items:center!important;justify-content:flex-start!important;
+    width:100%!important;min-height:43px!important;padding:10px 13px!important;
+    border-radius:10px!important;background:#f3f8f5!important;color:#29483d!important;
+    font-size:14px!important;font-weight:700!important;text-decoration:none!important
   }
   header nav#gtn-mobile-menu button{
-    display:inline-flex!important;align-items:center!important;justify-content:center!important;
-    min-height:36px;width:auto!important;margin:0!important;padding:8px 13px!important;
-    border-radius:9px!important;font-size:12px!important;white-space:nowrap
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    width:100%!important;min-height:45px!important;margin:2px 0 0!important;
+    padding:11px 14px!important;border-radius:10px!important;font-size:14px!important
   }
   .hero{
     display:flex!important;flex-direction:column!important;align-items:stretch!important;
-    justify-content:flex-start!important;gap:27px!important;min-height:0!important;
-    padding:48px 22px 35px!important;text-align:left!important
+    justify-content:flex-start!important;gap:24px!important;min-height:0!important;
+    padding:38px 22px 32px!important;text-align:left!important
   }
-  .hero-content{width:100%;max-width:none!important}
-  .hero .tag{font-size:11px!important;padding:8px 11px!important;max-width:100%;white-space:normal}
-  .hero h1{font-size:clamp(36px,10vw,46px)!important;line-height:1.12!important;
-    letter-spacing:-1.8px!important;margin:18px 0 15px!important}
-  .hero p{font-size:15px!important;line-height:1.7!important;margin-bottom:22px!important}
-  .hero .btn{display:flex!important;width:100%;min-height:48px;align-items:center;
-    justify-content:center;text-align:center;margin:9px 0!important;padding:13px 16px!important}
+  .hero-content{width:100%!important;max-width:none!important}
+  .hero .tag{display:inline-flex!important;max-width:100%!important;font-size:11px!important;
+    line-height:1.4!important;padding:8px 11px!important;white-space:normal!important}
+  .hero h1{font-size:clamp(35px,9.5vw,45px)!important;line-height:1.1!important;
+    letter-spacing:-1.6px!important;margin:23px 0 15px!important}
+  .hero p{font-size:15px!important;line-height:1.65!important;margin:0 0 21px!important}
+  .hero .btn{display:flex!important;width:100%!important;min-height:49px!important;
+    align-items:center!important;justify-content:center!important;text-align:center!important;
+    margin:9px 0!important;padding:13px 15px!important}
   .hero .btn.secondary-link{margin-left:0!important}
-  .hero-card{width:100%!important;max-width:none!important;margin:0!important;padding:20px!important}
-  .preview-stat{padding:15px!important}
-  .preview-stat strong{font-size:30px!important}
-  section#services{padding:52px 20px!important}
-  #services .section-title{text-align:center!important;margin:0 auto 26px!important}
+  .hero-card{width:100%!important;max-width:none!important;margin:0!important;padding:18px!important}
+  .preview-stat{padding:14px!important}
+  .preview-stat strong{font-size:28px!important}
+  section#services{padding:44px 19px!important}
+  #services .section-title{text-align:center!important;margin:0 auto 23px!important}
   #services .section-title h2{font-size:27px!important;line-height:1.2!important}
-  #services .section-title p{font-size:14px!important;line-height:1.65}
+  #services .section-title p{font-size:14px!important;line-height:1.6!important}
   #services .features{grid-template-columns:1fr!important;gap:12px!important}
-  #services .feature{padding:21px!important;border-radius:15px!important}
-  #services .feature .icon{margin-bottom:14px!important}
-  .cta{padding:48px 20px!important}
-  .cta h2{font-size:27px!important;line-height:1.2}
-  .cta p{font-size:14px!important;line-height:1.7}
-  .cta a{display:flex!important;width:100%;min-height:46px;align-items:center;justify-content:center;margin:10px 0!important}
-  footer{padding:22px 16px!important;line-height:1.6}
+  #services .feature{padding:20px!important;border-radius:15px!important}
+  #services .feature .icon{margin-bottom:12px!important}
+  .cta{padding:42px 19px!important}
+  .cta h2{font-size:27px!important;line-height:1.2!important}
+  .cta p{font-size:14px!important;line-height:1.65!important}
+  .cta a{display:flex!important;width:100%!important;min-height:46px!important;
+    align-items:center!important;justify-content:center!important;margin:10px 0!important}
+  footer{padding:22px 16px!important;line-height:1.6!important}
 }
 @media(max-width:380px){
-  header{padding-left:13px!important;padding-right:13px!important}
-  header nav#gtn-mobile-menu{gap:5px!important}
-  header nav#gtn-mobile-menu a,header nav#gtn-mobile-menu button{font-size:11px!important;padding:8px 9px!important}
+  header{padding-left:15px!important;padding-right:15px!important}
   .hero{padding-left:18px!important;padding-right:18px!important}
   .hero h1{font-size:35px!important}
 }
