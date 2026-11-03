@@ -105,7 +105,7 @@ a{color:var(--green)}
 <section class="panel"><h2>Demander une assistance SAV</h2>
 <form id="sav-form"><label for="sav-warranty">Produit concerné</label><select id="sav-warranty" required><option value="">Choisir une garantie</option></select><label for="sav-subject">Sujet de la demande</label><input id="sav-subject" maxlength="150" required placeholder="Ex. : Problème de fonctionnement"><label for="sav-description">Description</label><textarea id="sav-description" maxlength="2000" placeholder="Décrivez votre problème..."></textarea><button type="submit">Envoyer ma demande</button></form><p id="message" role="status"></p>
 </section>
-<section class="panel"><h2>Historique de mes demandes SAV</h2><div id="sav-history"><div class="empty">Chargement de vos demandes...</div></div></section>
+<section class="panel"><h2>Historique de mes demandes SAV</h2><p class="muted">Suivez l’avancement de vos demandes et retrouvez facilement un dossier.</p><div class="client-tools"><input id="client-sav-search" type="search" placeholder="Rechercher par sujet, produit ou N° de garantie..." aria-label="Rechercher dans mes demandes SAV"><select id="client-sav-status" aria-label="Filtrer les demandes SAV"><option value="all">Tous les statuts</option><option value="pending">En attente</option><option value="processing">En cours</option><option value="completed">Terminées</option><option value="rejected">Refusées</option></select><span class="result-count" id="client-sav-count" aria-live="polite">0 demande</span></div><div id="sav-history"><div class="empty">Chargement de vos demandes...</div></div></section>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script type="module">
@@ -244,23 +244,33 @@ function renderWarranties(){
  }).join("");
 }
 
+let clientSavRequests=[];
+function renderSavHistory(){
+ const query=($("client-sav-search")?.value||"").trim().toLocaleLowerCase("fr");
+ const selectedStatus=$("client-sav-status")?.value||"all";
+ const filtered=clientSavRequests.filter(r=>{
+  const haystack=[r.subject,r.description,r.warranties?.products?.name,r.warranties?.warranty_number].filter(Boolean).join(" ").toLocaleLowerCase("fr");
+  return (!query||haystack.includes(query))&&(selectedStatus==="all"||r.status===selectedStatus);
+ });
+ const count=$("client-sav-count");
+ if(count)count.textContent=filtered.length+" / "+clientSavRequests.length+" demande"+(clientSavRequests.length>1?"s":"");
+ if(!clientSavRequests.length){$("sav-history").innerHTML='<div class="empty">Vous n’avez pas encore envoyé de demande SAV.</div>';return;}
+ if(!filtered.length){$("sav-history").innerHTML='<div class="empty">Aucune demande ne correspond à votre recherche ou à ce filtre.</div>';return;}
+ const labels={pending:"En attente",processing:"En cours",completed:"Terminée",rejected:"Refusée"};
+ $("sav-history").innerHTML=filtered.map(r=>{
+  const status=labels[r.status]||"Statut inconnu";
+  const cls=r.status==="rejected"?"expired":r.status==="completed"?"":"claimed";
+  return '<article class="warranty"><div><h3>'+esc(r.subject)+'</h3><p class="muted">'+esc(r.warranties?.products?.name||"Produit")+' · Garantie '+esc(r.warranties?.warranty_number||"—")+'</p><p class="muted">Envoyée le '+date(r.created_at?.slice(0,10))+'</p>'+(r.description?'<p>'+esc(r.description)+'</p>':'')+'</div><div><span class="pill '+cls+'">'+status+'</span></div></article>';
+ }).join("");
+}
 async function loadSavHistory(){
  const {data,error}=await supabase.from("sav_requests")
   .select("id,subject,description,status,created_at,warranties(warranty_number,products(name))")
   .eq("customer_user_id",currentUser.id)
   .order("created_at",{ascending:false});
  if(error) throw error;
- const requests=data||[];
- if(!requests.length){
-  $("sav-history").innerHTML='<div class="empty">Vous n’avez pas encore envoyé de demande SAV.</div>';
-  return;
- }
- const labels={pending:"En attente",processing:"En cours",completed:"Terminée",rejected:"Refusée"};
- $("sav-history").innerHTML=requests.map(r=>{
-  const status=labels[r.status]||"Statut inconnu";
-  const cls=r.status==="rejected"?"expired":r.status==="completed"?"":"claimed";
-  return '<article class="warranty"><div><h3>'+esc(r.subject)+'</h3><p class="muted">'+esc(r.warranties?.products?.name||"Produit")+' · Garantie '+esc(r.warranties?.warranty_number||"—")+'</p><p class="muted">Envoyée le '+date(r.created_at?.slice(0,10))+'</p>'+(r.description?'<p>'+esc(r.description)+'</p>':'')+'</div><div><span class="pill '+cls+'">'+status+'</span></div></article>';
- }).join("");
+ clientSavRequests=data||[];
+ renderSavHistory();
 }
 $("client-warranty-search").addEventListener("input",renderWarranties);
 $("client-warranty-status").addEventListener("change",renderWarranties);
@@ -290,6 +300,8 @@ function renderInvoices(){
  }));
 }
 $("client-invoice-search").addEventListener("input",renderInvoices);
+$("client-sav-search").addEventListener("input",renderSavHistory);
+$("client-sav-status").addEventListener("change",renderSavHistory);
 $("sav-form").addEventListener("submit",async event=>{
  event.preventDefault();$("message").textContent="Envoi en cours...";
  const warrantyId=$("sav-warranty").value;
