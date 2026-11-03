@@ -407,7 +407,21 @@ footer{background:#101d35!important;color:#aebbd0!important;padding:28px!importa
 @media(min-width:751px){header .mobile-menu-toggle{display:none!important}header nav#gtn-mobile-menu{display:flex!important}}
 </style>
 
-</head>
+
+<style id="gtn-mobile-header-final">
+@media (max-width:750px){
+  header{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;padding:13px 18px!important;min-height:68px!important}
+  header .logo{display:block!important;margin:0!important;font-size:25px!important;line-height:1.1!important}
+  header .mobile-menu-toggle{display:flex!important;order:2!important;flex:0 0 44px!important;width:44px!important;height:42px!important;margin:0 0 0 auto!important;padding:9px!important;align-items:center!important;justify-content:center!important;gap:5px!important;border:1px solid #dcece3!important;border-radius:12px!important;background:#f0f7f3!important}
+  header .mobile-menu-toggle span{display:block!important;width:21px!important;height:2px!important;border-radius:2px!important;background:#102b25!important}
+  header nav#gtn-mobile-menu{display:none!important;order:3!important;flex:0 0 100%!important;width:100%!important;flex-direction:column!important;align-items:stretch!important;gap:7px!important;margin:4px 0 0!important;padding:10px!important;border:1px solid #e5eee8!important;border-radius:14px!important;background:#fff!important;box-shadow:0 10px 25px rgba(16,43,37,.08)!important}
+  header nav#gtn-mobile-menu.is-open{display:flex!important}
+  header nav#gtn-mobile-menu a{display:flex!important;width:100%!important;min-height:43px!important;align-items:center!important;padding:10px 13px!important;border-radius:10px!important;background:#f3f8f5!important;font-size:14px!important;font-weight:650!important}
+  header nav#gtn-mobile-menu button{display:flex!important;width:100%!important;min-height:46px!important;align-items:center!important;justify-content:center!important;margin:2px 0 0!important}
+}
+@media(min-width:751px){header .mobile-menu-toggle{display:none!important}header nav#gtn-mobile-menu{display:flex!important}}
+</style>
+\n</head>
 <body>
 
 <header>
