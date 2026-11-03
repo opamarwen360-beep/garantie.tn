@@ -91,6 +91,34 @@ a{color:var(--green)}
 @media(max-width:760px){main{width:calc(100% - 24px)!important;margin:20px auto 45px!important}.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.welcome,.intro,.heading{align-items:flex-start;flex-direction:column;padding:21px!important}.panel{padding:18px!important}.fields{grid-template-columns:1fr}.tabs{overflow-x:auto;flex-wrap:nowrap}.tabs button{white-space:nowrap}}
 @media(max-width:420px){.stats{grid-template-columns:1fr}.stat strong{font-size:25px!important}}
 </style>
+<style id="gtn-mobile-refinements">
+/* Mobile layout refinements */
+main,.panel,.section{min-width:0}
+.table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{min-width:620px}
+.user-tools,.product-tools{grid-template-columns:minmax(0,1fr)!important}
+.user-tools input,.user-tools select,.product-tools input,.product-tools select{width:100%;min-width:0}
+.actions{flex-wrap:wrap}
+.actions button{flex:1 1 auto}
+@media(max-width:560px){
+ header{height:auto;min-height:64px;padding:10px 14px!important;gap:10px}
+ header .logo{font-size:20px!important}
+ header button{padding:9px 11px!important;font-size:12px!important}
+ main{width:calc(100% - 20px)!important;margin:16px auto!important;padding:0!important}
+ .heading{padding:17px!important}
+ .stats{grid-template-columns:1fr 1fr!important;gap:9px!important}
+ .stat{min-width:0;padding:12px!important}
+ .stat span{font-size:12px!important}
+ .stat strong{font-size:23px!important;overflow-wrap:anywhere}
+ .panel{padding:15px!important;overflow:hidden}
+ .tabs{display:flex;flex-wrap:nowrap!important;overflow-x:auto;padding:7px!important;scrollbar-width:thin}
+ .tabs button{flex:0 0 auto;white-space:nowrap}
+ .user-detail-backdrop{padding:10px!important}
+ .user-detail-modal{max-height:90vh!important;padding:15px!important}
+}
+@media(max-width:360px){.stats{grid-template-columns:1fr!important}}
+
+</style>
 </head>
 <body>
 <header><a class="logo" href="./index.html">Garantie<span>.tn</span></a><button id="logout">Déconnexion</button></header>
