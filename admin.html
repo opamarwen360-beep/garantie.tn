@@ -178,6 +178,7 @@ document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.cl
 $("application-search").addEventListener("input",renderApplications);$("application-filter").addEventListener("change",renderApplications);
 $("close-application-modal").addEventListener("click",()=>$("application-modal").hidden=true);
 $("application-modal").addEventListener("click",e=>{if(e.target.id==="application-modal")e.currentTarget.hidden=true;});
+$("application-detail-content").addEventListener("click",e=>{const action=e.target.closest("button[data-status]");if(!action)return;const rowAction=$("applications-data").querySelector('button[data-id="'+CSS.escape(action.dataset.id)+'"][data-status="'+action.dataset.status+'"]');if(rowAction)rowAction.click();});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")$("application-modal").hidden=true;});
 $("applications-data").addEventListener("click",async e=>{
  const detail=e.target.closest("button[data-application-detail]");if(detail){showApplicationDetails(detail.dataset.applicationDetail);return;}
