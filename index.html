@@ -723,91 +723,63 @@ footer{background:#101d35!important;color:#aebbd0!important;padding:28px!importa
 
 
 <script>
-/* Garantie.tn mobile navigation */
+/* Garantie.tn mobile navigation — reliable toggle */
 (() => {
-  const initMenu = () => {
+  const init = () => {
     const toggle = document.querySelector(".mobile-menu-toggle");
     const menu = document.getElementById("gtn-mobile-menu");
     if (!toggle || !menu || toggle.dataset.menuReady === "1") return;
     toggle.dataset.menuReady = "1";
 
-    // Keep the menu content as navigation labels only (never CSS text).
-    menu.innerHTML = '<a href="#accueil">Accueil</a><a href="#services">Fonctionnalités</a><a href="#contact">Pour les magasins</a><button type="button" id="open-auth">Se connecter</button>';
+    menu.innerHTML = '<a href="#accueil">Accueil</a><a href="#services">Fonctionnalités</a><a href="./demande-magasin.html">Pour les magasins</a><button type="button" id="open-auth">Se connecter</button>';
 
-    const mobile = () => window.matchMedia("(max-width: 750px)").matches;
-    const closeMenu = () => {
+    const isMobile = () => window.matchMedia("(max-width: 750px)").matches;
+    const close = () => {
       menu.classList.remove("is-open");
       toggle.setAttribute("aria-expanded", "false");
-      if (mobile()) menu.style.setProperty("display", "none", "important");
+      menu.style.setProperty("display", "none", "important");
     };
-    const openMenu = () => {
+    const open = () => {
       menu.classList.add("is-open");
       toggle.setAttribute("aria-expanded", "true");
-      if (mobile()) {
-        const header = document.querySelector("header");
-        const rect = (header || toggle).getBoundingClientRect();
-        Object.assign(menu.style, {
-          display: "flex", position: "fixed",
-          top: Math.max(8, rect.bottom + 8) + "px",
-          left: "12px", right: "12px", width: "auto",
-          height: "auto", maxHeight: "calc(100vh - 100px)",
-          overflowY: "auto", flexDirection: "column",
-          alignItems: "stretch", gap: "8px", padding: "12px",
-          margin: "0", background: "#fff",
-          border: "1px solid #dcebe2", borderRadius: "14px",
-          boxShadow: "0 12px 30px rgba(16,43,37,.20)",
-          visibility: "visible", opacity: "1",
-          zIndex: "2147483647", pointerEvents: "auto"
-        });
-        menu.querySelectorAll("a,button").forEach((item) => {
-          Object.assign(item.style, {
-            display: "flex", width: "100%", minHeight: "48px",
-            boxSizing: "border-box", alignItems: "center",
-            padding: "12px 14px", margin: "0",
-            color: "#29483b", background: "#f1f7f3",
-            border: "1px solid #e2eee6", borderRadius: "10px",
-            fontSize: "16px", fontWeight: "700",
-            lineHeight: "1.4", textAlign: "left",
-            textDecoration: "none"
-          });
-        });
-        const login = menu.querySelector("#open-auth");
-        if (login) Object.assign(login.style, {
-          justifyContent: "center", color: "#fff", background: "#16a477",
-          borderColor: "#16a477"
-        });
-      }
+      Object.assign(menu.style, {
+        position: "fixed", top: Math.max(8, toggle.getBoundingClientRect().bottom + 8) + "px",
+        left: "12px", right: "12px", width: "auto", maxHeight: "calc(100vh - 110px)",
+        overflowY: "auto", flexDirection: "column", alignItems: "stretch",
+        gap: "8px", padding: "12px", margin: "0", background: "#fff",
+        border: "1px solid #dcebe2", borderRadius: "14px",
+        boxShadow: "0 12px 30px rgba(16,43,37,.20)", zIndex: "2147483647",
+        visibility: "visible", opacity: "1", pointerEvents: "auto"
+      });
+      menu.style.setProperty("display", "flex", "important");
     };
 
     toggle.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
-      menu.classList.contains("is-open") ? closeMenu() : openMenu();
+      menu.classList.contains("is-open") ? close() : open();
     });
-    menu.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
-    menu.querySelector("#open-auth")?.addEventListener("click", closeMenu);
+    menu.addEventListener("click", (event) => {
+      const link = event.target.closest("a");
+      if (link) close();
+      if (event.target.closest("#open-auth")) close();
+    });
     document.addEventListener("click", (event) => {
-      if (!menu.contains(event.target) && !toggle.contains(event.target)) closeMenu();
+      if (!menu.contains(event.target) && !toggle.contains(event.target)) close();
     });
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") closeMenu();
+      if (event.key === "Escape") close();
     });
     window.addEventListener("resize", () => {
-      if (!mobile()) {
-        menu.style.removeProperty("position");
-        menu.style.removeProperty("top");
-        menu.style.removeProperty("left");
-        menu.style.removeProperty("right");
-        menu.style.removeProperty("width");
-        menu.style.removeProperty("z-index");
-      } else if (menu.classList.contains("is-open")) openMenu();
+      if (!isMobile()) {
+        close();
+        ["position","top","left","right","width","max-height","overflow-y","z-index"].forEach(p => menu.style.removeProperty(p));
+      }
     });
+    close();
   };
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initMenu, { once: true });
-  } else {
-    initMenu();
-  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
+  else init();
 })();
 </script>
 
