@@ -723,7 +723,7 @@ footer{background:#101d35!important;color:#aebbd0!important;padding:28px!importa
 
 
 <script>
-/* Mobile navigation: one reliable handler for the menu toggle and its links. */
+/* Garantie.tn mobile navigation */
 (() => {
   const initMenu = () => {
     const toggle = document.querySelector(".mobile-menu-toggle");
@@ -731,106 +731,78 @@ footer{background:#101d35!important;color:#aebbd0!important;padding:28px!importa
     if (!toggle || !menu || toggle.dataset.menuReady === "1") return;
     toggle.dataset.menuReady = "1";
 
-    // Render the mobile menu as a body-level fixed panel to escape header/CSS layout conflicts.
-    if (window.matchMedia("(max-width: 750px)").matches && menu.parentElement !== document.body) {
-      document.body.appendChild(menu);
-    }
+    // Keep the menu content as navigation labels only (never CSS text).
+    menu.innerHTML = '<a href="#accueil">Accueil</a><a href="#services">Fonctionnalités</a><a href="#contact">Pour les magasins</a><button type="button" id="open-auth">Se connecter</button>';
 
-    const setMenuOpen = (open) => {
-      menu.classList.toggle("is-open", open);
-      toggle.setAttribute("aria-expanded", String(open));
-      toggle.setAttribute("aria-label", open ? "Fermer le menu" : "Ouvrir le menu");
-
-      if (window.matchMedia("(max-width: 750px)").matches) {
-        if (open) {
-          const header = document.querySelector("header");
-          const rect = (header || toggle).getBoundingClientRect();
-          Object.assign(menu.style, {
-            display: "flex",
-            position: "fixed",
-            top: Math.max(8, rect.bottom + 8) + "px",
-            left: "12px",
-            right: "12px",
-            width: "auto",
-            height: "auto",
-            maxHeight: "calc(100vh - " + Math.max(16, rect.bottom + 20) + "px)",
-            overflowY: "auto",
-            flexDirection: "column",
-            alignItems: "stretch",
-            justifyContent: "flex-start",
-            gap: "8px",
-            padding: "12px",
-            margin: "0",
-            background: "#ffffff",
-            border: "1px solid #dcebe2",
-            borderRadius: "14px",
-            boxShadow: "0 12px 30px rgba(16,43,37,.20)",
-            visibility: "visible",
-            opacity: "1",
-            zIndex: "2147483647",
-            pointerEvents: "auto"
+    const mobile = () => window.matchMedia("(max-width: 750px)").matches;
+    const closeMenu = () => {
+      menu.classList.remove("is-open");
+      toggle.setAttribute("aria-expanded", "false");
+      if (mobile()) menu.style.setProperty("display", "none", "important");
+    };
+    const openMenu = () => {
+      menu.classList.add("is-open");
+      toggle.setAttribute("aria-expanded", "true");
+      if (mobile()) {
+        const header = document.querySelector("header");
+        const rect = (header || toggle).getBoundingClientRect();
+        Object.assign(menu.style, {
+          display: "flex", position: "fixed",
+          top: Math.max(8, rect.bottom + 8) + "px",
+          left: "12px", right: "12px", width: "auto",
+          height: "auto", maxHeight: "calc(100vh - 100px)",
+          overflowY: "auto", flexDirection: "column",
+          alignItems: "stretch", gap: "8px", padding: "12px",
+          margin: "0", background: "#fff",
+          border: "1px solid #dcebe2", borderRadius: "14px",
+          boxShadow: "0 12px 30px rgba(16,43,37,.20)",
+          visibility: "visible", opacity: "1",
+          zIndex: "2147483647", pointerEvents: "auto"
+        });
+        menu.querySelectorAll("a,button").forEach((item) => {
+          Object.assign(item.style, {
+            display: "flex", width: "100%", minHeight: "48px",
+            boxSizing: "border-box", alignItems: "center",
+            padding: "12px 14px", margin: "0",
+            color: "#29483b", background: "#f1f7f3",
+            border: "1px solid #e2eee6", borderRadius: "10px",
+            fontSize: "16px", fontWeight: "700",
+            lineHeight: "1.4", textAlign: "left",
+            textDecoration: "none"
           });
-          menu.querySelectorAll("a, button").forEach((item) => {
-            Object.assign(item.style, {
-              display: "flex",
-              visibility: "visible",
-              opacity: "1",
-              position: "relative",
-              width: "100%",
-              minHeight: "48px",
-              height: "auto",
-              alignItems: "center",
-              justifyContent: "flex-start",
-              padding: "12px 14px",
-              margin: "0",
-              color: "#29483b",
-              background: "#f1f7f3",
-              border: "1px solid #e2eee6",
-              borderRadius: "10px",
-              fontSize: "16px",
-              fontWeight: "700",
-              lineHeight: "1.4",
-              textAlign: "left",
-              textDecoration: "none",
-              textIndent: "0",
-              whiteSpace: "normal"
-            });
-          });
-          const authButton = menu.querySelector("#open-auth");
-          if (authButton) {
-            authButton.style.setProperty("justify-content", "center", "important");
-            authButton.style.setProperty("color", "#ffffff", "important");
-            authButton.style.setProperty("background", "#16a477", "important");
-          }
-        } else {
-          menu.style.setProperty("display", "none", "important");
-        }
+        });
+        const login = menu.querySelector("#open-auth");
+        if (login) Object.assign(login.style, {
+          justifyContent: "center", color: "#fff", background: "#16a477",
+          borderColor: "#16a477"
+        });
       }
     };
 
     toggle.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
-      setMenuOpen(!menu.classList.contains("is-open"));
+      menu.classList.contains("is-open") ? closeMenu() : openMenu();
     });
-
-    menu.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", () => setMenuOpen(false));
-    });
-
-    menu.querySelector("#open-auth")?.addEventListener("click", () => setMenuOpen(false));
-
+    menu.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
+    menu.querySelector("#open-auth")?.addEventListener("click", closeMenu);
     document.addEventListener("click", (event) => {
-      if (!menu.contains(event.target) && !toggle.contains(event.target)) {
-        setMenuOpen(false);
-      }
+      if (!menu.contains(event.target) && !toggle.contains(event.target)) closeMenu();
     });
-
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") setMenuOpen(false);
+      if (event.key === "Escape") closeMenu();
+    });
+    window.addEventListener("resize", () => {
+      if (!mobile()) {
+        menu.style.removeProperty("position");
+        menu.style.removeProperty("top");
+        menu.style.removeProperty("left");
+        menu.style.removeProperty("right");
+        menu.style.removeProperty("width");
+        menu.style.removeProperty("z-index");
+      } else if (menu.classList.contains("is-open")) openMenu();
     });
   };
-
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initMenu, { once: true });
   } else {
