@@ -524,6 +524,76 @@ body>header #open-auth:hover,body>header #logout:hover,header.site-header #open-
  body>header .gtn-brand img,header.site-header .gtn-brand img{max-width:136px!important}
 }
 </style>
+<style id="gtn-professional-header-v2">
+/* Garantie.tn — clean professional header */
+body>header, body>.site-header{
+  box-sizing:border-box!important;width:100%!important;min-height:104px!important;
+  height:auto!important;padding:14px clamp(18px,4vw,56px)!important;
+  display:flex!important;flex-direction:row!important;align-items:center!important;
+  justify-content:space-between!important;gap:28px!important;
+  background:#fff!important;border:0!important;border-bottom:1px solid #e8eee9!important;
+  border-radius:0!important;box-shadow:0 4px 18px rgba(22,54,39,.055)!important;
+  position:relative!important;top:auto!important;z-index:20!important;flex-wrap:nowrap!important;
+}
+body>header .gtn-brand,body>.site-header .gtn-brand{
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  flex:0 0 auto!important;min-width:0!important;max-width:34%!important;
+  position:static!important;text-decoration:none!important;background:transparent!important;
+}
+body>header .gtn-brand img,body>.site-header .gtn-brand img{
+  display:block!important;width:clamp(220px,24vw,310px)!important;height:auto!important;
+  max-width:100%!important;max-height:78px!important;object-fit:contain!important;
+  object-position:left center!important;background:transparent!important;
+}
+body>header nav.gtn-nav-new,body>.site-header nav.gtn-nav-new{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  gap:clamp(12px,2vw,28px)!important;flex:1 1 auto!important;min-width:0!important;
+  width:auto!important;margin:0!important;padding:0!important;overflow:visible!important;
+  background:transparent!important;box-shadow:none!important;
+}
+body>header nav.gtn-nav-new a,body>.site-header nav.gtn-nav-new a{
+  flex:0 0 auto!important;white-space:nowrap!important;text-decoration:none!important;
+  color:#25483b!important;font-size:14px!important;font-weight:650!important;
+  line-height:1.3!important;padding:10px 3px!important;border:0!important;
+  border-radius:0!important;background:transparent!important;transition:color .18s ease!important;
+}
+body>header nav.gtn-nav-new a:hover,body>.site-header nav.gtn-nav-new a:hover{color:#0b9569!important}
+body>header>button,body>.site-header>button{
+  flex:0 0 auto!important;margin:0!important;white-space:nowrap!important;
+  border:0!important;border-radius:12px!important;padding:12px 21px!important;
+  background:#087f5b!important;color:#fff!important;font-weight:750!important;
+  box-shadow:0 5px 14px rgba(8,127,91,.15)!important;
+}
+@media(max-width:760px){
+ body>header,body>.site-header{
+   min-height:0!important;padding:12px 15px 10px!important;gap:9px!important;
+   display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+   grid-template-rows:auto auto!important;align-items:center!important;
+ }
+ body>header .gtn-brand,body>.site-header .gtn-brand{
+   grid-column:1!important;grid-row:1!important;max-width:100%!important;
+ }
+ body>header .gtn-brand img,body>.site-header .gtn-brand img{
+   width:min(230px,58vw)!important;max-height:58px!important;
+ }
+ body>header>button,body>.site-header>button{
+   grid-column:2!important;grid-row:1!important;padding:10px 14px!important;
+   font-size:13px!important;border-radius:10px!important;
+ }
+ body>header nav.gtn-nav-new,body>.site-header nav.gtn-nav-new{
+   grid-column:1 / -1!important;grid-row:2!important;width:100%!important;
+   display:flex!important;flex-direction:row!important;justify-content:flex-start!important;
+   align-items:center!important;gap:9px!important;overflow-x:auto!important;
+   overflow-y:hidden!important;white-space:nowrap!important;padding:2px 0 5px!important;
+   scrollbar-width:none!important;-webkit-overflow-scrolling:touch!important;
+ }
+ body>header nav.gtn-nav-new::-webkit-scrollbar,body>.site-header nav.gtn-nav-new::-webkit-scrollbar{display:none!important}
+ body>header nav.gtn-nav-new a,body>.site-header nav.gtn-nav-new a{
+   flex:0 0 auto!important;font-size:12px!important;padding:8px 11px!important;
+   border-radius:9px!important;background:#f2f7f4!important;color:#244b3b!important;
+ }
+}
+</style>
 </body></html>');
  win.document.close();
 }
