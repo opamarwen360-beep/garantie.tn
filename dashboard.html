@@ -119,7 +119,7 @@ button,a.btn{max-width:100%;white-space:normal;overflow-wrap:anywhere}
 <header><a class="logo" href="./index.html">Garantie<span>.tn</span></a><button id="logout" type="button">Déconnexion</button></header>
 <main id="app" style="display:none">
 <section class="intro"><div class="store-heading"><div><h1>Espace magasin</h1><p class="muted" id="store-label">Gérez vos produits et les garanties de vos clients.</p></div><div class="store-switcher"><label for="store-select">Point de vente</label><select id="store-select" aria-label="Choisir un magasin"></select></div></div></section>
-<section class="panel store-management"><form id="new-store-form" class="new-store-form"><input id="new-store-name" maxlength="120" required placeholder="Nom du nouveau point de vente"><input id="new-store-address" maxlength="220" placeholder="Adresse (facultatif)"><button type="submit">+ Ajouter un magasin</button></form><p id="new-store-message" class="message" role="status"></p></section>
+<section class="panel store-management"><form id="new-store-form" class="new-store-form"><input id="new-store-name" maxlength="120" required placeholder="Nom du nouveau point de vente"><input id="new-store-phone" type="tel" maxlength="30" required placeholder="Téléphone du magasin"><input id="new-store-address" maxlength="220" required placeholder="Adresse du magasin"><button type="submit">Envoyer la demande</button></form><p class="small">L’ajout d’un nouveau point de vente sera effectif après validation par l’administration.</p><p id="new-store-message" class="message" role="status"></p></section>
 <section class="stats-grid" aria-label="Statistiques du magasin"><article class="stat-card"><span>Total garanties</span><strong id="stat-total">0</strong></article><article class="stat-card"><span>Garanties actives</span><strong id="stat-active">0</strong></article><article class="stat-card"><span>Expirent sous 30 jours</span><strong id="stat-expiring">0</strong></article><article class="stat-card"><span>Garanties expirées</span><strong id="stat-expired">0</strong></article></section>
 <section class="panel"><h2>Photo de mon magasin</h2><form id="store-photo-form"><input id="store-photo" type="file" accept="image/jpeg,image/png,image/webp" required><button type="submit">Enregistrer la photo</button></form><img id="store-photo-preview" alt="Photo du magasin" style="display:none;max-width:180px;margin-top:12px"><p id="store-photo-message" class="message"></p></section><section class="panel"><h2>Enregistrement par QR code</h2><p class="muted">Demandez au client d’ouvrir son QR code personnel dans son espace client, puis scannez-le avec l’appareil photo du téléphone. Le formulaire d’enregistrement des articles s’ouvrira automatiquement. Connectez-vous au compte magasin sur ce téléphone avant le scan.</p></section>
 <div class="grid">
@@ -193,10 +193,18 @@ async function init() {
 }
 $("store-select").addEventListener("change",e=>selectStore(e.target.value).catch(err=>alert("Erreur : "+err.message)));
 $("new-store-form").addEventListener("submit",async e=>{
- e.preventDefault();const btn=e.currentTarget.querySelector("button"),msg=$("new-store-message"),name=$("new-store-name").value.trim(),address=$("new-store-address").value.trim();if(!name)return;
- btn.disabled=true;msg.textContent="Création du point de vente...";
- try{const {data:store,error}=await supabase.from("stores").insert({owner_id:currentUser.id,name,address:address||null}).select("id,name,address,photo_path").single();if(error)throw error;
- ownedStores.push(store);$("store-select").disabled=false;$("store-select").innerHTML=ownedStores.map(item=>'<option value="'+esc(item.id)+'">'+esc(item.name)+'</option>').join("");$("new-store-form").reset();msg.textContent="Point de vente ajouté.";await selectStore(store.id);
+ e.preventDefault();
+ const btn=e.currentTarget.querySelector("button"),msg=$("new-store-message");
+ const name=$("new-store-name").value.trim(),phone=$("new-store-phone").value.trim(),address=$("new-store-address").value.trim();
+ if(!name||!phone||!address)return;
+ btn.disabled=true;msg.textContent="Envoi de la demande à l’administration...";
+ try{
+  const {data:existing,error:checkError}=await supabase.from("store_applications").select("id").eq("user_id",currentUser.id).eq("application_type","branch").eq("status","pending").limit(1);
+  if(checkError)throw checkError;
+  if(existing?.length)throw new Error("Vous avez déjà une demande de point de vente en attente.");
+  const {error}=await supabase.from("store_applications").insert({user_id:currentUser.id,application_type:"branch",business_name:name,phone,address});
+  if(error)throw error;
+  $("new-store-form").reset();msg.textContent="Demande envoyée avec succès. Votre nouveau point de vente sera ajouté après validation par l’administration.";
  }catch(err){msg.textContent="Erreur : "+err.message;}finally{btn.disabled=false;}
 });
 
