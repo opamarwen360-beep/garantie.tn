@@ -48,6 +48,78 @@
     @media(max-width:900px){.hero-grid{gap:40px}.features{grid-template-columns:repeat(2,1fr)}.nav{gap:18px}}
     @media(max-width:700px){.container{width:min(100% - 32px,560px)}.header-inner{height:auto;min-height:72px;flex-wrap:wrap;gap:10px;padding:10px 0}.brand img{width:175px;max-height:48px}.menu-toggle{display:block}.nav{display:none;order:3;flex:0 0 100%;align-items:stretch;gap:6px;padding:8px 0 3px}.nav.open{display:flex;flex-direction:column}.nav a{padding:10px 12px;border-radius:9px;background:#f5f8fa}.nav .btn{width:100%}.hero{padding:62px 0 70px}.hero-grid{grid-template-columns:1fr;gap:40px}.hero h1{font-size:clamp(39px,10vw,52px);letter-spacing:-1.8px}.hero-copy{font-size:15px}.dashboard-card{transform:none;max-width:520px;width:100%;margin:auto}.section{padding:66px 0}.features{grid-template-columns:1fr;gap:13px}.feature{padding:22px}.steps{grid-template-columns:1fr;gap:28px}.partner-banner{padding-bottom:66px}.partner-box{align-items:flex-start;flex-direction:column;padding:28px 23px}.partner-box h2{font-size:22px}.footer-inner{flex-direction:column;text-align:center}.modal-card{padding:25px 21px}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+
+    /* Garantie.tn — new visual identity */
+    :root{--navy:#111827;--navy-2:#1f2937;--green:#0d9488;--green-dark:#0f766e;--mint:#e6fffb;--ink:#111827;--muted:#64748b;--line:#e5e7eb;--paper:#f8fafc;--white:#fff;--shadow:0 24px 70px rgba(15,23,42,.12)}
+    body{background:#f8fafc;color:#111827;font-family:'DM Sans',sans-serif}
+    .container{width:min(1200px,calc(100% - 48px))}
+    .site-header{background:rgba(255,255,255,.9);border-bottom:1px solid #e8edf2;box-shadow:0 6px 28px rgba(15,23,42,.035)}
+    .header-inner{height:88px}
+    .brand img{width:205px;max-height:58px}
+    .nav{gap:34px}
+    .nav a{font-size:13px;letter-spacing:.01em;color:#475569;transition:color .2s}
+    .nav a:hover{color:#0d9488}
+    .btn{border:0!important;border-radius:12px!important;background:#0d9488!important;color:#fff!important;padding:14px 22px!important;font-weight:800!important;box-shadow:0 9px 20px rgba(13,148,136,.2);transition:transform .2s,box-shadow .2s,background .2s}
+    .btn:hover{background:#0f766e!important;transform:translateY(-2px);box-shadow:0 14px 26px rgba(13,148,136,.25)}
+    .btn-outline{background:#fff!important;color:#111827!important;border:1px solid #dbe4e8!important;box-shadow:none!important}
+    .btn-outline:hover{background:#f0fdfa!important;border-color:#99f6e4!important;color:#0f766e!important}
+    .hero{position:relative;overflow:hidden;padding:94px 0 104px;background:radial-gradient(ellipse at 82% 16%,rgba(45,212,191,.22),transparent 32%),linear-gradient(135deg,#f8fafc 0%,#eef7f6 48%,#f8fafc 100%)}
+    .hero:before{content:"";position:absolute;width:520px;height:520px;border:1px solid rgba(13,148,136,.12);border-radius:50%;right:-180px;top:-250px;box-shadow:0 0 0 48px rgba(13,148,136,.025),0 0 0 96px rgba(13,148,136,.02)}
+    .hero-grid{position:relative;z-index:1;grid-template-columns:1.04fr .96fr;gap:76px;align-items:center}
+    .eyebrow{display:inline-flex;align-items:center;gap:10px;padding:9px 14px;border-radius:999px;background:#e6fffb;color:#0f766e;font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+    .eyebrow-dot{width:8px;height:8px;background:#14b8a6;border-radius:50%;box-shadow:0 0 0 5px rgba(20,184,166,.13)}
+    h1{font-family:'Manrope',sans-serif;font-size:clamp(42px,5vw,66px);line-height:1.08;letter-spacing:-.055em;color:#111827;margin:25px 0 22px;max-width:650px}
+    h1 span{color:#0d9488}
+    .hero-copy{max-width:570px;color:#526174;font-size:17px;line-height:1.85}
+    .hero-actions{display:flex;gap:13px;flex-wrap:wrap;margin-top:32px}
+    .trust-row{display:flex;gap:22px;flex-wrap:wrap;margin-top:30px;color:#64748b;font-size:12px;font-weight:700}
+    .check{display:inline-grid;place-items:center;width:19px;height:19px;border-radius:50%;background:#ccfbf1;color:#0f766e;margin-right:6px}
+    .dashboard-card{position:relative;padding:28px;border:1px solid rgba(255,255,255,.9);border-radius:28px;background:rgba(255,255,255,.88);box-shadow:0 32px 90px rgba(15,23,42,.14);transform:rotate(1deg);backdrop-filter:blur(16px)}
+    .dashboard-card:before{content:"";position:absolute;inset:14px -14px -14px 14px;border-radius:28px;background:linear-gradient(135deg,#0d9488,#164e63);z-index:-1;opacity:.12}
+    .dash-top{padding-bottom:22px;border-bottom:1px solid #edf2f4;color:#111827;font-size:15px}
+    .status{padding:7px 10px;border-radius:999px;background:#ccfbf1;color:#0f766e;font-size:9px;letter-spacing:.12em}
+    .dash-summary{margin:22px 0;padding:22px;border-radius:18px;background:linear-gradient(120deg,#102a43,#164e63);color:#fff}
+    .dash-summary small,.dash-summary span{color:#c5e7e6}
+    .dash-summary strong{font-family:'Manrope',sans-serif;font-size:29px;letter-spacing:-.04em}
+    .warranty-row{padding:16px 4px;border-bottom:1px solid #eef2f5}
+    .product-icon{width:44px;height:44px;border-radius:14px;background:#f0fdfa}
+    .product-info strong{color:#1e293b;font-size:13px}
+    .product-info small{color:#8794a5}
+    .active-dot{width:9px;height:9px;background:#14b8a6;box-shadow:0 0 0 5px #ccfbf1}
+    .section{padding:100px 0}
+    .section-head{max-width:700px;margin:0 auto 48px;text-align:center}
+    .kicker{color:#0d9488;font-size:12px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;margin-bottom:13px}
+    .section-head h2,.partner-box h2{font-family:'Manrope',sans-serif;font-size:clamp(30px,3.4vw,43px);line-height:1.15;letter-spacing:-.045em;color:#111827;margin:0 0 15px}
+    .section-head p{color:#64748b;font-size:16px;line-height:1.8}
+    .features{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .feature{padding:30px;border:1px solid #e8eef1;border-radius:20px;background:#fff;box-shadow:0 8px 26px rgba(15,23,42,.035);transition:transform .25s,box-shadow .25s,border-color .25s}
+    .feature:hover{transform:translateY(-6px);box-shadow:0 22px 48px rgba(15,23,42,.09);border-color:#99f6e4}
+    .feature-icon{display:grid;place-items:center;width:50px;height:50px;border-radius:15px;background:#e6fffb;color:#0f766e;font-size:23px;margin-bottom:22px}
+    .feature h3,.step h3{font-family:'Manrope',sans-serif;color:#172033;font-size:17px;letter-spacing:-.02em}
+    .feature p,.step p{color:#64748b;line-height:1.75;font-size:14px}
+    .steps-section{background:#f0fdfa}
+    .steps{gap:18px}
+    .step{padding:30px;border-radius:20px;background:#fff;border:1px solid #d9f2ee;box-shadow:0 10px 30px rgba(15,118,110,.045)}
+    .step-num{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:#0f766e;color:#fff;font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;box-shadow:0 8px 18px rgba(15,118,110,.2)}
+    .partner-banner{padding:40px 0 100px;background:#f0fdfa}
+    .partner-box{padding:44px 48px;border-radius:26px;background:linear-gradient(120deg,#102a43,#0f766e);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:32px;box-shadow:0 24px 60px rgba(15,118,110,.16)}
+    .partner-box h2{color:#fff;margin-bottom:10px}
+    .partner-box p{color:#d0eeeb;max-width:620px;line-height:1.75;margin:0}
+    .partner-box .btn{background:#fff!important;color:#0f766e!important;white-space:nowrap;box-shadow:none!important}
+    .partner-box .btn:hover{background:#ccfbf1!important}
+    .site-footer{background:#0b1728;color:#9aabba;border-top:0}
+    .footer-inner{min-height:104px;gap:22px}
+    .footer-brand img{filter:brightness(0) invert(1);opacity:.92}
+    .modal{background:rgba(9,20,35,.68);backdrop-filter:blur(8px)}
+    .modal-card{border-radius:24px;border:1px solid #e5efef;box-shadow:0 30px 90px rgba(0,0,0,.25)}
+    .auth-tabs{background:#f1f5f9;border-radius:12px;padding:4px}
+    .auth-tabs button{border-radius:9px}
+    .auth-tabs button.active{background:#fff;color:#0f766e;box-shadow:0 2px 8px rgba(15,23,42,.08)}
+    .field input{border-radius:11px;border:1px solid #dce5e8}
+    .field input:focus{outline:3px solid rgba(20,184,166,.15);border-color:#0d9488}
+    @media(max-width:900px){.hero{padding:72px 0 80px}.hero-grid{grid-template-columns:1fr;gap:48px}.dashboard-card{max-width:570px;width:100%;margin:0 auto}.features{grid-template-columns:repeat(2,minmax(0,1fr))}.partner-box{align-items:flex-start;flex-direction:column}.partner-box .btn{white-space:normal}}
+    @media(max-width:640px){.container{width:min(100% - 32px,1200px)}.header-inner{height:72px}.brand img{width:174px}.nav{gap:12px}.hero{padding:58px 0 66px}h1{font-size:43px}.hero-copy{font-size:15px}.hero-actions{display:grid}.hero-actions .btn{width:100%;text-align:center;justify-content:center}.trust-row{gap:12px;display:grid}.dashboard-card{padding:18px;border-radius:22px;transform:none}.dash-summary{padding:18px}.section{padding:72px 0}.section-head{margin-bottom:32px}.features{grid-template-columns:1fr;gap:13px}.feature{padding:24px}.steps{grid-template-columns:1fr}.step{padding:24px}.partner-banner{padding:20px 0 70px}.partner-box{padding:30px 24px;border-radius:20px}.footer-inner{padding:25px 0;display:grid;text-align:center}.footer-brand{display:flex;justify-content:center}.site-footer{font-size:12px}}
+
   </style>
 </head>
 <body>
@@ -68,9 +140,9 @@
     <section class="hero">
       <div class="container hero-grid">
         <div>
-          <div class="eyebrow"><span class="eyebrow-dot"></span> La gestion des garanties, simplifiée</div>
-          <h1>Vos achats méritent une garantie <span>bien gardée.</span></h1>
-          <p class="hero-copy">Retrouvez vos factures, suivez vos garanties et gardez toutes les informations de vos produits au même endroit. Simplement, depuis votre téléphone ou votre ordinateur.</p>
+          <div class="eyebrow"><span class="eyebrow-dot"></span> La tranquillité après chaque achat</div>
+          <h1>Vos garanties, <span>enfin organisées.</span></h1>
+          <p class="hero-copy">Une seule plateforme pour conserver vos factures, consulter vos garanties et retrouver les informations de vos achats. Accessible à tout moment, sur mobile comme sur ordinateur.</p>
           <div class="hero-actions">
             <button class="btn" id="hero-login" type="button">Accéder à mon espace <span aria-hidden="true">→</span></button>
             <a class="btn btn-outline" href="./demande-magasin.html">Devenir magasin partenaire</a>
@@ -89,7 +161,7 @@
 
     <section class="section" id="fonctionnalites">
       <div class="container">
-        <div class="section-head"><div class="kicker">Tout au même endroit</div><h2>Une meilleure façon de gérer vos garanties</h2><p>Les outils essentiels pour retrouver vos achats et suivre vos produits sans chercher dans les papiers.</p></div>
+        <div class="section-head"><div class="kicker">Tout au même endroit</div><h2>Tout ce qu’il faut, dans un seul espace</h2><p>Moins de papiers à chercher. Plus de visibilité sur vos achats et vos garanties.</p></div>
         <div class="features">
           <article class="feature"><div class="feature-icon">▤</div><h3>Factures numériques</h3><p>Gardez vos justificatifs d'achat accessibles depuis votre espace personnel.</p></article>
           <article class="feature"><div class="feature-icon">◷</div><h3>Suivi des garanties</h3><p>Consultez les informations et les périodes de garantie de vos produits enregistrés.</p></article>
@@ -113,7 +185,7 @@
     </section>
 
     <section class="partner-banner">
-      <div class="container"><div class="partner-box"><div><h2>Vous êtes un magasin ?</h2><p>Rejoignez Garantie.tn et simplifiez l'enregistrement des achats et le suivi des garanties de vos clients.</p></div><a class="btn" href="./demande-magasin.html">Demander un espace magasin →</a></div></div>
+      <div class="container"><div class="partner-box"><div><h2>Vous êtes un magasin ?</h2><p>Digitalisez le suivi des garanties, gagnez du temps au comptoir et offrez à vos clients un service plus simple.</p></div><a class="btn" href="./demande-magasin.html">Demander un espace magasin →</a></div></div>
     </section>
   </main>
 
