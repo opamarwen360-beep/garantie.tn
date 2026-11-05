@@ -119,9 +119,14 @@ table{min-width:620px}
 @media(max-width:360px){.stats{grid-template-columns:1fr!important}}
 
 </style>
+<style id="gtn-logo-global">
+header .logo{display:flex!important;align-items:center!important;text-decoration:none!important;flex-shrink:0}
+header .logo img{display:block;width:218px;height:auto;max-height:48px;object-fit:contain}
+@media(max-width:560px){header .logo img{width:178px;max-height:42px}}
+</style>
 </head>
 <body>
-<header><a class="logo" href="./index.html">Garantie<span>.tn</span></a><button id="logout">Déconnexion</button></header>
+<header><a class="logo" href="./index.html" aria-label="Garantie.tn - Accueil"><img src="logo.svg" alt="Garantie.tn"></a><button id="logout">Déconnexion</button></header>
 <main>
 <div class="heading"><div><h1>Tableau de bord Admin</h1><p class="muted" id="admin-email">Vérification des accès...</p></div><button class="refresh" id="refresh">Actualiser les données</button></div>
 <div class="stats">
