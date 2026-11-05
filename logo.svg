@@ -1,7 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 82" role="img" aria-labelledby="t d">
-<title id="t">GARANTIA — Garantie.tn</title><desc id="d">Identité visuelle Garantie.tn, symbole de protection et de validation.</desc>
-<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#079b83"/><stop offset="1" stop-color="#4f83f1"/></linearGradient></defs>
-<g transform="translate(2 4)"><path d="M36 1 68 13v23c0 20-12 33-32 42C16 69 4 56 4 36V13Z" fill="url(#g)"/><path d="M36 11 58 19v17c0 14-8 24-22 31C22 60 14 50 14 36V19Z" fill="#101b2d"/><path d="m23 37 9 9 19-21" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text x="84" y="45" fill="#101b2d" font-family="Manrope,Arial,sans-serif" font-size="34" font-weight="800" letter-spacing="-.8">GARANTIA</text>
-<text x="86" y="65" fill="#718096" font-family="Arial,sans-serif" font-size="10" font-weight="700" letter-spacing="2.1">GARANTIE • SÉRÉNITÉ • CONFIANCE</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="92" viewBox="0 0 420 92" role="img" aria-labelledby="title"><title id="title">Garantie.tn</title><rect x="5" y="8" width="76" height="76" rx="23" fill="#ef6048"/><path d="M43 25c-11 0-19 8-19 19v5c0 12 8 20 20 20 9 0 16-5 18-13H46V45h31v8c0 20-13 33-33 33-21 0-35-14-35-36v-6C9 23 23 9 43 9c16 0 28 8 32 22H55c-2-4-6-6-12-6Z" fill="#fff" transform="translate(4 0) scale(.86)"/><text x="101" y="61" font-family="Manrope,Arial,sans-serif" font-size="43" font-weight="800" letter-spacing="-2" fill="#20232c">garantie</text><text x="295" y="61" font-family="Manrope,Arial,sans-serif" font-size="43" font-weight="800" letter-spacing="-2" fill="#ef6048">.tn</text></svg>
