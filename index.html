@@ -188,7 +188,13 @@
       else setMessage("Votre compte est connecté. Votre espace sera disponible dès que votre profil sera configuré.", "success");
     }
 
-    $("open-auth").addEventListener("click", () => openModal("login"));
+    $("open-auth").addEventListener("click", async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        try { await goToRoleSpace(); }
+        catch (error) { openModal("login"); setMessage(error?.message || "Impossible d'ouvrir votre espace.", "error"); }
+      } else openModal("login");
+    });
     $("hero-login").addEventListener("click", () => openModal("login"));
     $("close-auth").addEventListener("click", closeModal);
     $("show-login").addEventListener("click", () => setMode("login"));
@@ -248,13 +254,7 @@
     $("password").addEventListener("input", () => { if (message.classList.contains("error")) setMessage(); });
 
     const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      $("open-auth").textContent = "Mon espace";
-      $("open-auth").addEventListener("click", async (event) => {
-        event.preventDefault();
-        try { await goToRoleSpace(); } catch (error) { openModal("login"); setMessage(error.message, "error"); }
-      }, { once: true });
-    }
+    if (session) $("open-auth").textContent = "Mon espace";
   </script>
 </body>
 </html>
