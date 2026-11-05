@@ -96,9 +96,31 @@ a{color:var(--green)}
 
 
 <style id="gtn-logo-only-fixed">@media(max-width:560px){body>header{position:relative!important;top:auto!important;z-index:1!important;min-height:74px!important;height:74px!important;padding:7px 10px!important;gap:8px!important;align-items:center!important;justify-content:flex-end!important;flex-wrap:nowrap!important;background:transparent!important;box-shadow:none!important;border:0!important}body>header .logo{position:fixed!important;top:4px!important;left:10px!important;z-index:1002!important;display:flex!important;align-items:center!important;height:64px!important;max-width:calc(100vw - 58px)!important;background:transparent!important}body>header .logo img{width:260px!important;max-width:100%!important;height:auto!important;max-height:64px!important;object-fit:contain!important;background:transparent!important}body>header:before{content:"";display:block;width:260px;height:64px;margin-right:auto;background:transparent!important}body>header .mobile-menu-toggle{position:relative!important;flex:0 0 40px!important;width:40px!important;height:40px!important;margin:0!important}}</style>
+
+<style id="gtn-no-logo-header-redesign">
+/* Header refresh: clean, logo-free, responsive */
+header{min-height:76px!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:14px!important;padding:14px clamp(18px,5vw,64px)!important;background:rgba(255,255,255,.96)!important;border-bottom:1px solid #e5eee9!important;box-shadow:0 8px 28px rgba(18,54,40,.06)!important}
+header .logo,header>a.logo,header .site-header>a{display:none!important}
+header button:not(.gtn-menu-toggle){border:0!important;border-radius:14px!important;padding:12px 22px!important;background:linear-gradient(135deg,#087f5b,#10a477)!important;color:#fff!important;font-weight:800!important;letter-spacing:.1px!important;box-shadow:0 8px 20px rgba(8,127,91,.2)!important;transition:transform .18s ease,box-shadow .18s ease!important}
+header button:not(.gtn-menu-toggle):hover{transform:translateY(-2px)!important;box-shadow:0 12px 24px rgba(8,127,91,.25)!important}
+header .gtn-menu-toggle{display:none}
+@media(max-width:750px){
+ header{min-height:70px!important;padding:12px 16px!important;gap:12px!important}
+ header .gtn-menu-toggle{display:flex!important;order:0!important;width:48px!important;height:46px!important;flex:0 0 48px!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:6px!important;border:1px solid #d8eee4!important;border-radius:15px!important;background:linear-gradient(145deg,#effaf4,#dff4e9)!important;box-shadow:0 5px 15px rgba(8,127,91,.09)!important;cursor:pointer!important;padding:0!important}
+ header .gtn-menu-toggle span{display:block!important;width:21px!important;height:2.5px!important;border-radius:5px!important;background:#087f5b!important;transition:transform .2s ease,opacity .2s ease!important}
+ header .gtn-menu-toggle[aria-expanded="true"] span:first-child{transform:translateY(8.5px) rotate(45deg)!important}
+ header .gtn-menu-toggle[aria-expanded="true"] span:nth-child(2){opacity:0!important}
+ header .gtn-menu-toggle[aria-expanded="true"] span:last-child{transform:translateY(-8.5px) rotate(-45deg)!important}
+ header button.gtn-header-login{margin-left:auto!important;min-height:46px!important;padding:0 20px!important;border-radius:14px!important}
+ header nav#gtn-mobile-menu{display:none!important;order:3!important;flex:0 0 100%!important;width:100%!important;margin-top:6px!important;padding:12px!important;gap:8px!important;flex-direction:column!important;align-items:stretch!important;background:#fff!important;border:1px solid #e3eee8!important;border-radius:18px!important;box-shadow:0 16px 35px rgba(16,54,38,.1)!important}
+ header nav#gtn-mobile-menu.is-open{display:flex!important}
+ header nav#gtn-mobile-menu a{display:flex!important;align-items:center!important;min-height:46px!important;padding:11px 14px!important;border-radius:12px!important;background:#f2f9f5!important;color:#244b3b!important;font-weight:700!important;text-decoration:none!important}
+}
+</style>
+
 </head>
 <body>
-<header><a class="logo" href="./index.html" aria-label="Garantie.tn - Accueil"><img src="./Garantie.tn___Logo_concept_2-removebg-preview.png" alt="Garantie.tn"></a><button id="logout">Déconnexion</button></header>
+<header><button id="logout">Déconnexion</button></header>
 <main>
 <section class="welcome"><div><h1>Mon espace client</h1><p class="muted" id="greeting">Bienvenue sur votre espace personnel.</p></div><a class="btn" href="index.html">Accueil</a></section>
 <section class="panel" id="store-invitations-panel"><h2>Notifications et invitations magasin</h2><p class="muted">Les magasins qui souhaitent vous donner un accès apparaîtront ici. Vous devez accepter une invitation avant de pouvoir travailler avec le magasin.</p><div id="store-invitations"><div class="empty">Chargement des invitations...</div></div><p id="store-invitations-message" class="message" role="status"></p></section>
