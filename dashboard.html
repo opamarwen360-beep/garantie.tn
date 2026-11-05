@@ -228,14 +228,14 @@ $("new-store-form").addEventListener("submit",async e=>{
 
 async function loadOwnerMembers(){
  const [membersResult,subscriptionResult]=await Promise.all([
-  supabase.from("store_members").select("id,email,store_id,created_at,stores(name),profiles(full_name,phone)").eq("owner_id",currentUser.id).order("created_at",{ascending:false}),
+  supabase.from("store_members").select("id,email,store_id,created_at,stores(name)").eq("owner_id",currentUser.id).order("created_at",{ascending:false}),
   supabase.from("owner_subscriptions").select("plan,status").eq("owner_id",currentUser.id).maybeSingle()
  ]);
  if(membersResult.error)throw membersResult.error;
  if(subscriptionResult.error)throw subscriptionResult.error;
  ownerMembers=membersResult.data||[];ownerSubscription=subscriptionResult.data;
  const limits={starter:1,pro:2,premium:4},limit=limits[ownerSubscription?.plan]||1;
- const used=new Set(ownerMembers.map(m=>m.user_id||m.email)).size;
+ const used=new Set(ownerMembers.map(m=>m.email)).size;
  $("member-plan-label").textContent="Abonnement "+String(ownerSubscription?.plan||"starter").toUpperCase()+" · "+used+" / "+limit+" utilisateur(s) supplémentaire(s) utilisé(s).";
  $("member-store").innerHTML=ownedStores.filter(st=>st.owner_id===currentUser.id).map(st=>'<option value="'+esc(st.id)+'">'+esc(st.name)+'</option>').join("");
  renderOwnerMembers();
