@@ -93,6 +93,7 @@ a{color:var(--green)}
 <header><a class="logo" href="index.html">Garantie<span>.tn</span></a><button id="logout">Déconnexion</button></header>
 <main>
 <section class="welcome"><div><h1>Mon espace client</h1><p class="muted" id="greeting">Bienvenue sur votre espace personnel.</p></div><a class="btn" href="index.html">Accueil</a></section>
+<section class="panel" id="store-invitations-panel"><h2>Notifications et invitations magasin</h2><p class="muted">Les magasins qui souhaitent vous donner un accès apparaîtront ici. Vous devez accepter une invitation avant de pouvoir travailler avec le magasin.</p><div id="store-invitations"><div class="empty">Chargement des invitations...</div></div><p id="store-invitations-message" class="message" role="status"></p></section>
 <section class="panel"><h2>Mon QR Code client</h2><p class="muted">Présentez ce QR code au magasin pour enregistrer vos achats et activer vos garanties automatiquement.</p><div id="client-qr" style="display:grid;place-items:center;min-height:180px;padding:12px"><div class="empty">Génération de votre QR code...</div></div><p class="muted" style="text-align:center">Ce QR code est personnel. Présentez-le uniquement à un magasin de confiance.</p></section>
 <section class="panel"><h2>Mon profil</h2><form id="client-profile-form"><label for="national-id">Numéro de carte d’identité</label><input id="national-id" inputmode="numeric" maxlength="20" placeholder="Votre numéro de carte d’identité"><label for="client-photo">Photo personnelle (JPG, PNG ou WebP — 5 Mo max.)</label><input id="client-photo" type="file" accept="image/jpeg,image/png,image/webp"><img id="client-photo-preview" alt="Ma photo" style="display:none;width:110px;height:110px;object-fit:cover;border-radius:50%"><button type="submit">Enregistrer mon profil</button></form><p id="profile-message" role="status"></p></section><section class="stats">
  <div class="stat"><span class="muted">Mes garanties</span><strong id="total">—</strong></div>
@@ -127,6 +128,7 @@ async function start() {
  $("greeting").textContent="Bienvenue"+(profile.full_name ? ", "+profile.full_name : "")+" ! Retrouvez ici vos achats et vos garanties.";
  $("national-id").value=profileData.national_id_number||"";
  if(profileData.photo_path){const {data:photo}=await supabase.storage.from("profile-photos").createSignedUrl(profileData.photo_path,3600);if(photo?.signedUrl){$("client-photo-preview").src=photo.signedUrl;$("client-photo-preview").style.display="block";}}
+ await loadStoreInvitations();
  await loadClientQr();
  await loadPendingWarranties();
  await loadSavHistory();
@@ -263,6 +265,34 @@ function renderSavHistory(){
   return '<article class="warranty"><div><h3>'+esc(r.subject)+'</h3><p class="muted">'+esc(r.warranties?.products?.name||"Produit")+' · Garantie '+esc(r.warranties?.warranty_number||"—")+'</p><p class="muted">Envoyée le '+date(r.created_at?.slice(0,10))+'</p>'+(r.description?'<p>'+esc(r.description)+'</p>':'')+'</div><div><span class="pill '+cls+'">'+status+'</span></div></article>';
  }).join("");
 }
+async function loadStoreInvitations(){
+ const {data,error}=await supabase.from("store_invitations")
+  .select("id,email,status,created_at,responded_at,stores(name)")
+  .eq("invited_user_id",currentUser.id)
+  .order("created_at",{ascending:false});
+ if(error)throw error;
+ const invitations=data||[];
+ const status={pending:"En attente de votre réponse",accepted:"Acceptée",declined:"Refusée",revoked:"Annulée"};
+ if(!invitations.length){$("store-invitations").innerHTML='<div class="empty">Aucune invitation pour le moment.</div>';return;}
+ $("store-invitations").innerHTML=invitations.map(i=>'<article class="warranty"><div class="warranty-top"><div><h3>'+esc(i.stores?.name||"Magasin")+'</h3><p class="muted">Invitation reçue le '+date(i.created_at?.slice(0,10))+'</p><p class="muted">Compte invité : '+esc(i.email)+'</p></div><span class="pill '+(i.status==="pending"?"claimed":i.status==="declined"||i.status==="revoked"?"expired":"")+'">'+esc(status[i.status]||i.status)+'</span></div>'+(i.status==="pending"?'<div class="store-invitation-actions"><button type="button" data-accept-invitation="'+esc(i.id)+'">Accepter l’invitation</button> <button type="button" class="secondary" data-decline-invitation="'+esc(i.id)+'">Refuser</button></div>':i.status==="accepted"?'<p class="success">Votre compte est maintenant autorisé à travailler dans ce magasin.</p>':'')+'</article>').join("");
+}
+$("store-invitations").addEventListener("click",async e=>{
+ const accept=e.target.closest("[data-accept-invitation]");
+ const decline=e.target.closest("[data-decline-invitation]");
+ const btn=accept||decline;if(!btn)return;
+ btn.disabled=true;$("store-invitations-message").textContent=accept?"Activation de votre accès...":"Enregistrement de votre réponse...";
+ try{
+  const {data,error}=await supabase.rpc("respond_store_invitation",{p_invitation_id:btn.dataset.acceptInvitation||btn.dataset.declineInvitation,p_accept:!!accept});
+  if(error)throw error;if(!data)throw new Error("Impossible de traiter cette invitation.");
+  if(accept){
+   $("store-invitations-message").textContent="Invitation acceptée. Votre espace magasin va s’ouvrir...";
+   location.href="dashboard.html";
+  }else{
+   $("store-invitations-message").textContent="Invitation refusée.";
+   await loadStoreInvitations();
+  }
+ }catch(err){$("store-invitations-message").textContent="Erreur : "+err.message;btn.disabled=false;}
+});
 async function loadSavHistory(){
  const {data,error}=await supabase.from("sav_requests")
   .select("id,subject,description,status,created_at,warranties(warranty_number,products(name))")
