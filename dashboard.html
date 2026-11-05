@@ -197,15 +197,7 @@ body>header .gtn-menu-toggle{display:none!important}
 <main id="app" style="display:none">
 <section class="intro"><div class="store-heading"><div><h1>Espace magasin</h1><p class="muted" id="store-label">Gérez vos produits et les garanties de vos clients.</p></div><div class="store-switcher"><label for="store-select">Point de vente</label><select id="store-select" aria-label="Choisir un magasin"></select></div></div></section>
 <section class="panel store-management"><form id="new-store-form" class="new-store-form"><input id="new-store-name" maxlength="120" required placeholder="Nom du nouveau point de vente"><input id="new-store-phone" type="tel" maxlength="30" required placeholder="Téléphone du magasin"><input id="new-store-address" maxlength="220" required placeholder="Adresse du magasin"><button type="submit">Envoyer la demande</button></form><p class="small">L’ajout d’un nouveau point de vente sera effectif après validation par l’administration.</p><p id="new-store-message" class="message" role="status"></p></section>
-<section class="panel" id="member-management" hidden>
-<h2>Utilisateurs supplémentaires</h2>
-<p class="muted" id="member-plan-label">Gérez les accès à vos points de vente.</p>
-<form id="member-form" class="new-store-form"><input id="member-email" type="email" maxlength="254" required placeholder="E-mail du compte Garantie.tn"><select id="member-store" required aria-label="Point de vente à inviter"></select><button type="submit">Envoyer une invitation</button></form>
-<p class="small">L’utilisateur doit déjà avoir un compte Garantie.tn. Il recevra une notification dans son espace client et l’accès sera activé uniquement après acceptation.</p>
-<p id="member-message" class="message" role="status"></p>
-<h3>Utilisateurs ayant accepté</h3><div id="member-list"><div class="empty">Chargement...</div></div>
-<h3>Invitations envoyées</h3><div id="member-invitations"><div class="empty">Chargement...</div></div>
-</section><section class="stats-grid" aria-label="Statistiques du magasin"><article class="stat-card"><span>Total garanties</span><strong id="stat-total">0</strong></article><article class="stat-card"><span>Garanties actives</span><strong id="stat-active">0</strong></article><article class="stat-card"><span>Expirent sous 30 jours</span><strong id="stat-expiring">0</strong></article><article class="stat-card"><span>Garanties expirées</span><strong id="stat-expired">0</strong></article></section>
+<section class="stats-grid" aria-label="Statistiques du magasin"><article class="stat-card"><span>Total garanties</span><strong id="stat-total">0</strong></article><article class="stat-card"><span>Garanties actives</span><strong id="stat-active">0</strong></article><article class="stat-card"><span>Expirent sous 30 jours</span><strong id="stat-expiring">0</strong></article><article class="stat-card"><span>Garanties expirées</span><strong id="stat-expired">0</strong></article></section>
 <section class="panel"><h2>Photo de mon magasin</h2><form id="store-photo-form"><input id="store-photo" type="file" accept="image/jpeg,image/png,image/webp" required><button type="submit">Enregistrer la photo</button></form><img id="store-photo-preview" alt="Photo du magasin" style="display:none;max-width:180px;margin-top:12px"><p id="store-photo-message" class="message"></p></section><section class="panel"><h2>Enregistrement par QR code</h2><p class="muted">Demandez au client d’ouvrir son QR code personnel dans son espace client, puis scannez-le avec l’appareil photo du téléphone. Le formulaire d’enregistrement des articles s’ouvrira automatiquement. Connectez-vous au compte magasin sur ce téléphone avant le scan.</p></section>
 <div class="grid">
 <section class="panel">
@@ -257,9 +249,6 @@ function addMonths(dateValue, months) {
 
 let ownedStores = [];
 let isStoreOwner = false;
-let ownerMembers = [];
-let ownerInvitations = [];
-let ownerSubscription = null;
 async function selectStore(storeId) {
  currentStore=ownedStores.find(store=>store.id===storeId)||ownedStores[0]||null;
  if(!currentStore)return;
@@ -281,8 +270,6 @@ async function init() {
  $("app").style.display="block";$("purchase-date").value=new Date().toISOString().slice(0,10);
  $("new-store-form").classList.toggle("hidden",!isStoreOwner);
  $("store-photo-form").closest(".panel").classList.toggle("hidden",!isStoreOwner);
- $("member-management").hidden=!isStoreOwner;
- if(isStoreOwner) await loadOwnerMembers();
  $("store-select").innerHTML=ownedStores.map(store=>'<option value="'+esc(store.id)+'">'+esc(store.name)+'</option>').join("");
  if(!ownedStores.length){$("store-label").textContent="Aucun point de vente n'est encore associé à ce compte. Ajoutez votre premier magasin ci-dessous.";$("warranty-form").classList.add("hidden");$("warranty-list").innerHTML='<div class="empty">Ajoutez un point de vente pour commencer.</div>';$("store-select").disabled=true;return;}
  await selectStore(ownedStores[0].id);
@@ -304,56 +291,6 @@ $("new-store-form").addEventListener("submit",async e=>{
  }catch(err){msg.textContent="Erreur : "+err.message;}finally{btn.disabled=false;}
 });
 
-
-async function loadOwnerMembers(){
- const [membersResult,subscriptionResult,invitesResult]=await Promise.all([
-  supabase.from("store_members").select("id,email,store_id,created_at,stores(name)").eq("owner_id",currentUser.id).order("created_at",{ascending:false}),
-  supabase.from("owner_subscriptions").select("plan,status").eq("owner_id",currentUser.id).maybeSingle(),
-  supabase.from("store_invitations").select("id,email,store_id,status,created_at,stores(name)").eq("owner_id",currentUser.id).order("created_at",{ascending:false})
- ]);
- if(membersResult.error)throw membersResult.error;
- if(subscriptionResult.error)throw subscriptionResult.error;
- if(invitesResult.error)throw invitesResult.error;
- ownerMembers=membersResult.data||[];ownerInvitations=invitesResult.data||[];ownerSubscription=subscriptionResult.data;
- const limits={starter:1,pro:2,premium:4},limit=limits[ownerSubscription?.plan]||1;
- const used=new Set([...ownerMembers.map(m=>m.email),...ownerInvitations.filter(i=>i.status==="pending").map(i=>i.email)]).size;
- $("member-plan-label").textContent="Abonnement "+String(ownerSubscription?.plan||"starter").toUpperCase()+" · "+used+" / "+limit+" place(s) utilisée(s), invitations en attente incluses.";
- $("member-store").innerHTML=ownedStores.filter(st=>st.owner_id===currentUser.id).map(st=>'<option value="'+esc(st.id)+'">'+esc(st.name)+'</option>').join("");
- renderOwnerMembers();
-}
-function renderOwnerMembers(){
- const grouped=new Map();
- ownerMembers.forEach(m=>{const key=m.email||m.id;if(!grouped.has(key))grouped.set(key,{email:m.email||"Utilisateur",stores:[],ids:[]});grouped.get(key).stores.push(m.stores?.name||"Magasin");grouped.get(key).ids.push(m.id);});
- const rows=[...grouped.values()];
- $("member-list").innerHTML=rows.length?rows.map(m=>'<article class="warranty"><strong>'+esc(m.email)+'</strong><p class="muted">Accès : '+esc(m.stores.join(", "))+'</p>'+m.ids.map(id=>'<button type="button" class="secondary" data-remove-member="'+esc(id)+'">Retirer cet accès</button>').join(" ")+'</article>').join(""):'<div class="empty">Aucun utilisateur supplémentaire pour le moment.</div>';
- const status={pending:"En attente",accepted:"Acceptée",declined:"Refusée",revoked:"Retirée"};
- $("member-invitations").innerHTML=ownerInvitations.length?ownerInvitations.map(i=>'<article class="warranty"><strong>'+esc(i.email)+'</strong><p class="muted">Magasin : '+esc(i.stores?.name||"Magasin")+' · '+esc(status[i.status]||i.status)+'</p>'+(i.status==="pending"?'<button type="button" class="secondary" data-revoke-invitation="'+esc(i.id)+'">Annuler l’invitation</button>':'')+'</article>').join(""):'<div class="empty">Aucune invitation envoyée.</div>';
-}
-$("member-form").addEventListener("submit",async e=>{
- e.preventDefault();const btn=e.currentTarget.querySelector("button"),msg=$("member-message");
- btn.disabled=true;msg.textContent="Envoi de l’invitation...";
- try{
-  const email=$("member-email").value.trim().toLowerCase(),storeId=$("member-store").value;
-  const {data,error}=await supabase.rpc("owner_send_store_invitation",{p_email:email,p_store_id:storeId});
-  if(error)throw error;
-  $("member-form").reset();await loadOwnerMembers();
-  msg.textContent="Invitation envoyée. L’utilisateur la retrouvera dans les notifications de son compte Garantie.tn.";
- }catch(err){msg.textContent="Erreur : "+err.message;}finally{btn.disabled=false;}
-});
-$("member-list").addEventListener("click",async e=>{
- const btn=e.target.closest("[data-remove-member]");if(!btn)return;
- if(!confirm("Retirer l’accès de cet utilisateur à ce magasin ?"))return;
- btn.disabled=true;
- try{const {data,error}=await supabase.rpc("owner_remove_store_member",{p_member_id:btn.dataset.removeMember});if(error)throw error;if(!data)throw new Error("Accès introuvable.");await loadOwnerMembers();$("member-message").textContent="Accès retiré.";}
- catch(err){$("member-message").textContent="Erreur : "+err.message;btn.disabled=false;}
-});
-$("member-invitations").addEventListener("click",async e=>{
- const btn=e.target.closest("[data-revoke-invitation]");if(!btn)return;
- if(!confirm("Annuler cette invitation ?"))return;
- btn.disabled=true;
- try{const {data,error}=await supabase.rpc("owner_revoke_store_invitation",{p_invitation_id:btn.dataset.revokeInvitation});if(error)throw error;if(!data)throw new Error("Invitation introuvable.");await loadOwnerMembers();$("member-message").textContent="Invitation annulée.";}
- catch(err){$("member-message").textContent="Erreur : "+err.message;btn.disabled=false;}
-});
 
 async function loadStoreSav(){
  if(!currentStore){storeSavRequests=[];renderStoreSav();return;}
