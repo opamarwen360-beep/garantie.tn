@@ -1,205 +1,365 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Garantie.tn — Retrouvez vos factures et garanties dans un seul espace.">
-<meta name="theme-color" content="#171717"><title>Garantie.tn — La garantie, sans les papiers</title>
-<link rel="icon" href="./logo.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root{--ink:#171717;--paper:#f4f1eb;--white:#fffdf9;--muted:#77736c;--line:#ded9cf;--orange:#ff5a1f;--dark:#20201e;--lime:#d8f36a}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif}a{color:inherit;text-decoration:none}button,input{font:inherit}.container{width:min(1240px,calc(100% - 56px));margin:auto}
-.site-header{background:var(--paper);border-bottom:1px solid var(--line);position:relative;z-index:5}.header-inner{height:88px;display:flex;align-items:center;justify-content:space-between;gap:28px}.brand img{width:190px;max-height:56px;object-fit:contain;object-position:left}.nav{display:flex;align-items:center;gap:34px}.nav a{font-size:13px;font-weight:700;color:#55514a}.nav a:hover{color:var(--orange)}.btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:52px;padding:0 24px;background:var(--orange);border:1px solid var(--orange);border-radius:3px;color:#fff;font-size:13px;font-weight:800;cursor:pointer;transition:.2s}.btn:hover{background:#e74710;border-color:#e74710;transform:translateY(-2px)}.btn-outline{background:transparent;color:var(--ink);border-color:#aaa49a}.btn-outline:hover{background:var(--ink);color:white;border-color:var(--ink)}.menu-toggle{display:none}
-.hero{padding:75px 0 84px;overflow:hidden}.hero-topline{display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--ink);font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.hero-topline span:last-child{color:var(--muted)}.hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:55px;align-items:center;padding-top:50px}.eyebrow{display:inline-flex;align-items:center;gap:10px;color:var(--orange);font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}.eyebrow-dot{width:8px;height:8px;border-radius:50%;background:var(--orange)}h1,h2,h3,p{margin-top:0}.hero h1{font:700 clamp(54px,7vw,92px)/.98 'Space Grotesk',sans-serif;letter-spacing:-.075em;margin:22px 0 26px;max-width:720px}.hero h1 em{font-style:normal;color:var(--orange)}.hero-copy{max-width:540px;color:#666158;font-size:16px;line-height:1.85}.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}.trust-row{display:flex;gap:24px;flex-wrap:wrap;margin-top:32px;color:#6e6a62;font-size:11px;font-weight:700}.trust-row span{display:flex;align-items:center;gap:7px}.check{color:var(--orange);font-size:17px}
-.visual-stage{position:relative;min-height:470px;background:#ded9cf;overflow:hidden;padding:30px;display:flex;align-items:center;justify-content:center}.visual-stage:before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,transparent 49.8%,rgba(23,23,23,.08) 50%,transparent 50.2%),linear-gradient(45deg,transparent 49.8%,rgba(23,23,23,.06) 50%,transparent 50.2%);background-size:42px 42px}.receipt{position:relative;width:min(100%,380px);background:var(--white);padding:26px 27px 30px;box-shadow:18px 20px 0 rgba(23,23,23,.12);transform:rotate(-3deg)}.receipt-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:20px;border-bottom:1px dashed #c9c2b6}.receipt-brand{font:700 18px 'Space Grotesk';letter-spacing:-.06em}.receipt-brand b{color:var(--orange)}.receipt-tag{font-size:9px;font-weight:900;letter-spacing:.12em;color:var(--orange)}.receipt-title{font:700 31px/1.02 'Space Grotesk';letter-spacing:-.06em;margin:25px 0 7px}.receipt-sub{color:#827c72;font-size:11px}.receipt-product{display:flex;align-items:center;gap:14px;margin:25px 0;padding:15px;background:#f1eee7}.product-symbol{width:48px;height:48px;background:var(--lime);display:grid;place-items:center;font-size:24px}.product-label strong{display:block;font:700 13px 'Space Grotesk'}.product-label small{font-size:10px;color:#777}.receipt-line{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e9e4da;font-size:11px}.receipt-line span{color:#777}.receipt-foot{display:flex;align-items:center;justify-content:space-between;margin-top:20px}.qr{width:58px;height:58px;background:repeating-conic-gradient(#171717 0 25%,#fff 0 50%) 0/9px 9px;border:5px solid white;outline:1px solid #ddd}.valid{font-size:10px;font-weight:900;color:#23834e;letter-spacing:.08em}.floating-note{position:absolute;right:18px;bottom:22px;padding:13px 16px;background:var(--lime);font:700 12px 'Space Grotesk';transform:rotate(3deg);box-shadow:5px 6px 0 rgba(23,23,23,.13)}
-.ticker{background:var(--orange);color:#fff;overflow:hidden;padding:15px 0}.ticker-inner{display:flex;justify-content:space-around;gap:30px;white-space:nowrap;font:700 13px 'Space Grotesk';letter-spacing:.08em;text-transform:uppercase}.ticker b{color:#ffd8c8}
-.section{padding:100px 0}.section-head{display:flex;justify-content:space-between;align-items:end;gap:30px;margin-bottom:44px}.section-head .kicker{color:var(--orange);font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px}.section-head h2{font:700 clamp(36px,4.5vw,58px)/1.02 'Space Grotesk';letter-spacing:-.065em;max-width:650px;margin:0}.section-head p{max-width:330px;color:#716c64;font-size:14px;line-height:1.8;margin:0}.features{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--ink);border-left:1px solid var(--line)}.feature{min-height:220px;padding:27px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:transparent;transition:background .2s}.feature:hover{background:var(--white)}.feature-icon{width:38px;height:38px;display:grid;place-items:center;background:var(--lime);font-size:19px;margin-bottom:32px}.feature h3{font:700 18px 'Space Grotesk';letter-spacing:-.03em;margin-bottom:10px}.feature p{color:#777168;font-size:13px;line-height:1.75;margin:0}
-.steps-section{background:var(--dark);color:white}.steps-section .section-head h2{color:white}.steps-section .section-head p{color:#aaa69e}.steps{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #4a4945}.step{padding:26px 26px 8px 0;border-right:1px solid #4a4945;margin-right:26px}.step:last-child{border:0;margin:0}.step-num{font:700 13px 'Space Grotesk';color:var(--orange);margin-bottom:40px}.step h3{font:700 23px 'Space Grotesk';letter-spacing:-.04em;color:white}.step p{max-width:290px;color:#aaa69e;font-size:13px;line-height:1.8}
-.partner-banner{padding:80px 0;background:var(--lime)}.partner-box{display:flex;justify-content:space-between;align-items:center;gap:35px}.partner-box h2{font:700 clamp(34px,4.2vw,54px)/1 'Space Grotesk';letter-spacing:-.06em;margin:0 0 13px;max-width:650px}.partner-box p{color:#555a3c;font-size:14px;line-height:1.7;max-width:580px;margin:0}.partner-box .btn{background:var(--ink);border-color:var(--ink);white-space:nowrap}.partner-box .btn:hover{background:var(--orange);border-color:var(--orange)}
-.site-footer{background:#171717;color:#aaa69e;padding:30px 0}.footer-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;font-size:11px}.footer-brand img{width:135px;max-height:40px;filter:brightness(0) invert(1)}
-.modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(20,20,19,.76);align-items:center;justify-content:center;padding:18px}.modal.open{display:flex}.modal-card{position:relative;width:min(100%,440px);padding:30px;background:var(--white);border:1px solid var(--line);box-shadow:12px 14px 0 rgba(255,90,31,.45)}.modal-close{position:absolute;right:13px;top:12px;border:0;background:transparent;font-size:26px;cursor:pointer}.modal-card h2{font:700 25px 'Space Grotesk';margin:0 35px 8px 0}.modal-intro{font-size:13px;color:var(--muted);line-height:1.6}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:#eeeae2;margin:20px 0}.auth-tabs button{border:0;background:transparent;padding:11px;font-size:12px;font-weight:800;cursor:pointer}.auth-tabs button.active{background:var(--ink);color:white}.field{display:block;margin-bottom:13px}.field span{display:block;font-size:12px;font-weight:800;margin-bottom:6px}.field input{width:100%;height:46px;padding:0 12px;border:1px solid #d8d2c8;background:#fff;outline:none}.field input:focus{border-color:var(--orange)}.auth-submit{width:100%;margin-top:5px}.auth-message{min-height:20px;margin:13px 0 0;font-size:12px;color:var(--muted)}.auth-message.error{color:#bd3e45}.auth-message.success{color:#23834e}
-@media(max-width:850px){.hero-grid{grid-template-columns:1fr;gap:38px}.visual-stage{min-height:420px}.section-head{display:block}.section-head p{margin-top:18px}.features{grid-template-columns:repeat(2,1fr)}.partner-box{align-items:flex-start;flex-direction:column}}
-@media(max-width:650px){.container{width:calc(100% - 34px)}.header-inner{height:72px}.brand img{width:155px}.menu-toggle{display:block;border:1px solid var(--line);background:transparent;width:42px;height:40px;font-size:21px}.nav{display:none;position:absolute;top:72px;left:0;right:0;padding:18px;background:var(--paper);border-bottom:1px solid var(--line);flex-direction:column;align-items:stretch;gap:8px}.nav.open{display:flex}.nav a{padding:11px}.nav .btn{width:100%}.hero{padding:38px 0 55px}.hero-topline{font-size:9px}.hero-grid{padding-top:35px}.hero h1{font-size:clamp(48px,14vw,68px)}.hero-copy{font-size:14px}.hero-actions{display:grid}.hero-actions .btn{width:100%}.trust-row{gap:12px;display:grid}.visual-stage{min-height:370px;padding:18px}.receipt{padding:20px;width:94%}.receipt-title{font-size:27px}.floating-note{right:9px;bottom:10px}.ticker-inner{justify-content:flex-start;padding-left:10px;font-size:11px}.section{padding:70px 0}.section-head h2{font-size:39px}.features{grid-template-columns:1fr}.feature{min-height:unset;padding:24px}.feature-icon{margin-bottom:23px}.steps{grid-template-columns:1fr}.step{border-right:0;border-bottom:1px solid #4a4945;margin:0;padding:24px 0}.step-num{margin-bottom:20px}.partner-banner{padding:58px 0}.partner-box h2{font-size:38px}.partner-box .btn{white-space:normal;width:100%}.footer-inner{flex-direction:column;text-align:center}.modal-card{padding:25px 20px}}
-@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
-</style></head><body>
-<header class="site-header"><div class="container header-inner">
-<a class="brand" href="./index.html" aria-label="Garantie.tn — Accueil"><img src="./logo.svg" alt="Garantie.tn"></a>
-<button class="menu-toggle" id="menu-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false">☰</button>
-<nav class="nav" id="main-nav" aria-label="Navigation principale"><a href="#fonctionnalites">La plateforme</a><a href="#fonctionnement">Le parcours</a><a href="./demande-magasin.html">Pour les magasins</a><button class="btn" id="open-auth" type="button">Mon espace ↗</button></nav>
-</div></header>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Garantie.tn - Gérez vos garanties et factures facilement en Tunisie.">
+  <title>Garantie.tn | Votre garantie, toujours avec vous</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      color: #172b3a;
+      background: #f7f9fc;
+    }
+    header {
+      background: white;
+      padding: 20px 7%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 12px #00000008;
+    }
+    .logo { font-size: 27px; font-weight: bold; color: #126b55; }
+    .logo span { color: #183b52; }
+    nav { display: flex; gap: 25px; align-items: center; }
+    nav a { text-decoration: none; color: #526477; font-size: 14px; }
+    .btn {
+      display: inline-block;
+      background: #14765c;
+      color: white;
+      padding: 13px 23px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+    .hero {
+      padding: 95px 7%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 50px;
+      background: linear-gradient(120deg, #edf8f4, #f7f9fc);
+    }
+    .hero-content { max-width: 590px; }
+    .tag {
+      display: inline-block;
+      background: #d9eee6;
+      color: #14765c;
+      padding: 9px 15px;
+      border-radius: 30px;
+      font-size: 13px;
+      margin-bottom: 22px;
+    }
+    h1 {
+      font-size: clamp(36px, 5vw, 57px);
+      line-height: 1.15;
+      margin-bottom: 22px;
+    }
+    h1 span { color: #14765c; }
+    .hero p { color: #647586; line-height: 1.8; font-size: 17px; margin-bottom: 30px; }
+    .hero-card {
+      background: white;
+      padding: 35px;
+      border-radius: 20px;
+      width: 340px;
+      box-shadow: 0 15px 45px #183b5212;
+    }
+    .hero-card h3 { margin-bottom: 20px; }
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 15px 0;
+      border-bottom: 1px solid #edf0f2;
+    }
+    .icon {
+      background: #e4f4ed;
+      width: 43px;
+      height: 43px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      font-size: 21px;
+    }
+    .item small { display: block; color: #82909d; margin-top: 5px; }
+    section { padding: 75px 7%; }
+    .section-title { text-align: center; margin-bottom: 45px; }
+    .section-title h2 { font-size: 32px; margin-bottom: 12px; }
+    .section-title p { color: #758392; }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+    .feature {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      border: 1px solid #edf0f2;
+    }
+    .feature .icon { margin-bottom: 20px; }
+    .feature h3 { margin-bottom: 12px; }
+    .feature p { color: #718092; line-height: 1.7; font-size: 14px; }
+    .cta {
+      background: #183b52;
+      color: white;
+      text-align: center;
+      padding: 65px 20px;
+    }
+    .cta h2 { font-size: 32px; margin-bottom: 15px; }
+    .cta p { color: #d2e0e8; margin-bottom: 25px; }
+    footer {
+      background: #102c3d;
+      color: white;
+      padding: 28px 7%;
+      text-align: center;
+      font-size: 13px;
+    }
+    @media(max-width: 750px) {
+      nav a:not(.btn) { display: none; }
+      .hero { flex-direction: column; padding: 65px 6%; }
+      .hero-card { width: 100%; }
+      .features { grid-template-columns: 1fr; }
+      section { padding: 55px 6%; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Garantie<span>.tn</span></div>
+  <nav>
+    <a href="#accueil">Accueil</a>
+    <a href="#services">Services</a>
+    <a href="#contact">Contact</a>
+    <button type="button" class="btn" id="open-auth">Connexion</button>
+  </nav>
+</header>
+
 <main>
-<section class="hero"><div class="container">
-<div class="hero-topline"><span>Garantie digitale · Tunisie</span><span>Vos achats, mieux protégés.</span></div>
-<div class="hero-grid"><div>
-<div class="eyebrow"><span class="eyebrow-dot"></span> La paperasse, c’est terminé</div>
-<h1>La garantie.<br><em>Sans les papiers.</em></h1>
-<p class="hero-copy">Factures égarées ? Garantie oubliée ? Retrouvez les informations de vos achats dans un espace unique, clair et accessible à tout moment.</p>
-<div class="hero-actions"><button class="btn" id="hero-login" type="button">Accéder à mon espace <span>↗</span></button><a class="btn btn-outline" href="./demande-magasin.html">Je suis un magasin</a></div>
-<div class="trust-row"><span><b class="check">✓</b> Vos documents centralisés</span><span><b class="check">✓</b> Disponible sur mobile</span></div>
-</div>
-<div class="visual-stage" aria-label="Illustration d'une fiche de garantie digitale"><div class="receipt">
-<div class="receipt-head"><div class="receipt-brand">garantie<b>.tn</b></div><span class="receipt-tag">FICHE DIGITALE</span></div>
-<div class="receipt-title">Votre achat.<br>Bien gardé.</div><div class="receipt-sub">Un seul espace pour vos preuves d’achat.</div>
-<div class="receipt-product"><div class="product-symbol">▣</div><div class="product-label"><strong>Produit enregistré</strong><small>Facture & informations de garantie</small></div></div>
-<div class="receipt-line"><span>Document</span><strong>Disponible</strong></div><div class="receipt-line"><span>Accès</span><strong>À tout moment</strong></div>
-<div class="receipt-foot"><div><div class="valid">● ESPACE PERSONNEL</div><small style="font-size:9px;color:#888">Vos garanties à portée de main</small></div><div class="qr" aria-hidden="true"></div></div>
-</div><div class="floating-note">GARDEZ L’ESSENTIEL. ✳</div></div>
-</div></div></section>
-<div class="ticker"><div class="container ticker-inner"><span>ACHETEZ <b>✓</b></span><span>ENREGISTREZ <b>✓</b></span><span>RETROUVEZ <b>✓</b></span><span>GARANTIE.TN <b>✳</b></span></div></div>
-<section class="section" id="fonctionnalites"><div class="container">
-<div class="section-head"><div><div class="kicker">Un espace. Tout est là.</div><h2>Vos garanties méritent mieux qu’un tiroir.</h2></div><p>Une expérience plus simple pour les clients et les magasins. Retrouvez l’essentiel sans fouiller dans vos papiers.</p></div>
-<div class="features">
-<article class="feature"><div class="feature-icon">▤</div><h3>Factures à portée de main</h3><p>Conservez vos justificatifs d’achat et retrouvez-les depuis votre compte.</p></article>
-<article class="feature"><div class="feature-icon">◷</div><h3>Vos garanties en clair</h3><p>Consultez les informations et les périodes de garantie de vos produits.</p></article>
-<article class="feature"><div class="feature-icon">▦</div><h3>Accès simplifié</h3><p>Retrouvez les informations associées à vos achats, même en déplacement.</p></article>
-<article class="feature"><div class="feature-icon">⌂</div><h3>Espace client</h3><p>Un tableau de bord personnel pour consulter vos produits et documents.</p></article>
-<article class="feature"><div class="feature-icon">▣</div><h3>Espace magasin</h3><p>Un espace dédié pour enregistrer les achats et gérer les garanties clients.</p></article>
-<article class="feature"><div class="feature-icon">↗</div><h3>Suivi après-vente</h3><p>Retrouvez les informations utiles au suivi de vos demandes de service.</p></article>
-</div></div></section>
-<section class="section steps-section" id="fonctionnement"><div class="container">
-<div class="section-head"><div><div class="kicker">En trois temps</div><h2>Moins de recherche.<br>Plus de tranquillité.</h2></div><p>Un parcours simple pour retrouver vos achats et garder vos documents bien organisés.</p></div>
-<div class="steps"><article class="step"><div class="step-num">01 / CRÉER</div><h3>Ouvrez votre espace</h3><p>Inscrivez-vous pour accéder à votre espace personnel Garantie.tn.</p></article><article class="step"><div class="step-num">02 / ENREGISTRER</div><h3>Associez vos achats</h3><p>Le magasin partenaire enregistre les informations de votre achat.</p></article><article class="step"><div class="step-num">03 / RETROUVER</div><h3>Consultez quand vous voulez</h3><p>Vos informations restent accessibles depuis votre téléphone ou ordinateur.</p></article></div>
-</div></section>
-<section class="partner-banner"><div class="container partner-box"><div><h2>Vous vendez. On simplifie le suivi.</h2><p>Proposez à vos clients une expérience plus pratique et gérez les garanties depuis un espace magasin dédié.</p></div><a class="btn" href="./demande-magasin.html">Demander un espace magasin ↗</a></div></section>
-</main>
-<footer class="site-footer"><div class="container footer-inner"><div class="footer-brand"><img src="./logo.svg" alt="Garantie.tn"></div><div>© 2026 Garantie.tn — Tous droits réservés.</div><div>La garantie, sans les papiers.</div></div></footer>
-  <div class="modal" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
-    <div class="modal-card">
-      <button class="modal-close" id="close-auth" type="button" aria-label="Fermer">×</button>
-      <h2 id="auth-title">Bienvenue sur Garantie.tn</h2>
-      <p class="modal-intro">Connectez-vous pour retrouver vos achats et vos garanties.</p>
-      <div class="auth-tabs"><button class="active" id="show-login" type="button">Connexion</button><button id="show-signup" type="button">Inscription</button></div>
-      <form id="auth-form">
-        <label class="field" id="name-field" hidden><span>Nom complet</span><input id="full-name" type="text" autocomplete="name" placeholder="Votre nom complet"></label>
-        <label class="field" id="phone-field" hidden><span>Téléphone</span><input id="phone" type="tel" autocomplete="tel" placeholder="Votre numéro de téléphone"></label>
-        <label class="field"><span>Adresse e-mail</span><input id="email" type="email" autocomplete="email" required placeholder="nom@exemple.com"></label>
-        <label class="field"><span>Mot de passe</span><input id="password" type="password" autocomplete="current-password" required minlength="8" placeholder="8 caractères minimum"></label>
-        <button class="btn auth-submit" id="auth-submit" type="submit">Se connecter</button>
-      </form>
-      <p class="auth-message" id="auth-message" aria-live="polite"></p>
+  <div class="hero" id="accueil">
+    <div class="hero-content">
+      <span class="tag">Votre tranquillité, notre priorité</span>
+      <h1>Vos garanties, <span>toujours</span> avec vous.</h1>
+      <p>
+        Fini les factures perdues et les dates de garantie oubliées.
+        Retrouvez tous vos produits, factures et garanties dans un
+        seul espace sécurisé.
+      </p>
+      <a href="#services" class="btn">Découvrir nos services</a>
+    </div>
+
+    <div class="hero-card">
+      <h3>Mon espace garanties</h3>
+      <div class="item">
+        <div class="icon">❄️</div>
+        <div>Réfrigérateur Beko
+          <small>Garantie active</small>
+        </div>
+      </div>
+      <div class="item">
+        <div class="icon">📺</div>
+        <div>Téléviseur Smart TV
+          <small>Garantie active</small>
+        </div>
+      </div>
+      <div class="item">
+        <div class="icon">📱</div>
+        <div>Smartphone
+          <small>Garantie active</small>
+        </div>
+      </div>
     </div>
   </div>
 
-  <script type="module">
-    import { supabase } from "./supabase.js";
+  <section id="services">
+    <div class="section-title">
+      <h2>Une gestion simple et intelligente</h2>
+      <p>Tous vos documents et garanties au même endroit.</p>
+    </div>
 
-    const $ = (id) => document.getElementById(id);
-    const modal = $("auth-modal");
-    const form = $("auth-form");
-    const message = $("auth-message");
-    let mode = "login";
+    <div class="features">
+      <div class="feature">
+        <div class="icon">📄</div>
+        <h3>Factures numériques</h3>
+        <p>Conservez vos factures et retrouvez-les facilement à tout moment.</p>
+      </div>
 
-    function setMessage(text = "", kind = "") {
-      message.textContent = text;
-      message.className = "auth-message" + (kind ? " " + kind : "");
-    }
+      <div class="feature">
+        <div class="icon">🛡️</div>
+        <h3>Suivi des garanties</h3>
+        <p>Consultez les dates de début et de fin de garantie de vos produits.</p>
+      </div>
 
-    function openModal(nextMode = "login") {
-      modal.classList.add("open");
-      document.body.style.overflow = "hidden";
-      setMode(nextMode);
-      window.setTimeout(() => $(nextMode === "signup" ? "full-name" : "email").focus(), 30);
-    }
+      <div class="feature">
+        <div class="icon">🔔</div>
+        <h3>Alertes intelligentes</h3>
+        <p>Recevez des rappels avant l'expiration de vos garanties.</p>
+      </div>
 
-    function closeModal() {
-      modal.classList.remove("open");
-      document.body.style.overflow = "";
-    }
+      <div class="feature">
+        <div class="icon">📱</div>
+        <h3>QR Code</h3>
+        <p>Accédez rapidement aux informations de votre garantie.</p>
+      </div>
 
-    function setMode(nextMode) {
-      mode = nextMode;
-      const signup = mode === "signup";
-      $("name-field").hidden = !signup;
-      $("phone-field").hidden = !signup;
-      $("full-name").required = signup;
-      $("password").autocomplete = signup ? "new-password" : "current-password";
-      $("show-login").classList.toggle("active", !signup);
-      $("show-signup").classList.toggle("active", signup);
-      $("auth-submit").textContent = signup ? "Créer mon compte" : "Se connecter";
-      setMessage();
-    }
+      <div class="feature">
+        <div class="icon">🔧</div>
+        <h3>Service après-vente</h3>
+        <p>Suivez vos demandes de réparation et d'assistance.</p>
+      </div>
 
-    async function goToRoleSpace() {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError) throw userError;
-      if (!user) return;
-      const { data: profile, error } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-      if (error) throw error;
-      const role = profile?.role;
-      if (role === "admin") location.href = "./admin.html";
-      else if (role === "magasin") location.href = "./dashboard.html";
-      else if (role === "client") location.href = "./espace-client.html";
-      else setMessage("Votre compte est connecté. Votre espace sera disponible dès que votre profil sera configuré.", "success");
-    }
+      <div class="feature">
+        <div class="icon">🔒</div>
+        <h3>Espace sécurisé</h3>
+        <p>Vos informations sont accessibles dans votre espace personnel.</p>
+      </div>
+    </div>
+  </section>
 
-    $("open-auth").addEventListener("click", () => openModal("login"));
-    $("hero-login").addEventListener("click", () => openModal("login"));
-    $("close-auth").addEventListener("click", closeModal);
-    $("show-login").addEventListener("click", () => setMode("login"));
-    $("show-signup").addEventListener("click", () => setMode("signup"));
-    modal.addEventListener("click", (event) => { if (event.target === modal) closeModal(); });
-    document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeModal(); });
+  <div class="cta" id="contact">
+    <h2>Ne perdez plus jamais votre garantie.</h2>
+    <p>Garantie.tn simplifie la gestion de vos achats et de vos garanties.</p>
+    <a href="mailto:contact@garantie.tn" class="btn">Nous contacter</a>
+  </div>
+  <div id="auth-modal" style="display:none; position:fixed; inset:0; background:#0008; z-index:1000; justify-content:center; align-items:center; padding:20px;">
+  <div style="background:white; padding:30px; border-radius:15px; width:100%; max-width:400px; position:relative;">
+    <button id="close-auth" style="position:absolute; right:15px; top:12px; border:0; background:none; font-size:24px; cursor:pointer;">×</button>
 
-    $("menu-toggle").addEventListener("click", () => {
-      const expanded = $("menu-toggle").getAttribute("aria-expanded") === "true";
-      $("menu-toggle").setAttribute("aria-expanded", String(!expanded));
-      $("menu-toggle").textContent = expanded ? "☰" : "×";
-      $("main-nav").classList.toggle("open", !expanded);
-    });
-    $("main-nav").querySelectorAll("a").forEach((link) => link.addEventListener("click", () => {
-      $("main-nav").classList.remove("open");
-      $("menu-toggle").setAttribute("aria-expanded", "false");
-      $("menu-toggle").textContent = "☰";
-    }));
+    <h2 style="margin-bottom:20px;">Bienvenue sur Garantie.tn</h2>
 
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const submit = $("auth-submit");
-      submit.disabled = true;
-      submit.textContent = "Veuillez patienter…";
-      setMessage("Connexion en cours…");
-      try {
-        const email = $("email").value.trim();
-        const password = $("password").value;
-        if (mode === "signup") {
-          const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: { data: { full_name: $("full-name").value.trim(), phone: $("phone").value.trim() } }
-          });
-          if (error) throw error;
-          if (data.session) {
-            setMessage("Votre compte a été créé. Redirection…", "success");
-            await goToRoleSpace();
-          } else {
-            setMessage("Compte créé. Vérifiez votre e-mail pour confirmer votre inscription.", "success");
-            form.reset();
+    <div style="display:flex; gap:10px; margin-bottom:20px;">
+      <button id="show-login" class="btn" style="flex:1;">Connexion</button>
+      <button id="show-signup" class="btn" style="flex:1; background:#183b52;">Inscription</button>
+    </div>
+
+    <form id="auth-form">
+      <input id="full-name" type="text" placeholder="Nom complet" style="display:none; width:100%; padding:13px; margin-bottom:12px; border:1px solid #ddd; border-radius:7px;">
+
+      <input id="phone" type="tel" placeholder="Téléphone" style="display:none; width:100%; padding:13px; margin-bottom:12px; border:1px solid #ddd; border-radius:7px;">
+
+      <input id="email" type="email" placeholder="Adresse e-mail" required style="width:100%; padding:13px; margin-bottom:12px; border:1px solid #ddd; border-radius:7px;">
+
+      <input id="password" type="password" placeholder="Mot de passe (8 caractères minimum)" required minlength="8" style="width:100%; padding:13px; margin-bottom:15px; border:1px solid #ddd; border-radius:7px;">
+
+      <button type="submit" class="btn" style="width:100%;">Continuer</button>
+    </form>
+
+    <p id="auth-message" style="margin-top:15px; font-size:14px;"></p>
+  </div>
+</div>
+</main>
+
+<footer>
+  © 2026 Garantie.tn — Tous droits réservés.
+</footer>
+
+<script type="module">
+  import { supabase } from "./supabase.js";
+
+  const modal = document.getElementById("auth-modal");
+  const form = document.getElementById("auth-form");
+  const fullName = document.getElementById("full-name");
+  const phone = document.getElementById("phone");
+  const email = document.getElementById("email");
+  const password = document.getElementById("password");
+  const message = document.getElementById("auth-message");
+
+  let mode = "login";
+
+  document.getElementById("open-auth").addEventListener("click", () => {
+    modal.style.display = "flex";
+  });
+
+  document.getElementById("close-auth").addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  function setMode(newMode) {
+    mode = newMode;
+    const signup = mode === "signup";
+
+    fullName.style.display = signup ? "block" : "none";
+    phone.style.display = signup ? "block" : "none";
+    fullName.required = signup;
+
+    message.textContent = "";
+  }
+
+  document.getElementById("show-login").addEventListener("click", () => {
+    setMode("login");
+  });
+
+  document.getElementById("show-signup").addEventListener("click", () => {
+    setMode("signup");
+  });
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    message.textContent = "Veuillez patienter...";
+
+    try {
+      if (mode === "signup") {
+        const { data, error } = await supabase.auth.signUp({
+          email: email.value.trim(),
+          password: password.value,
+          options: {
+            data: {
+              full_name: fullName.value.trim(),
+              phone: phone.value.trim()
+            }
           }
-        } else {
-          const { error } = await supabase.auth.signInWithPassword({ email, password });
-          if (error) throw error;
-          setMessage("Connexion réussie. Redirection…", "success");
-          await goToRoleSpace();
-        }
-      } catch (error) {
-        setMessage(error?.message || "Une erreur est survenue. Réessayez.", "error");
-      } finally {
-        submit.disabled = false;
-        submit.textContent = mode === "signup" ? "Créer mon compte" : "Se connecter";
+        });
+
+        if (error) throw error;
+
+        message.textContent = data.session
+          ? "Compte créé avec succès !"
+          : "Compte créé. Vérifiez votre e-mail pour confirmer l'inscription.";
+
+        form.reset();
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: email.value.trim(),
+          password: password.value
+        });
+
+        if (error) throw error;
+
+        message.textContent = "Connexion réussie !";
+        setTimeout(() => location.reload(), 1000);
       }
-    });
-
-    $("password").addEventListener("input", () => { if (message.classList.contains("error")) setMessage(); });
-
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      $("open-auth").textContent = "Mon espace";
-      $("open-auth").addEventListener("click", async (event) => {
-        event.preventDefault();
-        try { await goToRoleSpace(); } catch (error) { openModal("login"); setMessage(error.message, "error"); }
-      }, { once: true });
+    } catch (error) {
+      message.textContent = "Erreur : " + error.message;
     }
-  </script>
+  });
+
+  setMode("login");
+
+  supabase.auth.onAuthStateChange((event, session) => {
+    const button = document.getElementById("open-auth");
+
+    if (session) {
+      button.textContent = "Déconnexion";
+      button.onclick = async () => {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+          alert(error.message);
+          return;
+        }
+        location.reload();
+      };
+    } else {
+      button.textContent = "Connexion";
+    }
+  });
+
+  console.log("Supabase connecté avec succès !");
+</script>
+
 </body>
 </html>
