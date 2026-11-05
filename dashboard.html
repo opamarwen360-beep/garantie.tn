@@ -113,15 +113,9 @@ button,a.btn{max-width:100%;white-space:normal;overflow-wrap:anywhere}
 .store-tools{align-items:center}.store-tools button{white-space:nowrap}.store-tools button.secondary{background:#e8f7f0!important;color:#066447!important;border:1px solid #d4eee0!important;box-shadow:none!important}
 @media(max-width:760px){.store-heading{align-items:stretch;flex-direction:column}.store-switcher{min-width:0}.new-store-form{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.store-tools button{flex:1}.store-tools input{min-width:100%}}
 @media(max-width:420px){.stats-grid{gap:9px}.stat-card{padding:14px}.stat-card strong{font-size:24px}}
-</style>
-<style id="gtn-logo-global">
-header .logo{display:flex!important;align-items:center!important;text-decoration:none!important;flex-shrink:0}
-header .logo img{display:block;width:218px;height:auto;max-height:48px;object-fit:contain}
-@media(max-width:560px){header .logo img{width:178px;max-height:42px}}
-</style>
-</head>
+</style></head>
 <body>
-<header><a class="logo" href="./index.html" aria-label="Garantie.tn - Accueil"><img src="logo.svg" alt="Garantie.tn"></a><button id="logout" type="button">Déconnexion</button></header>
+<header><a class="logo" href="./index.html">Garantie<span>.tn</span></a><button id="logout" type="button">Déconnexion</button></header>
 <main id="app" style="display:none">
 <section class="intro"><div class="store-heading"><div><h1>Espace magasin</h1><p class="muted" id="store-label">Gérez vos produits et les garanties de vos clients.</p></div><div class="store-switcher"><label for="store-select">Point de vente</label><select id="store-select" aria-label="Choisir un magasin"></select></div></div></section>
 <section class="panel store-management"><form id="new-store-form" class="new-store-form"><input id="new-store-name" maxlength="120" required placeholder="Nom du nouveau point de vente"><input id="new-store-phone" type="tel" maxlength="30" required placeholder="Téléphone du magasin"><input id="new-store-address" maxlength="220" required placeholder="Adresse du magasin"><button type="submit">Envoyer la demande</button></form><p class="small">L’ajout d’un nouveau point de vente sera effectif après validation par l’administration.</p><p id="new-store-message" class="message" role="status"></p></section>
