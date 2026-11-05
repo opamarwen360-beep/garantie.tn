@@ -164,9 +164,93 @@ body>header .gtn-menu-toggle{display:none!important}
  body>header nav#gtn-mobile-menu a:hover{background:rgba(140,224,187,.12)!important;color:#8ce0bb!important}
 }
 </style>
+
+<!-- GARANTIA / Garantie.tn complete visual identity refresh -->
+<style id="garantia-brand-system">
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap');
+:root{
+ --brand-ink:#101b2d;--brand-ink-2:#1b2b45;--brand-teal:#079b83;--brand-teal-dark:#067b6b;
+ --brand-blue:#4f83f1;--brand-mint:#e8f7f3;--brand-sky:#edf3ff;--brand-bg:#f4f7fb;
+ --brand-paper:#fff;--brand-text:#17243a;--brand-muted:#718096;--brand-line:#e5ebf2;
+ --brand-shadow:0 18px 50px rgba(16,27,45,.075);--brand-radius:20px
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0!important;background:var(--brand-bg)!important;color:var(--brand-text)!important;font-family:'DM Sans',system-ui,sans-serif!important;line-height:1.6!important;-webkit-font-smoothing:antialiased}
+header,body>header{position:sticky!important;top:0!important;z-index:100!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:26px!important;min-height:82px!important;height:auto!important;padding:12px clamp(18px,5vw,76px)!important;background:rgba(255,255,255,.94)!important;border:0!important;border-bottom:1px solid rgba(229,235,242,.9)!important;border-radius:0!important;box-shadow:0 5px 24px rgba(16,27,45,.045)!important;backdrop-filter:blur(18px)!important}
+.gtn-brand{display:flex!important;align-items:center!important;flex:0 0 auto!important;min-width:0!important;text-decoration:none!important}
+.gtn-brand img{display:block!important;width:230px!important;max-width:100%!important;height:auto!important;max-height:58px!important;object-fit:contain!important;object-position:left center!important}
+.gtn-nav-new{display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;margin:0 auto!important;flex-wrap:wrap!important}
+.gtn-nav-new a{display:inline-flex!important;align-items:center!important;min-height:42px!important;padding:9px 15px!important;border-radius:11px!important;color:#53627a!important;text-decoration:none!important;font:700 13px 'DM Sans',sans-serif!important;transition:background .18s,color .18s,transform .18s!important}
+.gtn-nav-new a:hover,.gtn-nav-new a:focus{background:var(--brand-sky)!important;color:var(--brand-blue)!important;transform:translateY(-1px)!important}
+header button,header .gtn-header-login,header button:not(.gtn-menu-toggle){flex:0 0 auto!important;margin:0!important;padding:12px 20px!important;border:1px solid var(--brand-ink)!important;border-radius:12px!important;background:var(--brand-ink)!important;color:#fff!important;font:800 13px 'DM Sans',sans-serif!important;box-shadow:0 7px 16px rgba(16,27,45,.14)!important}
+main{width:min(1200px,calc(100% - 44px))!important;margin:38px auto 72px!important;padding:0!important}
+h1,h2,h3,h4{font-family:'Manrope','DM Sans',sans-serif!important;color:var(--brand-ink)!important;letter-spacing:-.65px!important}
+h1{font-size:clamp(29px,4vw,43px)!important;line-height:1.13!important;font-weight:800!important}
+h2{font-size:clamp(20px,2.2vw,25px)!important;font-weight:800!important}
+p,.muted,.hero p,.feature p,.section-title p{color:var(--brand-muted)!important;line-height:1.75!important}
+button,.btn,a.btn,.link-btn{font-family:'DM Sans',sans-serif!important;font-weight:800!important;border-radius:12px!important;transition:transform .18s,box-shadow .18s,background .18s!important}
+button:not(.secondary),.btn,a.btn:not(.secondary),.link-btn{background:linear-gradient(135deg,var(--brand-teal),#087fba)!important;color:#fff!important;border:1px solid transparent!important;box-shadow:0 8px 18px rgba(7,155,131,.17)!important}
+button:hover,.btn:hover,a.btn:hover{transform:translateY(-1px)!important;box-shadow:0 12px 24px rgba(7,155,131,.22)!important}
+button.secondary,.secondary,.refresh{background:#eef3f8!important;color:var(--brand-ink)!important;border:1px solid var(--brand-line)!important;box-shadow:none!important}
+input,select,textarea{width:100%;min-height:46px;border:1px solid #dce4ee!important;border-radius:11px!important;padding:12px 14px!important;background:#fbfcfe!important;color:var(--brand-text)!important;font:500 14px 'DM Sans',sans-serif!important;outline:none!important}
+input:focus,select:focus,textarea:focus{border-color:var(--brand-teal)!important;box-shadow:0 0 0 4px rgba(7,155,131,.11)!important}
+label{color:#34435a!important;font:700 13px 'DM Sans',sans-serif!important}
+.panel,.stat,.section,.card,.warranty,.feature,.hero-card,.item{background:var(--brand-paper)!important;border:1px solid var(--brand-line)!important;border-radius:var(--brand-radius)!important;box-shadow:var(--brand-shadow)!important}
+.panel{padding:26px!important;margin:0 0 22px!important}
+.stats{gap:16px!important}
+.stat{padding:22px!important}
+.stat strong{color:var(--brand-teal)!important;font:800 30px 'Manrope',sans-serif!important}
+.welcome,.intro,.heading{background:linear-gradient(120deg,var(--brand-ink),#203c61)!important;border-radius:22px!important;padding:30px!important;box-shadow:0 18px 40px rgba(16,27,45,.15)!important}
+.welcome h1,.intro h1,.heading h1{color:#fff!important}
+.welcome p,.intro p,.heading p{color:#c4d1e4!important}
+.tabs{background:#edf2f8!important;border:1px solid var(--brand-line)!important;border-radius:14px!important;padding:7px!important}
+.tabs button{background:transparent!important;color:#596a83!important;box-shadow:none!important}
+.tabs button.active{background:var(--brand-ink)!important;color:#fff!important}
+.table-wrap{border:1px solid var(--brand-line)!important;border-radius:16px!important;background:#fff!important;box-shadow:var(--brand-shadow)!important;overflow:auto!important}
+table{border-collapse:separate!important;border-spacing:0!important}
+th{background:#f0f5fa!important;color:#52647d!important;font-weight:800!important}
+td,th{border-bottom:1px solid #edf1f6!important;padding:14px!important}
+.pill,.tag{background:var(--brand-mint)!important;color:var(--brand-teal-dark)!important;border-radius:999px!important}
+.pill.expired,.rejected{background:#fff0ee!important;color:#b5473c!important}
+.pending{background:#fff6df!important;color:#946b11!important}
+.empty,.notice,.message,.msg{background:#f5f8fc!important;border:1px dashed #d8e1ec!important;border-radius:13px!important;padding:15px!important;color:var(--brand-muted)!important}
+.hero{position:relative!important;isolation:isolate!important;overflow:hidden!important;background:linear-gradient(115deg,#eaf8f5 0%,#f3f6ff 62%,#fff 100%)!important;border-bottom:1px solid var(--brand-line)!important;padding:clamp(58px,8vw,104px) clamp(22px,7vw,100px)!important}
+.hero:after{content:"";position:absolute;z-index:-1;width:420px;height:420px;right:-100px;top:-160px;border-radius:50%;background:radial-gradient(circle,rgba(79,131,241,.16),transparent 68%)}
+.hero h1 span{color:var(--brand-teal)!important}
+.hero-card{border-radius:24px!important;padding:30px!important}
+.tag{font-weight:800!important;letter-spacing:.2px!important}
+.features{gap:20px!important}
+.feature{padding:28px!important;transition:transform .2s,box-shadow .2s!important}
+.feature:hover{transform:translateY(-4px)!important;box-shadow:0 22px 48px rgba(16,27,45,.11)!important}
+.cta{background:linear-gradient(120deg,#101b2d,#1b4770)!important;color:#fff!important}
+.cta h2,.cta p{color:#fff!important}
+footer{background:#0c1728!important;color:#d6e0ed!important}
+.warranty{padding:20px!important}
+@media(max-width:760px){
+ header,body>header{min-height:72px!important;padding:10px 14px!important;gap:10px!important;flex-wrap:wrap!important}
+ .gtn-brand{max-width:58%!important}
+ .gtn-brand img{width:185px!important;max-height:48px!important}
+ .gtn-nav-new{order:3!important;flex:1 0 100%!important;justify-content:flex-start!important;overflow-x:auto!important;flex-wrap:nowrap!important;gap:4px!important;padding:5px 0 2px!important;scrollbar-width:none!important}
+ .gtn-nav-new::-webkit-scrollbar{display:none!important}
+ .gtn-nav-new a{white-space:nowrap!important;min-height:36px!important;padding:7px 11px!important;font-size:12px!important}
+ header button,header .gtn-header-login,header button:not(.gtn-menu-toggle){padding:10px 13px!important;font-size:12px!important}
+ main{width:calc(100% - 24px)!important;margin:22px auto 48px!important}
+ .panel{padding:18px!important}
+ .welcome,.intro,.heading{align-items:flex-start!important;flex-direction:column!important;padding:22px!important}
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .grid,.fields{grid-template-columns:1fr!important}
+ .hero{padding:54px 22px!important}
+ .hero-card{width:100%!important;padding:22px!important}
+ .features{grid-template-columns:1fr!important}
+ .card,main>section,.panel{border-radius:17px!important}
+}
+@media(max-width:420px){.gtn-brand img{width:158px!important}.stats{grid-template-columns:1fr!important}header button,header .gtn-header-login{padding:9px 11px!important}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style>
 </head>
 <body>
-<header><a class="gtn-brand" href="./index.html" aria-label="Garantie.tn - Accueil"><img src="https://raw.githubusercontent.com/opamarwen360-beep/garantie.tn/main/Garantie.tn___Logo_concept_2-removebg-preview.png" alt="Garantie.tn"></a><nav class="gtn-nav-new" aria-label="Navigation principale"><a href="./dashboard.html">Tableau de bord</a><a href="./espace-client.html">Espace client</a><a href="./index.html#services">Services</a></nav><button id="logout" type="button">Déconnexion</button></header>
+<header><a class="gtn-brand" href="./index.html" aria-label="Garantie.tn - Accueil"><img src="./logo.svg" alt="Garantie.tn"></a><nav class="gtn-nav-new" aria-label="Navigation principale"><a href="./dashboard.html">Tableau de bord</a><a href="./espace-client.html">Espace client</a><a href="./index.html#services">Services</a></nav><button id="logout" type="button">Déconnexion</button></header>
 <main>
 <section class="welcome"><div><h1>Mon espace client</h1><p class="muted" id="greeting">Bienvenue sur votre espace personnel.</p></div><a class="btn" href="index.html">Accueil</a></section>
 <section class="panel" id="store-invitations-panel"><h2>Notifications et invitations magasin</h2><p class="muted">Les magasins qui souhaitent vous donner un accès apparaîtront ici. Vous devez accepter une invitation avant de pouvoir travailler avec le magasin.</p><div id="store-invitations"><div class="empty">Chargement des invitations...</div></div><p id="store-invitations-message" class="message" role="status"></p></section>
