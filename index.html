@@ -573,11 +573,7 @@ body>header .gtn-menu-toggle{display:none!important}
 </head>
 <body>
 
-<header><a class="gtn-brand" href="./index.html" aria-label="Garantie.tn - Accueil"><img src="https://raw.githubusercontent.com/opamarwen360-beep/garantie.tn/main/Garantie.tn___Logo_concept_2-removebg-preview.png" alt="Garantie.tn"></a>
-  
-  <button class="gtn-header-login" type="button" id="open-auth">Connexion</button>
-  <nav id="gtn-mobile-menu"><a href="#accueil">Accueil</a><a href="#services">Fonctionnalités</a><a href="#contact">Pour les magasins</a></nav>
-</header>
+<header><a class="gtn-brand" href="./index.html" aria-label="Garantie.tn - Accueil"><img src="https://raw.githubusercontent.com/opamarwen360-beep/garantie.tn/main/Garantie.tn___Logo_concept_2-removebg-preview.png" alt="Garantie.tn"></a><nav class="gtn-nav-new" aria-label="Navigation principale"><a href="./index.html#accueil">Accueil</a><a href="./index.html#services">Fonctionnalités</a><a href="./demande-magasin.html">Espace magasin</a></nav><button class="gtn-header-login" type="button" id="open-auth">Connexion</button></header>
 <main>
   <section class="hero" id="accueil">
     <div class="hero-content">
@@ -923,5 +919,45 @@ body>header,header.site-header{min-height:0!important}
 body>header .gtn-brand,header.site-header .gtn-brand{max-width:230px!important}
 body>header .gtn-brand img,header.site-header .gtn-brand img{max-width:220px!important;max-height:72px!important}
 }
-</style></body>
+</style><style id="gtn-header-proposal-2026">
+/* Nouveau header Garantie.tn */
+body>header,header.site-header{
+ position:sticky!important;top:0!important;z-index:1000!important;
+ width:100%!important;min-height:88px!important;box-sizing:border-box!important;
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:28px!important;padding:12px clamp(18px,5vw,72px)!important;
+ background:#fff!important;border:0!important;border-bottom:1px solid #e8edf2!important;
+ border-radius:0!important;box-shadow:0 5px 22px rgba(20,45,70,.055)!important;
+}
+body>header .gtn-brand,header.site-header .gtn-brand{
+ display:flex!important;align-items:center!important;flex:0 0 auto!important;
+ width:210px!important;max-width:210px!important;margin:0!important;padding:0!important;
+}
+body>header .gtn-brand img,header.site-header .gtn-brand img{
+ display:block!important;width:100%!important;max-width:210px!important;height:auto!important;
+ max-height:64px!important;object-fit:contain!important;
+}
+.gtn-nav-new{display:flex!important;align-items:center!important;justify-content:center!important;gap:clamp(18px,2.8vw,42px)!important;flex:1 1 auto!important;min-width:0!important}
+.gtn-nav-new a{color:#25364a!important;text-decoration:none!important;font-size:14px!important;font-weight:600!important;white-space:nowrap!important;padding:10px 0!important;position:relative!important;transition:color .2s ease!important}
+.gtn-nav-new a:hover{color:#16845b!important}
+.gtn-nav-new a:after{content:"";position:absolute;left:0;right:100%;bottom:2px;height:2px;background:#16845b;transition:right .2s ease}
+.gtn-nav-new a:hover:after{right:0}
+body>header #open-auth,body>header #logout,header.site-header #open-auth,header.site-header #logout{
+ flex:0 0 auto!important;border:0!important;border-radius:10px!important;
+ padding:12px 22px!important;background:#16845b!important;color:#fff!important;
+ font-weight:700!important;font-size:14px!important;box-shadow:0 5px 14px rgba(22,132,91,.18)!important;
+ cursor:pointer!important
+}
+body>header #open-auth:hover,body>header #logout:hover{background:#106c49!important;transform:translateY(-1px)}
+@media(max-width:760px){
+ body>header,header.site-header{position:sticky!important;min-height:auto!important;display:grid!important;grid-template-columns:1fr auto!important;gap:8px 12px!important;padding:10px 14px!important}
+ body>header .gtn-brand,header.site-header .gtn-brand{width:165px!important;max-width:165px!important}
+ body>header .gtn-brand img,header.site-header .gtn-brand img{max-width:165px!important;max-height:50px!important}
+ .gtn-nav-new{grid-column:1/-1!important;grid-row:2!important;justify-content:flex-start!important;gap:24px!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;scrollbar-width:none!important;padding:3px 1px 5px!important;-webkit-overflow-scrolling:touch!important}
+ .gtn-nav-new::-webkit-scrollbar{display:none!important}
+ .gtn-nav-new a{font-size:13px!important;padding:7px 0!important}
+ body>header #open-auth,body>header #logout,header.site-header #open-auth,header.site-header #logout{grid-column:2!important;grid-row:1!important;padding:10px 14px!important;font-size:12px!important}
+}
+</style>
+</body>
 </html>
