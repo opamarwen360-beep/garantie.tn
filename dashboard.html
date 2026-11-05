@@ -106,11 +106,21 @@ button,a.btn{max-width:100%;white-space:normal;overflow-wrap:anywhere}
 @media(max-width:360px){.stats{grid-template-columns:1fr!important}}
 
 </style>
+<style id="gtn-phase1-tools">
+.store-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:18px}.store-switcher{display:grid;gap:6px;min-width:220px}.store-switcher label{font-size:12px;color:#718092}.store-switcher select{padding:11px;border:1px solid #dce3e8;border-radius:9px;background:#fff;font:inherit}
+.store-management{padding:15px 18px}.new-store-form{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:center}.new-store-form input{min-width:0;padding:11px;border:1px solid #dce3e8;border-radius:9px;font:inherit}
+.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:0 0 20px}.stat-card{background:#fff;border:1px solid #e8edf0;border-radius:13px;padding:18px;box-shadow:0 5px 18px #183b5208}.stat-card span{display:block;color:#718092;font-size:13px}.stat-card strong{display:block;color:#087f5b;font-size:28px;margin-top:6px}
+.store-tools{align-items:center}.store-tools button{white-space:nowrap}.store-tools button.secondary{background:#e8f7f0!important;color:#066447!important;border:1px solid #d4eee0!important;box-shadow:none!important}
+@media(max-width:760px){.store-heading{align-items:stretch;flex-direction:column}.store-switcher{min-width:0}.new-store-form{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.store-tools button{flex:1}.store-tools input{min-width:100%}}
+@media(max-width:420px){.stats-grid{gap:9px}.stat-card{padding:14px}.stat-card strong{font-size:24px}}
+</style>
 </head>
 <body>
 <header><a class="logo" href="./index.html">Garantie<span>.tn</span></a><button id="logout" type="button">Déconnexion</button></header>
 <main id="app" style="display:none">
-<section class="intro"><h1>Espace magasin</h1><p class="muted" id="store-label">Gérez vos produits et les garanties de vos clients.</p></section>
+<section class="intro"><div class="store-heading"><div><h1>Espace magasin</h1><p class="muted" id="store-label">Gérez vos produits et les garanties de vos clients.</p></div><div class="store-switcher"><label for="store-select">Point de vente</label><select id="store-select" aria-label="Choisir un magasin"></select></div></div></section>
+<section class="panel store-management"><form id="new-store-form" class="new-store-form"><input id="new-store-name" maxlength="120" required placeholder="Nom du nouveau point de vente"><input id="new-store-address" maxlength="220" placeholder="Adresse (facultatif)"><button type="submit">+ Ajouter un magasin</button></form><p id="new-store-message" class="message" role="status"></p></section>
+<section class="stats-grid" aria-label="Statistiques du magasin"><article class="stat-card"><span>Total garanties</span><strong id="stat-total">0</strong></article><article class="stat-card"><span>Garanties actives</span><strong id="stat-active">0</strong></article><article class="stat-card"><span>Expirent sous 30 jours</span><strong id="stat-expiring">0</strong></article><article class="stat-card"><span>Garanties expirées</span><strong id="stat-expired">0</strong></article></section>
 <section class="panel"><h2>Photo de mon magasin</h2><form id="store-photo-form"><input id="store-photo" type="file" accept="image/jpeg,image/png,image/webp" required><button type="submit">Enregistrer la photo</button></form><img id="store-photo-preview" alt="Photo du magasin" style="display:none;max-width:180px;margin-top:12px"><p id="store-photo-message" class="message"></p></section><section class="panel"><h2>Enregistrement par QR code</h2><p class="muted">Demandez au client d’ouvrir son QR code personnel dans son espace client, puis scannez-le avec l’appareil photo du téléphone. Le formulaire d’enregistrement des articles s’ouvrira automatiquement. Connectez-vous au compte magasin sur ce téléphone avant le scan.</p></section>
 <div class="grid">
 <section class="panel">
@@ -136,7 +146,7 @@ button,a.btn{max-width:100%;white-space:normal;overflow-wrap:anywhere}
 <section class="panel">
 <h2>Mes garanties enregistrées</h2>
 <p class="muted">Retrouvez ici les dossiers créés par votre magasin et ajoutez la facture PDF à chaque dossier.</p>
-<div class="store-tools"><input id="warranty-search" type="search" placeholder="Rechercher produit, client ou N° garantie..."><span id="warranty-count" class="muted"></span></div><div id="warranty-list"><div class="empty">Chargement...</div></div>
+<div class="store-tools"><input id="warranty-search" type="search" placeholder="Rechercher produit, client ou N° garantie..."><span id="warranty-count" class="muted"></span><button type="button" id="export-csv" class="secondary">Exporter Excel</button><button type="button" id="export-pdf" class="secondary">Exporter PDF</button></div><div id="warranty-list"><div class="empty">Chargement...</div></div>
 <p id="list-message" class="message" role="status"></p>
 </section>
 </div>
@@ -160,37 +170,40 @@ function addMonths(dateValue, months) {
   return result.toISOString().slice(0, 10);
 }
 
-async function init() {
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) { location.href = "./index.html"; return; }
-  currentUser = user;
-
-  const { data: profile, error: profileError } = await supabase.from("profiles")
-    .select("role").eq("id", user.id).single();
-  if (profileError || profile?.role !== "magasin") { location.href = "./index.html"; return; }
-
-  const { data: store, error: storeError } = await supabase.from("stores")
-    .select("id,name,photo_path").eq("owner_id", user.id).order("created_at", {ascending:true}).limit(1).maybeSingle();
-  if (storeError) throw storeError;
-  if (!store) {
-    $("app").style.display = "block";
-    $("store-label").textContent = "Votre compte magasin est activé, mais aucun magasin n'est encore associé. Contactez l'administration.";
-    $("warranty-form").classList.add("hidden");
-    $("warranty-list").innerHTML = '<div class="empty">Aucun magasin associé à ce compte.</div>';
-    return;
-  }
-  currentStore = store;
-  if(store.photo_path){const {data:photo}=await supabase.storage.from("profile-photos").createSignedUrl(store.photo_path,3600);if(photo?.signedUrl){$("store-photo-preview").src=photo.signedUrl;$("store-photo-preview").style.display="block";}}
-  $("store-label").textContent = "Magasin : " + store.name + " — Gérez vos produits et garanties.";
-  $("purchase-date").value = new Date().toISOString().slice(0,10);
-  $("app").style.display = "block";
-  await loadWarranties();
-  await loadStoreSav();
+let ownedStores = [];
+async function selectStore(storeId) {
+ currentStore=ownedStores.find(store=>store.id===storeId)||ownedStores[0]||null;
+ if(!currentStore)return;
+ $("store-select").value=currentStore.id;
+ $("store-label").textContent="Magasin : "+currentStore.name+" — Gérez vos produits et garanties.";
+ $("store-photo-preview").style.display="none";
+ if(currentStore.photo_path){const {data:photo}=await supabase.storage.from("profile-photos").createSignedUrl(currentStore.photo_path,3600);if(photo?.signedUrl){$("store-photo-preview").src=photo.signedUrl;$("store-photo-preview").style.display="block";}}
+ await loadWarranties();await loadStoreSav();
 }
+async function init() {
+ const {data:{user},error:userError}=await supabase.auth.getUser();
+ if(userError||!user){location.href="./index.html";return;}currentUser=user;
+ const {data:profile,error:profileError}=await supabase.from("profiles").select("role").eq("id",user.id).single();
+ if(profileError||profile?.role!=="magasin"){location.href="./index.html";return;}
+ const {data:stores,error:storeError}=await supabase.from("stores").select("id,name,address,photo_path").eq("owner_id",user.id).order("created_at",{ascending:true});
+ if(storeError)throw storeError;ownedStores=stores||[];$("app").style.display="block";$("purchase-date").value=new Date().toISOString().slice(0,10);
+ $("store-select").innerHTML=ownedStores.map(store=>'<option value="'+esc(store.id)+'">'+esc(store.name)+'</option>').join("");
+ if(!ownedStores.length){$("store-label").textContent="Aucun point de vente n'est encore associé à ce compte. Ajoutez votre premier magasin ci-dessous.";$("warranty-form").classList.add("hidden");$("warranty-list").innerHTML='<div class="empty">Ajoutez un point de vente pour commencer.</div>';$("store-select").disabled=true;return;}
+ await selectStore(ownedStores[0].id);
+}
+$("store-select").addEventListener("change",e=>selectStore(e.target.value).catch(err=>alert("Erreur : "+err.message)));
+$("new-store-form").addEventListener("submit",async e=>{
+ e.preventDefault();const btn=e.currentTarget.querySelector("button"),msg=$("new-store-message"),name=$("new-store-name").value.trim(),address=$("new-store-address").value.trim();if(!name)return;
+ btn.disabled=true;msg.textContent="Création du point de vente...";
+ try{const {data:store,error}=await supabase.from("stores").insert({owner_id:currentUser.id,name,address:address||null}).select("id,name,address,photo_path").single();if(error)throw error;
+ ownedStores.push(store);$("store-select").disabled=false;$("store-select").innerHTML=ownedStores.map(item=>'<option value="'+esc(item.id)+'">'+esc(item.name)+'</option>').join("");$("new-store-form").reset();msg.textContent="Point de vente ajouté.";await selectStore(store.id);
+ }catch(err){msg.textContent="Erreur : "+err.message;}finally{btn.disabled=false;}
+});
 
 
 async function loadStoreSav(){
- const {data,error}=await supabase.from("sav_requests").select("id,warranty_id,customer_phone,subject,description,status,created_at,warranties(warranty_number,customer_name,customer_email,products(name))").order("created_at",{ascending:false});
+ if(!currentStore){storeSavRequests=[];renderStoreSav();return;}
+ const {data,error}=await supabase.from("sav_requests").select("id,warranty_id,customer_phone,subject,description,status,created_at,warranties!inner(store_id,warranty_number,customer_name,customer_email,products(name))").eq("warranties.store_id",currentStore.id).order("created_at",{ascending:false});
  if(error)throw error;storeSavRequests=data||[];renderStoreSav();
 }
 function renderStoreSav(){
@@ -210,9 +223,30 @@ async function loadWarranties() {
     .select("id,warranty_number,purchase_date,start_date,end_date,duration_months,customer_name,customer_email,customer_national_id_number,products(name,brand,model),invoices(id,file_name)")
     .eq("store_id", currentStore.id).order("created_at", {ascending:false});
   if (error) throw error;
-  storeWarranties=data||[];renderStoreWarranties();
+  storeWarranties=data||[];renderStoreWarranties();updateStoreStats();
 }
 
+function updateStoreStats(){
+ const today=new Date().toISOString().slice(0,10),limit=new Date();limit.setDate(limit.getDate()+30);const end=limit.toISOString().slice(0,10);
+ $("stat-total").textContent=storeWarranties.length;
+ $("stat-active").textContent=storeWarranties.filter(w=>w.status==="active"&&w.end_date>=today).length;
+ $("stat-expiring").textContent=storeWarranties.filter(w=>w.status==="active"&&w.end_date>=today&&w.end_date<=end).length;
+ $("stat-expired").textContent=storeWarranties.filter(w=>w.status==="expired"||w.end_date<today).length;
+}
+function csvCell(value){return '"'+String(value??"").replace(/"/g,'""')+'"';}
+function exportWarrantiesCsv(){
+ const headers=["Produit","Marque","Modèle","N° garantie","Client","E-mail","Date d'achat","Début garantie","Fin garantie","Statut"];
+ const rows=storeWarranties.map(w=>[w.products?.name,w.products?.brand,w.products?.model,w.warranty_number,w.customer_name,w.customer_email,w.purchase_date,w.start_date,w.end_date,w.status]);
+ const csv="\\uFEFF"+[headers,...rows].map(row=>row.map(csvCell).join(";")).join("\\r\\n");
+ const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="garanties-"+(currentStore?.name||"magasin").replace(/[^a-z0-9_-]/gi,"-")+".csv";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
+function exportWarrantiesPdf(){
+ const rows=storeWarranties.map(w=>'<tr><td>'+esc(w.products?.name||"—")+'</td><td>'+esc(w.warranty_number)+'</td><td>'+esc(w.customer_name||w.customer_email||"—")+'</td><td>'+esc(dateLabel(w.purchase_date))+'</td><td>'+esc(dateLabel(w.end_date))+'</td><td>'+esc(w.status)+'</td></tr>').join("");
+ const win=window.open("","_blank");if(!win){alert("Autorisez les fenêtres contextuelles pour exporter le PDF.");return;}
+ win.document.write('<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Rapport garanties</title><style>body{font:13px Arial;padding:24px;color:#183b52}h1{font-size:22px}p{color:#667}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{padding:9px;border:1px solid #dce5e9;text-align:left}th{background:#eef5f1}</style></head><body><h1>Rapport des garanties — '+esc(currentStore?.name||"Magasin")+'</h1><p>Généré le '+new Date().toLocaleDateString("fr-FR")+' · '+storeWarranties.length+' garantie(s)</p><table><thead><tr><th>Produit</th><th>N° garantie</th><th>Client</th><th>Achat</th><th>Fin</th><th>Statut</th></tr></thead><tbody>'+rows+'</tbody></table><script>window.onload=()=>window.print()<\\/script></body></html>');
+ win.document.close();
+}
 function renderStoreWarranties(){
  const q=$("warranty-search").value.trim().toLocaleLowerCase("fr");
  const rows=storeWarranties.filter(w=>{const p=w.products||{};return !q||[p.name,p.brand,p.model,w.warranty_number,w.customer_name,w.customer_email].some(v=>String(v||"").toLocaleLowerCase("fr").includes(q))});
@@ -233,6 +267,8 @@ function renderStoreWarranties(){
 }
 
 $("warranty-search").addEventListener("input",renderStoreWarranties);
+$("export-csv").addEventListener("click",exportWarrantiesCsv);
+$("export-pdf").addEventListener("click",exportWarrantiesPdf);
 $("sav-search").addEventListener("input",renderStoreSav);
 $("sav-status-filter").addEventListener("change",renderStoreSav);
 
