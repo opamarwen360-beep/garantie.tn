@@ -88,9 +88,14 @@ a{color:var(--green)}
 @media(max-width:760px){main{width:calc(100% - 24px)!important;margin:20px auto 45px!important}.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.welcome,.intro,.heading{align-items:flex-start;flex-direction:column;padding:21px!important}.panel{padding:18px!important}.fields{grid-template-columns:1fr}.tabs{overflow-x:auto;flex-wrap:nowrap}.tabs button{white-space:nowrap}}
 @media(max-width:420px){.stats{grid-template-columns:1fr}.stat strong{font-size:25px!important}}
 </style>
+<style id="gtn-logo-global">
+header .logo{display:flex!important;align-items:center!important;text-decoration:none!important;flex-shrink:0}
+header .logo img{display:block;width:218px;height:auto;max-height:48px;object-fit:contain}
+@media(max-width:560px){header .logo img{width:178px;max-height:42px}}
+</style>
 </head>
 <body>
-<header><a class="logo" href="index.html">Garantie<span>.tn</span></a><button id="logout">Déconnexion</button></header>
+<header><a class="logo" href="index.html" aria-label="Garantie.tn - Accueil"><img src="logo.svg" alt="Garantie.tn"></a><button id="logout">Déconnexion</button></header>
 <main>
 <section class="welcome"><div><h1>Mon espace client</h1><p class="muted" id="greeting">Bienvenue sur votre espace personnel.</p></div><a class="btn" href="index.html">Accueil</a></section>
 <section class="panel" id="store-invitations-panel"><h2>Notifications et invitations magasin</h2><p class="muted">Les magasins qui souhaitent vous donner un accès apparaîtront ici. Vous devez accepter une invitation avant de pouvoir travailler avec le magasin.</p><div id="store-invitations"><div class="empty">Chargement des invitations...</div></div><p id="store-invitations-message" class="message" role="status"></p></section>
