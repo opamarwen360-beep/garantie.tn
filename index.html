@@ -1,1091 +1,260 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Garantie.tn - Gérez vos garanties et factures facilement en Tunisie.">
-  <title>Garantie.tn | Votre garantie, toujours avec vous</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Garantie.tn centralise vos factures, produits et garanties dans un espace simple et sécurisé.">
+  <meta name="theme-color" content="#101d35">
+  <title>Garantie.tn — Vos garanties, en toute simplicité</title>
+  <link rel="icon" href="./logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      color: #172b3a;
-      background: #f7f9fc;
-    }
-    header {
-      background: white;
-      padding: 20px 7%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 12px #00000008;
-    }
-    .logo { font-size: 27px; font-weight: bold; color: #126b55; }
-    .logo span { color: #183b52; }
-    nav { display: flex; gap: 25px; align-items: center; }
-    nav a { text-decoration: none; color: #526477; font-size: 14px; }
-    .btn {
-      display: inline-block;
-      background: #14765c;
-      color: white;
-      padding: 13px 23px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
-    }
-    .hero {
-      padding: 95px 7%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 50px;
-      background: linear-gradient(120deg, #edf8f4, #f7f9fc);
-    }
-    .hero-content { max-width: 590px; }
-    .tag {
-      display: inline-block;
-      background: #d9eee6;
-      color: #14765c;
-      padding: 9px 15px;
-      border-radius: 30px;
-      font-size: 13px;
-      margin-bottom: 22px;
-    }
-    h1 {
-      font-size: clamp(36px, 5vw, 57px);
-      line-height: 1.15;
-      margin-bottom: 22px;
-    }
-    h1 span { color: #14765c; }
-    .hero p { color: #647586; line-height: 1.8; font-size: 17px; margin-bottom: 30px; }
-    .hero-card {
-      background: white;
-      padding: 35px;
-      border-radius: 20px;
-      width: 340px;
-      box-shadow: 0 15px 45px #183b5212;
-    }
-    .hero-card h3 { margin-bottom: 20px; }
-    .item {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 15px 0;
-      border-bottom: 1px solid #edf0f2;
-    }
-    .icon {
-      background: #e4f4ed;
-      width: 43px;
-      height: 43px;
-      display: grid;
-      place-items: center;
-      border-radius: 10px;
-      font-size: 21px;
-    }
-    .item small { display: block; color: #82909d; margin-top: 5px; }
-    section { padding: 75px 7%; }
-    .section-title { text-align: center; margin-bottom: 45px; }
-    .section-title h2 { font-size: 32px; margin-bottom: 12px; }
-    .section-title p { color: #758392; }
-    .features {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 22px;
-    }
-    .feature {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      border: 1px solid #edf0f2;
-    }
-    .feature .icon { margin-bottom: 20px; }
-    .feature h3 { margin-bottom: 12px; }
-    .feature p { color: #718092; line-height: 1.7; font-size: 14px; }
-    .cta {
-      background: #183b52;
-      color: white;
-      text-align: center;
-      padding: 65px 20px;
-    }
-    .cta h2 { font-size: 32px; margin-bottom: 15px; }
-    .cta p { color: #d2e0e8; margin-bottom: 25px; }
-    footer {
-      background: #102c3d;
-      color: white;
-      padding: 28px 7%;
-      text-align: center;
-      font-size: 13px;
-    }
-    @media(max-width: 750px) {
-      nav a:not(.btn) { display: none; }
-      .hero { flex-direction: column; padding: 65px 6%; }
-      .hero-card { width: 100%; }
-      .features { grid-template-columns: 1fr; }
-      section { padding: 55px 6%; }
-    }
+    :root{--navy:#101d35;--navy-2:#1b2d4d;--green:#159b70;--green-dark:#087653;--mint:#e8f7f0;--ink:#17243b;--muted:#718096;--line:#e8edf3;--paper:#f7f9fc;--white:#fff;--shadow:0 18px 50px rgba(16,29,53,.09)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}a{color:inherit}button,input{font:inherit}
+    .container{width:min(1160px,calc(100% - 40px));margin-inline:auto}
+    .site-header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+    .header-inner{height:82px;display:flex;align-items:center;justify-content:space-between;gap:28px}
+    .brand{display:flex;align-items:center;text-decoration:none;flex:0 0 auto}.brand img{display:block;width:220px;max-height:60px;object-fit:contain;object-position:left center}
+    .nav{display:flex;align-items:center;gap:30px}.nav a{font-size:14px;font-weight:700;text-decoration:none;color:#58677e;transition:color .2s}.nav a:hover{color:var(--green-dark)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:0 22px;border:1px solid transparent;border-radius:11px;background:var(--green);color:#fff;text-decoration:none;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 7px 18px rgba(21,155,112,.2);transition:transform .18s,box-shadow .18s,background .18s}
+    .btn:hover{transform:translateY(-2px);background:var(--green-dark);box-shadow:0 10px 24px rgba(21,155,112,.25)}.btn-outline{background:#fff;color:var(--navy);border-color:#dce5ed;box-shadow:none}.btn-outline:hover{background:#f3f7fa;color:var(--navy);box-shadow:none}
+    .menu-toggle{display:none;width:44px;height:42px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--navy);font-size:22px;cursor:pointer}
+    .hero{position:relative;overflow:hidden;background:var(--navy);color:#fff;padding:88px 0 96px}
+    .hero:before{content:"";position:absolute;width:620px;height:620px;border-radius:50%;right:-130px;top:-350px;background:rgba(21,155,112,.22);filter:blur(4px)}
+    .hero:after{content:"";position:absolute;width:420px;height:420px;border:1px solid rgba(255,255,255,.1);border-radius:50%;right:5%;bottom:-310px}
+    .hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1.08fr .92fr;align-items:center;gap:72px}
+    .eyebrow{display:inline-flex;align-items:center;gap:9px;padding:9px 14px;border:1px solid rgba(255,255,255,.18);border-radius:99px;background:rgba(255,255,255,.07);color:#9ce6c8;font-size:12px;font-weight:800;letter-spacing:.3px}
+    .eyebrow-dot{width:7px;height:7px;border-radius:50%;background:#53d6a4;box-shadow:0 0 0 5px rgba(83,214,164,.13)}
+    h1,h2,h3,p{margin-top:0}.hero h1{max-width:650px;margin:24px 0 20px;font:800 clamp(42px,5.2vw,66px)/1.08 Manrope,sans-serif;letter-spacing:-2.5px}.hero h1 span{color:#52d5a5}
+    .hero-copy{max-width:570px;margin-bottom:30px;color:#bdc9d9;font-size:17px;line-height:1.8}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:12px}.hero .btn-outline{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.25);color:#fff}
+    .trust-row{display:flex;flex-wrap:wrap;gap:22px;margin-top:30px;color:#c3cfdd;font-size:12px;font-weight:700}.trust-row span{display:flex;align-items:center;gap:7px}.check{color:#64dfad;font-size:16px}
+    .dashboard-card{position:relative;padding:25px;background:#fff;color:var(--ink);border:1px solid rgba(255,255,255,.35);border-radius:22px;box-shadow:0 28px 75px rgba(0,0,0,.28);transform:rotate(1deg)}
+    .dash-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:22px}.dash-top strong{font:800 16px Manrope;color:var(--navy)}.status{padding:7px 10px;border-radius:99px;background:var(--mint);color:var(--green-dark);font-size:10px;font-weight:800}
+    .dash-summary{padding:19px;border-radius:15px;background:linear-gradient(120deg,#f0f8f4,#f3f6fb);margin-bottom:14px}.dash-summary small{display:block;color:var(--muted);font-size:12px;font-weight:700}.dash-summary strong{display:block;margin:5px 0 3px;font:800 32px Manrope;color:var(--navy)}.dash-summary span{color:var(--green-dark);font-size:11px;font-weight:800}
+    .warranty-row{display:flex;align-items:center;gap:13px;padding:14px 2px;border-bottom:1px solid var(--line)}.warranty-row:last-child{border:0;padding-bottom:2px}
+    .product-icon{display:grid;place-items:center;width:43px;height:43px;flex:0 0 43px;border-radius:12px;background:#eff4fa;font-size:20px}.product-info{min-width:0;flex:1}.product-info strong{display:block;color:var(--navy);font-size:13px}.product-info small{display:block;margin-top:4px;color:var(--muted);font-size:11px}.active-dot{width:8px;height:8px;border-radius:50%;background:#20b77e}
+    .section{padding:86px 0}.section-head{max-width:680px;margin:0 auto 42px;text-align:center}.kicker{margin-bottom:10px;color:var(--green-dark);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px}.section-head h2{margin-bottom:12px;color:var(--navy);font:800 clamp(28px,3.3vw,40px)/1.18 Manrope;letter-spacing:-1.2px}.section-head p{margin:0;color:var(--muted);font-size:16px;line-height:1.7}
+    .features{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.feature{padding:27px;border:1px solid var(--line);border-radius:17px;background:#fff;box-shadow:0 8px 25px rgba(16,29,53,.035);transition:transform .2s,box-shadow .2s}.feature:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+    .feature-icon{display:grid;place-items:center;width:49px;height:49px;margin-bottom:20px;border-radius:14px;background:var(--mint);color:var(--green-dark);font-size:22px}.feature h3{margin-bottom:9px;color:var(--navy);font:800 16px Manrope}.feature p{margin:0;color:var(--muted);font-size:14px;line-height:1.75}
+    .steps-section{background:#fff}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}.step{padding:8px 18px;text-align:center}.step-num{display:grid;place-items:center;width:42px;height:42px;margin:0 auto 17px;border-radius:13px;background:var(--navy);color:#fff;font:800 15px Manrope}.step h3{margin-bottom:8px;color:var(--navy);font:800 16px Manrope}.step p{margin:0;color:var(--muted);font-size:14px;line-height:1.7}
+    .partner-banner{padding:0 0 86px;background:#fff}.partner-box{display:flex;align-items:center;justify-content:space-between;gap:30px;padding:38px 42px;border-radius:20px;background:linear-gradient(120deg,#eaf8f1,#f2f7fb);border:1px solid #e1f0e8}.partner-box h2{margin-bottom:8px;color:var(--navy);font:800 25px Manrope}.partner-box p{margin:0;color:var(--muted);font-size:14px;line-height:1.7}
+    .site-footer{padding:27px 0;background:#101d35;color:#afbdd0}.footer-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;font-size:12px}.footer-brand{display:flex;align-items:center;gap:10px;color:#fff;font:800 15px Manrope}.footer-brand img{width:115px;max-height:38px;object-fit:contain;filter:brightness(0) invert(1)}
+    .modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(7,17,34,.68);backdrop-filter:blur(7px);align-items:center;justify-content:center;padding:18px}.modal.open{display:flex}.modal-card{position:relative;width:min(100%,440px);padding:30px;border:1px solid var(--line);border-radius:20px;background:#fff;box-shadow:0 28px 90px rgba(0,0,0,.3)}.modal-close{position:absolute;top:13px;right:14px;width:35px;height:35px;border:0;border-radius:10px;background:#f1f4f7;color:#59677c;font-size:23px;cursor:pointer}
+    .modal-card h2{margin:0 36px 7px 0;color:var(--navy);font:800 24px Manrope}.modal-intro{margin-bottom:21px;color:var(--muted);font-size:13px;line-height:1.6}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:5px;margin-bottom:20px;border-radius:12px;background:#f1f5f8}.auth-tabs button{min-height:40px;border:0;border-radius:9px;background:transparent;color:#637187;font-size:13px;font-weight:800;cursor:pointer}.auth-tabs button.active{background:#fff;color:var(--green-dark);box-shadow:0 2px 8px rgba(16,29,53,.08)}
+    .field{display:block;margin-bottom:13px}.field span{display:block;margin-bottom:6px;color:#3d4c63;font-size:12px;font-weight:800}.field input{width:100%;height:47px;padding:0 13px;border:1px solid #dce5ed;border-radius:10px;background:#fbfcfe;color:var(--ink);outline:none}.field input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(21,155,112,.12)}.auth-submit{width:100%;margin-top:5px}.auth-message{min-height:20px;margin:13px 0 0;color:var(--muted);font-size:12px;line-height:1.5}.auth-message.error{color:#bd3e45}.auth-message.success{color:var(--green-dark)}
+    @media(max-width:900px){.hero-grid{gap:40px}.features{grid-template-columns:repeat(2,1fr)}.nav{gap:18px}}
+    @media(max-width:700px){.container{width:min(100% - 32px,560px)}.header-inner{height:auto;min-height:72px;flex-wrap:wrap;gap:10px;padding:10px 0}.brand img{width:175px;max-height:48px}.menu-toggle{display:block}.nav{display:none;order:3;flex:0 0 100%;align-items:stretch;gap:6px;padding:8px 0 3px}.nav.open{display:flex;flex-direction:column}.nav a{padding:10px 12px;border-radius:9px;background:#f5f8fa}.nav .btn{width:100%}.hero{padding:62px 0 70px}.hero-grid{grid-template-columns:1fr;gap:40px}.hero h1{font-size:clamp(39px,10vw,52px);letter-spacing:-1.8px}.hero-copy{font-size:15px}.dashboard-card{transform:none;max-width:520px;width:100%;margin:auto}.section{padding:66px 0}.features{grid-template-columns:1fr;gap:13px}.feature{padding:22px}.steps{grid-template-columns:1fr;gap:28px}.partner-banner{padding-bottom:66px}.partner-box{align-items:flex-start;flex-direction:column;padding:28px 23px}.partner-box h2{font-size:22px}.footer-inner{flex-direction:column;text-align:center}.modal-card{padding:25px 21px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
   </style>
-
-<!-- Garantie.tn Modern Premium design system -->
-<style id="gtn-modern-premium">
-:root{--gtn-primary:#087f5b;--gtn-primary-dark:#066447;--gtn-primary-soft:#e8f7f0;--gtn-ink:#172b25;--gtn-muted:#718078;--gtn-line:#e4eee8;--gtn-bg:#f5f9f6;--gtn-surface:#fff;--gtn-shadow:0 12px 34px rgba(20,65,44,.07);--gtn-radius:18px}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif!important;background:radial-gradient(ellipse at 10% 0%,#eaf7ef 0,transparent 36%),var(--gtn-bg)!important;color:var(--gtn-ink)!important;line-height:1.55;-webkit-font-smoothing:antialiased}
-header{background:rgba(255,255,255,.9)!important;border-bottom:1px solid rgba(228,238,232,.9);box-shadow:0 5px 22px rgba(20,65,44,.045)!important;backdrop-filter:blur(14px);position:relative;z-index:20}
-.logo{color:var(--gtn-primary)!important;letter-spacing:-.7px;font-weight:850!important}.logo span{color:var(--gtn-ink)!important}
-main{width:min(1180px,calc(100% - 32px))!important;margin:34px auto!important;padding-left:0!important;padding-right:0!important}
-button,.btn,a.btn,.link-btn{background:linear-gradient(135deg,var(--gtn-primary),#0a9668)!important;color:#fff!important;border:1px solid transparent!important;border-radius:11px!important;padding:12px 18px!important;font-weight:700!important;box-shadow:0 5px 13px rgba(8,127,91,.13);transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}
-button:hover,.btn:hover,a.btn:hover,.link-btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(8,127,91,.2);filter:saturate(1.06)}button:disabled{transform:none;box-shadow:none}
-button.secondary,.secondary,.refresh{background:var(--gtn-primary-soft)!important;color:var(--gtn-primary-dark)!important;border:1px solid #d4eee0!important;box-shadow:none!important}
-input,select,textarea{border:1px solid #dce8e0!important;border-radius:11px!important;background:#fff!important;color:var(--gtn-ink)!important;padding:12px 14px!important;outline:none;transition:border-color .18s,box-shadow .18s}input:focus,select:focus,textarea:focus{border-color:#69b99a!important;box-shadow:0 0 0 4px rgba(8,127,91,.1)!important}
-label{color:#354b40;font-weight:650!important}h1,h2,h3{color:var(--gtn-ink);letter-spacing:-.45px}h1{font-size:clamp(27px,4vw,38px)!important;line-height:1.18}h2{font-size:21px!important}.muted,.hero p,.feature p,.section-title p{color:var(--gtn-muted)!important}
-.panel,.stat,.feature,.hero-card,.card,.warranty,.item{background:var(--gtn-surface)!important;border:1px solid var(--gtn-line)!important;border-radius:var(--gtn-radius)!important;box-shadow:var(--gtn-shadow)!important}
-.panel{padding:24px!important;margin-bottom:20px}.stat{padding:22px!important}.stat strong{color:var(--gtn-primary)!important}.warranty{padding:18px!important}.empty,.notice{background:#f3f8f5!important;border:1px dashed #d8e8de;border-radius:13px!important;color:#718078}
-.pill,.tag{background:var(--gtn-primary-soft)!important;color:var(--gtn-primary-dark)!important;border-radius:999px!important}.pill.expired,.rejected{background:#fff0ee!important;color:#b5473c!important}.pending{background:#fff6df!important;color:#946b11!important}
-.table-wrap{border:1px solid var(--gtn-line)!important;border-radius:14px!important;background:#fff;box-shadow:var(--gtn-shadow);overflow:auto}table{border-collapse:separate!important;border-spacing:0!important}th{background:#f0f7f2!important;color:#426052!important;font-weight:750}td,th{border-bottom:1px solid #edf2ee!important;padding:14px!important}tr:last-child td{border-bottom:0!important}
-.tabs button{border-radius:999px!important}.tabs button.active{background:var(--gtn-primary)!important;color:#fff!important}.hero{background:linear-gradient(125deg,#e9f7ef 0%,#f7fbf8 58%,#eef8f2 100%)!important;border-bottom:1px solid #e2f0e7}.hero-card{border-radius:24px!important}.hero h1 span{color:var(--gtn-primary)!important}.feature{transition:transform .2s,box-shadow .2s}.feature:hover{transform:translateY(-4px);box-shadow:0 16px 38px rgba(20,65,44,.1)!important}.cta{background:linear-gradient(120deg,#075d43,#0b805b)!important}.cta p{color:#e0f2e8!important}footer{background:#123d2e!important}
-.gtn-whatsapp{background:#20bd65!important;color:#fff!important;border-radius:999px!important;box-shadow:0 8px 22px rgba(32,189,101,.25)!important}
-@media(max-width:750px){main{width:calc(100% - 24px)!important;margin:22px auto!important}.panel,.stat{padding:17px!important}.hero{padding:58px 6%!important}.hero-card{width:100%!important}.features{grid-template-columns:1fr!important}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
-</style>
-
-<style id="gtn-redesign-v2">
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
-:root{--navy:#101d35;--navy2:#182947;--green:#16a477;--mint:#e5f7f0;--ink:#17243b;--muted:#738096;--line:#e8edf3;--paper:#f7f9fc}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper)!important;color:var(--ink)!important;font-family:'DM Sans',sans-serif!important}
-header{height:82px;padding:0 max(5vw,24px)!important;background:#fff!important;border-bottom:1px solid var(--line);box-shadow:none!important;display:flex;align-items:center;position:sticky;top:0;z-index:30}
-.logo{font:800 25px Manrope,sans-serif!important;letter-spacing:-1.3px;color:var(--navy)!important}.logo span{color:var(--green)!important}
-nav{gap:32px!important}nav a{font-weight:600;color:#65738a!important}nav a:hover{color:var(--green)!important}
-button,.btn{font:700 14px 'DM Sans',sans-serif!important;border-radius:10px!important;padding:13px 21px!important;background:var(--green)!important;color:white!important;border:1px solid var(--green)!important;box-shadow:0 7px 18px #16a4772b!important;cursor:pointer}
-button:hover,.btn:hover{transform:translateY(-2px);filter:brightness(.97)}
-main{width:100%!important;max-width:none!important;margin:0!important;padding:0!important}
-.hero{position:relative;overflow:hidden;min-height:620px;padding:94px max(8vw,28px)!important;display:grid!important;grid-template-columns:1.05fr .95fr;align-items:center;gap:7vw!important;background:var(--navy)!important;color:white}
-.hero:before{content:"";position:absolute;width:540px;height:540px;border-radius:50%;background:#1b9877;opacity:.14;filter:blur(2px);right:12%;top:-300px}
-.hero:after{content:"";position:absolute;width:390px;height:390px;border:1px solid #ffffff18;border-radius:50%;right:-100px;bottom:-210px}
-.hero-content{position:relative;z-index:2;max-width:620px}.tag{display:inline-flex;align-items:center;gap:8px;background:#ffffff12!important;color:#8de5c3!important;border:1px solid #ffffff24;padding:9px 14px;border-radius:99px;font-weight:700;letter-spacing:.2px}
-.hero h1{font:800 clamp(42px,5.3vw,68px)/1.08 Manrope,sans-serif!important;letter-spacing:-2.8px;color:white!important;margin:25px 0 22px}.hero h1 span{color:#4bd5a5!important}
-.hero p{font-size:17px;line-height:1.8;color:#b7c4d7!important;max-width:560px;margin-bottom:32px}
-.hero .btn{display:inline-block;text-decoration:none;padding:15px 24px!important}.hero .btn.secondary-link{margin-left:12px;background:transparent!important;border-color:#ffffff55!important;box-shadow:none!important}
-.hero-card{position:relative;z-index:2;width:100%!important;max-width:460px;margin-left:auto;background:#fff!important;border:1px solid #ffffff30!important;border-radius:20px!important;padding:26px!important;box-shadow:0 28px 70px #07122680!important;color:var(--ink)}
-.preview-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.preview-head h3{font:800 17px Manrope;margin:0;color:var(--navy)}.preview-head span{font-size:11px;font-weight:800;color:var(--green);background:var(--mint);padding:7px 10px;border-radius:20px}
-.preview-stat{padding:18px;border-radius:14px;background:#f5f8fb;margin-bottom:18px}.preview-stat small{color:var(--muted);font-weight:600}.preview-stat strong{display:block;font:800 34px Manrope;color:var(--navy);margin-top:5px}.preview-stat em{font-style:normal;color:var(--green);font-size:12px;font-weight:700}
-.item{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid var(--line);background:transparent!important;border-radius:0!important;box-shadow:none!important}.item:last-child{border:0}.item .icon{width:42px;height:42px;border-radius:12px;background:#eef4fa;display:grid;place-items:center;font-size:19px}.item strong{font-size:13px;color:var(--navy)}.item small{display:block;color:var(--muted);font-size:11px;margin-top:4px}
-section{padding:92px max(8vw,28px)!important}.section-title{text-align:left!important;max-width:700px;margin:0 auto 42px!important}.section-title h2{font:800 clamp(28px,3vw,40px) Manrope!important;letter-spacing:-1.3px;color:var(--navy)!important;margin-bottom:12px}.section-title p{font-size:16px;color:var(--muted)!important}
-.features{max-width:1120px;margin:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:18px!important}.feature{background:white!important;border:1px solid var(--line)!important;border-radius:16px!important;padding:27px!important;box-shadow:0 8px 28px #18294708!important;transition:.2s}.feature:hover{transform:translateY(-5px);box-shadow:0 18px 36px #18294712!important}.feature .icon{width:48px;height:48px;border-radius:13px;background:var(--mint)!important;color:var(--green);display:grid;place-items:center;margin-bottom:22px}.feature h3{font:800 16px Manrope;color:var(--navy);margin-bottom:10px}.feature p{font-size:14px;line-height:1.7;color:var(--muted)!important}
-.cta{margin:0!important;padding:72px 24px!important;text-align:center;background:var(--mint)!important;color:var(--navy)!important}.cta h2{font:800 34px Manrope;color:var(--navy);margin-bottom:12px}.cta p{color:#63758a!important;margin-bottom:24px}.cta a{margin:6px!important}.cta a:last-child{background:var(--navy)!important;border-color:var(--navy)!important}
-footer{background:#101d35!important;color:#aebbd0!important;padding:28px!important;font-size:13px}
-#auth-modal{backdrop-filter:blur(8px);background:#0d1930bb!important}#auth-modal>div{border:1px solid var(--line);border-radius:20px!important;padding:34px!important;box-shadow:0 25px 80px #07122655!important}#auth-modal h2{font:800 23px Manrope;color:var(--navy)}#auth-modal input{width:100%;height:48px;margin:0 0 12px;padding:0 14px!important;border:1px solid #dce4ed!important;border-radius:10px!important;background:#fbfcfe!important;font:500 14px 'DM Sans'!important}#auth-modal input:focus{outline:3px solid #16a47720;border-color:var(--green)!important}#auth-modal button{box-shadow:none!important}#close-auth{background:#f1f4f8!important;color:#59677c!important;border:0!important;width:34px;height:34px;padding:0!important}
-.gtn-whatsapp{background:#20bd65!important;color:#fff!important}
-@media(max-width:850px){header{height:70px;padding:0 20px!important}nav{gap:12px!important}.hero{grid-template-columns:1fr!important;padding:70px 7%!important;gap:45px!important}.hero-card{margin:0;max-width:540px}.features{grid-template-columns:repeat(2,1fr)}} 
-@media(max-width:560px){nav a{display:none}nav button{padding:11px 14px!important}.hero{padding:58px 22px!important;min-height:auto}.hero h1{font-size:42px!important;letter-spacing:-1.8px}.hero p{font-size:15px}.hero .btn{display:block;text-align:center;margin:10px 0!important}.features{grid-template-columns:1fr}section{padding:65px 22px!important}.section-title{margin-bottom:28px!important}.cta h2{font-size:27px}#auth-modal>div{padding:25px!important}}
-</style>
-
-<style id="gtn-mobile-refinements">
-/* Mobile layout refinements */
-@media(max-width:560px){
- header{height:auto;min-height:78px;padding:12px 16px!important;gap:12px;display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:center}
- header .logo{font-size:24px!important;white-space:nowrap}
- header nav{display:grid!important;grid-template-columns:repeat(2,max-content);grid-template-rows:repeat(2,auto);align-items:center;justify-content:end;gap:7px!important;flex:none}
- header nav a:not(.btn){display:inline-flex!important;align-items:center;justify-content:center;font-size:11px!important;line-height:1.2;padding:8px 9px!important;white-space:nowrap;border-radius:9px;background:#f1f6f3}
- header nav .btn{display:inline-flex!important;align-items:center;justify-content:center;padding:9px 11px!important;font-size:11px!important;white-space:nowrap}
- .hero{padding:52px 22px!important;gap:32px!important}
- .hero h1{font-size:clamp(35px,9vw,42px)!important;line-height:1.12!important;letter-spacing:-1.5px!important;overflow-wrap:normal}
- .hero .tag{font-size:12px;line-height:1.5;max-width:100%}
- .hero p{font-size:15px;line-height:1.7}
- .hero-card{padding:20px!important;min-width:0}
- .preview-stat strong{font-size:29px!important}
- .features{gap:13px!important}
- .feature{min-width:0;padding:21px!important}
- .cta{padding:52px 18px!important}
- footer{padding:22px 16px!important}
-}
-@media(max-width:380px){
- header{grid-template-columns:1fr;justify-items:stretch;gap:10px}
- header .logo{justify-self:start}
- header nav{justify-content:start;grid-template-columns:repeat(2,minmax(0,max-content))}
-}
-</style>
-<style id="gtn-mobile-nav-v2">
-/* Compact mobile navigation: one clean horizontal row below the logo */
-@media(max-width:560px){
- header{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:center!important;gap:10px!important;height:auto!important;min-height:0!important;padding:13px 16px 12px!important}
- header .logo{align-self:flex-start;font-size:25px!important;line-height:1.2;white-space:nowrap}
- header nav{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:8px!important;width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;white-space:nowrap;padding:1px 1px 5px!important;scrollbar-width:none;-webkit-overflow-scrolling:touch}
- header nav::-webkit-scrollbar{display:none}
- header nav a:not(.btn){display:inline-flex!important;flex:0 0 auto;align-items:center;justify-content:center;padding:9px 13px!important;border-radius:10px;background:#f0f5f2;color:#526477!important;font-size:12px!important;line-height:1.2;white-space:nowrap}
- header nav button,header nav .btn{display:inline-flex!important;flex:0 0 auto;align-items:center;justify-content:center;padding:10px 15px!important;border-radius:10px!important;font-size:12px!important;line-height:1.2;white-space:nowrap}
-}
-@media(max-width:380px){
- header{padding-left:14px!important;padding-right:14px!important}
- header .logo{font-size:24px!important}
- header nav{gap:7px!important}
- header nav a:not(.btn){padding:8px 11px!important;font-size:11px!important}
- header nav button,header nav .btn{padding:9px 12px!important;font-size:11px!important}
-}
-</style>
-
-<style id="gtn-mobile-menu">
-.mobile-menu-toggle{display:none!important}
-@media(max-width:750px){
- header{position:sticky!important;display:flex!important;flex-wrap:wrap!important;justify-content:space-between!important;align-items:center!important;height:auto!important;min-height:68px;padding:13px 18px!important;gap:12px!important}
- header .logo{font-size:25px!important;line-height:1.2;white-space:nowrap}
- header .mobile-menu-toggle{display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;gap:5px!important;width:44px!important;height:42px!important;padding:9px!important;margin-left:auto!important;background:#f0f7f3!important;border:1px solid #dcece3!important;border-radius:11px!important;box-shadow:none!important}
- header .mobile-menu-toggle span{display:block;width:20px;height:2px;border-radius:2px;background:#101d35;transition:transform .2s,opacity .2s}
- header .mobile-menu-toggle[aria-expanded="true"] span:first-child{transform:translateY(7px) rotate(45deg)}
- header .mobile-menu-toggle[aria-expanded="true"] span:nth-child(2){opacity:0}
- header .mobile-menu-toggle[aria-expanded="true"] span:last-child{transform:translateY(-7px) rotate(-45deg)}
- header nav#gtn-mobile-menu{display:none!important;order:3;flex:0 0 100%;width:100%;padding:12px!important;margin:0!important;gap:8px!important;flex-direction:column!important;align-items:stretch!important;background:#fff!important;border:1px solid #e8edf3;border-radius:14px;box-shadow:0 12px 28px #101d3518}
- header nav#gtn-mobile-menu.is-open{display:flex!important}
- header nav#gtn-mobile-menu a{display:flex!important;align-items:center;min-height:42px;padding:10px 12px!important;border-radius:9px;background:#f4f8f5;color:#344b43!important;font-size:14px!important;text-decoration:none}
- header nav#gtn-mobile-menu a:hover{background:#e5f7f0;color:#087f5b!important}
- header nav#gtn-mobile-menu button{width:100%;margin-top:3px}
-}
-@media(min-width:751px){header nav#gtn-mobile-menu{display:flex!important}}
-</style>
-
-
-<style id="gtn-mobile-home-polish">
-/* Refined responsive homepage */
-@media(max-width:750px){
-  html{scroll-padding-top:16px}
-  body{overflow-x:hidden}
-  header{position:relative!important;top:auto!important;display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;height:auto!important;min-height:0!important;padding:14px 18px!important;border-bottom:1px solid #e8edf3!important;background:#fff!important}
-  header .logo{font-size:26px!important;align-self:auto!important;line-height:1.1!important}
-  header .mobile-menu-toggle{display:flex!important;flex-direction:column!important;justify-content:center!important;gap:5px!important;width:44px!important;height:42px!important;padding:10px!important;border:1px solid #e3ece7!important;border-radius:12px!important;background:#f4f8f5!important;cursor:pointer!important}
-  header .mobile-menu-toggle span{display:block!important;width:22px!important;height:2px!important;border-radius:2px!important;background:#12352d!important}
-  header nav#gtn-mobile-menu{display:none!important;order:3!important;flex:0 0 100%!important;width:100%!important;flex-direction:column!important;align-items:stretch!important;gap:8px!important;padding:10px 0 2px!important;margin:0!important;overflow:visible!important;background:transparent!important;border:0!important;box-shadow:none!important}
-  header nav#gtn-mobile-menu.is-open{display:flex!important}
-  header nav#gtn-mobile-menu a{display:flex!important;align-items:center!important;justify-content:flex-start!important;width:100%!important;min-height:46px!important;padding:12px 15px!important;border:1px solid #e8eee9!important;border-radius:12px!important;background:#f5f8f6!important;color:#29483d!important;font-size:15px!important;font-weight:700!important;white-space:nowrap;text-decoration:none}
-  header nav#gtn-mobile-menu button{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-height:48px!important;margin:2px 0 0!important;padding:12px 15px!important;border-radius:12px!important;font-size:15px!important}
-  .hero{
-    display:flex!important;flex-direction:column!important;align-items:stretch!important;
-    justify-content:flex-start!important;gap:24px!important;min-height:0!important;
-    padding:38px 22px 32px!important;text-align:left!important
-  }
-  .hero-content{width:100%!important;max-width:none!important}
-  .hero .tag{display:inline-flex!important;max-width:100%!important;font-size:11px!important;
-    line-height:1.4!important;padding:8px 11px!important;white-space:normal!important}
-  .hero h1{font-size:clamp(35px,9.5vw,45px)!important;line-height:1.1!important;
-    letter-spacing:-1.6px!important;margin:23px 0 15px!important}
-  .hero p{font-size:15px!important;line-height:1.65!important;margin:0 0 21px!important}
-  .hero .btn{display:flex!important;width:100%!important;min-height:49px!important;
-    align-items:center!important;justify-content:center!important;text-align:center!important;
-    margin:9px 0!important;padding:13px 15px!important}
-  .hero .btn.secondary-link{margin-left:0!important}
-  .hero-card{width:100%!important;max-width:none!important;margin:0!important;padding:18px!important}
-  .preview-stat{padding:14px!important}
-  .preview-stat strong{font-size:28px!important}
-  section#services{padding:44px 19px!important}
-  #services .section-title{text-align:center!important;margin:0 auto 23px!important}
-  #services .section-title h2{font-size:27px!important;line-height:1.2!important}
-  #services .section-title p{font-size:14px!important;line-height:1.6!important}
-  #services .features{grid-template-columns:1fr!important;gap:12px!important}
-  #services .feature{padding:20px!important;border-radius:15px!important}
-  #services .feature .icon{margin-bottom:12px!important}
-  .cta{padding:42px 19px!important}
-  .cta h2{font-size:27px!important;line-height:1.2!important}
-  .cta p{font-size:14px!important;line-height:1.65!important}
-  .cta a{display:flex!important;width:100%!important;min-height:46px!important;
-    align-items:center!important;justify-content:center!important;margin:10px 0!important}
-  footer{padding:22px 16px!important;line-height:1.6!important}
-}
-@media(max-width:380px){
-  header{padding-left:15px!important;padding-right:15px!important}
-  .hero{padding-left:18px!important;padding-right:18px!important}
-  .hero h1{font-size:35px!important}
-}
-</style>
-
-
-<style id="gtn-mobile-layout-v3">
-/* Complete mobile homepage refresh */
-@media (max-width:750px){
-  header{
-    position:sticky!important;top:0!important;z-index:100!important;
-    display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;
-    align-items:center!important;justify-content:space-between!important;
-    gap:10px!important;height:auto!important;min-height:66px!important;
-    padding:12px 18px!important;background:rgba(255,255,255,.97)!important;
-    backdrop-filter:blur(12px)!important;
-  }
-  header .logo{align-self:auto!important;font-size:25px!important;line-height:1.15!important}
-  header .mobile-menu-toggle{
-    display:flex!important;flex:0 0 42px!important;margin:0!important;
-    width:42px!important;height:42px!important;padding:8px!important;
-    background:#edf7f1!important;border:1px solid #d8eee2!important;
-    border-radius:12px!important;box-shadow:none!important;
-  }
-  header nav#gtn-mobile-menu{
-    display:none!important;order:3!important;flex:0 0 100%!important;
-    width:100%!important;margin:3px 0 0!important;padding:10px!important;
-    flex-direction:column!important;align-items:stretch!important;gap:7px!important;
-    overflow:visible!important;white-space:normal!important;
-    background:#fff!important;border:1px solid #e6eee9!important;
-    border-radius:14px!important;box-shadow:0 12px 28px rgba(16,29,53,.09)!important;
-  }
-  header nav#gtn-mobile-menu.is-open{display:flex!important}
-  header nav#gtn-mobile-menu a,header nav#gtn-mobile-menu button{
-    display:flex!important;flex:0 0 auto!important;width:100%!important;
-    min-height:43px!important;align-items:center!important;justify-content:flex-start!important;
-    margin:0!important;padding:10px 13px!important;border-radius:10px!important;
-    background:#f4f8f5!important;color:#263d34!important;
-    font-size:14px!important;font-weight:700!important;text-align:left!important;
-    box-shadow:none!important;border:0!important;
-  }
-  header nav#gtn-mobile-menu button{justify-content:center!important;background:#16a477!important;color:white!important}
-  .hero{
-    display:flex!important;flex-direction:column!important;align-items:stretch!important;
-    gap:28px!important;min-height:0!important;padding:48px 22px 34px!important;
-  }
-  .hero-content{width:100%!important;max-width:none!important}
-  .hero .tag{font-size:11px!important;line-height:1.45!important;padding:8px 11px!important}
-  .hero h1{font-size:clamp(34px,9vw,42px)!important;line-height:1.12!important;letter-spacing:-1.6px!important;margin:19px 0 16px!important}
-  .hero p{font-size:15px!important;line-height:1.7!important;margin-bottom:22px!important}
-  .hero .btn{display:flex!important;width:100%!important;min-height:49px!important;align-items:center!important;justify-content:center!important;text-align:center!important;margin:9px 0!important;padding:13px 15px!important}
-  .hero .btn.secondary-link{margin-left:0!important}
-  .hero-card{width:100%!important;max-width:none!important;margin:0!important;padding:19px!important}
-  .preview-stat{padding:15px!important}
-  .preview-stat strong{font-size:29px!important}
-  section#services{padding:52px 20px!important}
-  #services .section-title{text-align:left!important;margin:0 0 25px!important}
-  #services .section-title h2{font-size:27px!important;line-height:1.2!important}
-  #services .section-title p{font-size:14px!important;line-height:1.65!important}
-  #services .features{grid-template-columns:1fr!important;gap:12px!important}
-  #services .feature{padding:21px!important}
-  .cta{padding:48px 20px!important}
-  .cta h2{font-size:27px!important;line-height:1.2!important}
-  .cta a{display:flex!important;width:100%!important;min-height:47px!important;align-items:center!important;justify-content:center!important;margin:9px 0!important}
-  footer{padding:22px 16px!important;line-height:1.6!important}
-  .gtn-whatsapp{right:14px!important;bottom:14px!important}
-}
-@media(max-width:380px){
-  header{padding-left:14px!important;padding-right:14px!important}
-  .hero{padding-left:18px!important;padding-right:18px!important}
-  .hero h1{font-size:34px!important}
-}
-</style>
-
-
-<style id="gtn-mobile-complete-redesign">
-@media (max-width:750px) {
- html{scroll-padding-top:82px} body{overflow-x:hidden}
- header{position:sticky!important;top:0!important;z-index:100!important;display:grid!important;grid-template-columns:1fr 46px!important;align-items:center!important;gap:12px!important;min-height:68px!important;height:auto!important;padding:11px 18px!important;background:rgba(255,255,255,.97)!important;backdrop-filter:blur(14px)!important;border-bottom:1px solid #e8edf3!important}
- header .logo{justify-self:start!important;align-self:center!important;font-size:25px!important;line-height:1.1!important}
- header .mobile-menu-toggle{display:flex!important;grid-column:2!important;grid-row:1!important;width:44px!important;height:42px!important;margin:0!important;padding:9px!important;align-items:center!important;justify-content:center!important;flex-direction:column!important;gap:5px!important;border-radius:12px!important;background:#eff8f3!important;border:1px solid #dcece3!important;box-shadow:none!important}
- header .mobile-menu-toggle span{display:block!important;width:20px!important;height:2px!important;background:#123d30!important;border-radius:3px!important}
- header nav#gtn-mobile-menu{display:none!important;grid-column:1 / -1!important;grid-row:2!important;width:100%!important;margin:0!important;padding:10px!important;flex-direction:column!important;align-items:stretch!important;gap:7px!important;background:#fff!important;border:1px solid #e6eee9!important;border-radius:14px!important;box-shadow:0 12px 28px #102d2014!important;overflow:visible!important}
- header nav#gtn-mobile-menu.is-open{display:flex!important}
- header nav#gtn-mobile-menu a{display:flex!important;width:100%!important;min-height:43px!important;align-items:center!important;justify-content:flex-start!important;padding:10px 13px!important;margin:0!important;border-radius:10px!important;background:#f4f8f5!important;color:#29483b!important;font-size:14px!important;font-weight:700!important}
- header nav#gtn-mobile-menu button{display:flex!important;width:100%!important;min-height:44px!important;justify-content:center!important;margin:2px 0 0!important}
- main{width:100%!important;margin:0!important}
- .hero{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;gap:27px!important;min-height:0!important;padding:39px 21px 30px!important;text-align:left!important}
- .hero-content{width:100%!important;max-width:none!important}
- .hero .tag{display:inline-flex!important;max-width:100%!important;font-size:11px!important;line-height:1.45!important;padding:8px 11px!important;white-space:normal!important}
- .hero h1{margin:17px 0 14px!important;font-size:clamp(35px,9.5vw,43px)!important;line-height:1.1!important;letter-spacing:-1.7px!important}
- .hero p{max-width:none!important;margin:0 0 21px!important;font-size:15px!important;line-height:1.7!important}
- .hero .btn{display:flex!important;width:100%!important;min-height:49px!important;align-items:center!important;justify-content:center!important;text-align:center!important;margin:9px 0!important;padding:13px 15px!important;font-size:14px!important}
- .hero .btn.secondary-link{margin-left:0!important}
- .hero-card{width:100%!important;max-width:none!important;margin:0!important;padding:19px!important;border-radius:17px!important}
- .preview-head{margin-bottom:17px!important}.preview-stat{padding:14px!important;margin-bottom:12px!important}.preview-stat strong{font-size:29px!important}
- .item{gap:11px!important;padding:11px 0!important}.item strong{font-size:13px!important}.item small{font-size:11px!important;line-height:1.4!important}
- section#services{padding:48px 19px 52px!important}
- #services .section-title{text-align:left!important;margin:0 0 23px!important}
- #services .section-title h2{font-size:27px!important;line-height:1.2!important;letter-spacing:-.8px!important}
- #services .section-title p{font-size:14px!important;line-height:1.65!important}
- #services .features{display:grid!important;grid-template-columns:1fr!important;gap:11px!important}
- #services .feature{display:grid!important;grid-template-columns:44px minmax(0,1fr)!important;column-gap:13px!important;align-items:start!important;padding:16px!important;border-radius:14px!important}
- #services .feature .icon{grid-column:1!important;grid-row:1 / span 2!important;width:42px!important;height:42px!important;margin:0!important;font-size:18px!important}
- #services .feature h3{grid-column:2!important;margin:1px 0 5px!important;font-size:15px!important;line-height:1.35!important}
- #services .feature p{grid-column:2!important;font-size:13px!important;line-height:1.55!important}
- .cta{padding:43px 20px!important}.cta h2{font-size:26px!important;line-height:1.2!important}.cta p{font-size:14px!important;line-height:1.65!important}
- .cta a{display:flex!important;width:100%!important;min-height:47px!important;align-items:center!important;justify-content:center!important;margin:9px 0!important}
- footer{padding:20px 16px!important;font-size:12px!important;line-height:1.6!important}
- .gtn-whatsapp{right:14px!important;bottom:17px!important;width:52px!important;height:52px!important;padding:12px!important}
-}
-@media(max-width:380px){header{padding-left:14px!important;padding-right:14px!important}.hero{padding-left:18px!important;padding-right:18px!important}.hero h1{font-size:35px!important}#services .feature{padding:14px!important}}
-@media(min-width:751px){header .mobile-menu-toggle{display:none!important}header nav#gtn-mobile-menu{display:flex!important}}
-</style>
-
-
-<style id="gtn-mobile-header-final">
-@media (max-width:750px){
-  header{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;padding:13px 18px!important;min-height:68px!important}
-  header .logo{display:block!important;margin:0!important;font-size:25px!important;line-height:1.1!important}
-  header .mobile-menu-toggle{display:flex!important;order:2!important;flex:0 0 44px!important;width:44px!important;height:42px!important;margin:0 0 0 auto!important;padding:9px!important;align-items:center!important;justify-content:center!important;gap:5px!important;border:1px solid #dcece3!important;border-radius:12px!important;background:#f0f7f3!important}
-  header .mobile-menu-toggle span{display:block!important;width:21px!important;height:2px!important;border-radius:2px!important;background:#102b25!important}
-  header nav#gtn-mobile-menu{display:none!important;order:3!important;flex:0 0 100%!important;width:100%!important;flex-direction:column!important;align-items:stretch!important;gap:7px!important;margin:4px 0 0!important;padding:10px!important;border:1px solid #e5eee8!important;border-radius:14px!important;background:#fff!important;box-shadow:0 10px 25px rgba(16,43,37,.08)!important}
-  header nav#gtn-mobile-menu.is-open{display:flex!important}
-  header nav#gtn-mobile-menu a{display:flex!important;width:100%!important;min-height:43px!important;align-items:center!important;padding:10px 13px!important;border-radius:10px!important;background:#f3f8f5!important;font-size:14px!important;font-weight:650!important}
-  header nav#gtn-mobile-menu button{display:flex!important;width:100%!important;min-height:46px!important;align-items:center!important;justify-content:center!important;margin:2px 0 0!important}
-}
-@media(min-width:751px){header .mobile-menu-toggle{display:none!important}header nav#gtn-mobile-menu{display:flex!important}}
-</style>
-<style id="gtn-logo-branding">header .logo{display:inline-flex;align-items:center;text-decoration:none;white-space:nowrap;flex:0 0 auto}header .logo img{display:block;width:200px;height:70px;object-fit:cover;object-position:center;flex:0 0 auto} @media(max-width:750px){header .logo img{width:160px;height:56px}}</style>
-
-<style id="gtn-mobile-menu-visible-fix">
-@media (max-width:750px){
-  header{position:sticky!important;z-index:9999!important;overflow:visible!important}
-  header nav#gtn-mobile-menu,
-  header nav#gtn-mobile-menu.is-open{
-    position:relative!important;z-index:10000!important;
-    display:flex!important;flex-direction:column!important;
-    align-items:stretch!important;justify-content:flex-start!important;
-    flex:0 0 100%!important;width:100%!important;min-width:0!important;
-    height:auto!important;min-height:0!important;max-height:none!important;
-    padding:10px!important;margin:8px 0 0!important;gap:8px!important;
-    overflow:visible!important;visibility:visible!important;opacity:1!important;
-    background:#fff!important;border:1px solid #dcebe2!important;
-    border-radius:14px!important;box-shadow:0 10px 25px rgba(16,43,37,.10)!important;
-  }
-  header nav#gtn-mobile-menu:not(.is-open){display:none!important}
-  header nav#gtn-mobile-menu > a,
-  header nav#gtn-mobile-menu > button{
-    display:flex!important;position:relative!important;visibility:visible!important;
-    opacity:1!important;flex:0 0 auto!important;width:100%!important;
-    min-height:46px!important;height:auto!important;max-height:none!important;
-    align-items:center!important;justify-content:flex-start!important;
-    margin:0!important;padding:12px 14px!important;
-    overflow:visible!important;text-indent:0!important;
-    color:#29483b!important;background:#f1f7f3!important;
-    border:1px solid #e2eee6!important;border-radius:10px!important;
-    font-family:inherit!important;font-size:15px!important;font-weight:700!important;
-    line-height:1.4!important;text-align:left!important;text-decoration:none!important;
-    white-space:normal!important;clip:auto!important;
-  }
-  header nav#gtn-mobile-menu > button{
-    justify-content:center!important;color:#fff!important;background:#16a477!important;
-    border-color:#16a477!important;
-  }
-}
-</style>
-
-<style id="gtn-mobile-menu-final">
-.gtn-menu-check,.gtn-menu-toggle{display:none}
-@media(max-width:750px){
- header{display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;position:sticky!important;top:0!important}
- .gtn-menu-check{display:block!important;position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
- .gtn-menu-toggle{display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;gap:5px!important;width:44px!important;height:42px!important;padding:9px!important;margin-left:auto!important;background:#f0f7f3!important;border:1px solid #dcece3!important;border-radius:11px!important;cursor:pointer!important}
- .gtn-menu-toggle span{display:block!important;width:20px!important;height:2px!important;background:#101d35!important;border-radius:2px!important}
- header nav#gtn-mobile-menu{display:none!important;order:3!important;flex:0 0 100%!important;width:100%!important;flex-direction:column!important;align-items:stretch!important;gap:8px!important;padding:12px!important;margin:0!important;background:#fff!important;border:1px solid #e8edf3!important;border-radius:14px!important;box-shadow:0 12px 28px #101d3518!important}
- #gtn-menu-check:checked~nav#gtn-mobile-menu{display:flex!important}
- header nav#gtn-mobile-menu a{display:flex!important;align-items:center!important;min-height:44px!important;padding:11px 13px!important;background:#f4f8f5!important;color:#344b43!important;border-radius:9px!important;text-decoration:none!important;font-size:15px!important}
- header nav#gtn-mobile-menu button{display:flex!important;width:100%!important;justify-content:center!important;min-height:44px!important}
-}
-@media(min-width:751px){header nav#gtn-mobile-menu{display:flex!important}}
-</style>
-<style id="gtn-header-login-position">
-.gtn-header-login{display:none}
-@media(max-width:750px){
- header .gtn-header-login{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:42px!important;padding:9px 14px!important;margin-left:0!important;border:0!important;border-radius:11px!important;background:#16a477!important;color:#fff!important;font-weight:700!important;font-size:14px!important;white-space:nowrap!important;order:2!important}
- header .gtn-menu-toggle{order:3!important;margin-left:0!important}
- header .gtn-menu-check{order:4!important}
-}
-</style><style id="gtn-desktop-login-fix">
-@media(min-width:751px){
- header .gtn-header-login{
-  display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  min-height:42px!important;padding:10px 18px!important;margin-left:14px!important;
-  border:0!important;border-radius:11px!important;background:#16a477!important;
-  color:#fff!important;font-weight:700!important;font-size:14px!important;
-  white-space:nowrap!important;cursor:pointer!important;order:4!important;
- }
- header nav#gtn-mobile-menu{order:3!important}
-}
-</style><style id="gtn-original-png-logo">header .logo{display:flex!important;align-items:center!important;flex:0 0 auto!important;min-width:0!important;text-decoration:none!important}header .logo img{display:block!important;width:260px!important;height:auto!important;max-height:none!important;object-fit:contain!important;object-position:left center!important;flex:0 0 auto!important}@media(max-width:560px){header .logo img{width:210px!important;max-height:none!important}}</style>
-
-
-
-
-
-
-
-
-<style id="gtn-logo-only-fixed">@media(max-width:560px){body>header{position:relative!important;top:auto!important;z-index:1!important;min-height:74px!important;height:74px!important;padding:7px 10px!important;gap:8px!important;align-items:center!important;justify-content:flex-end!important;flex-wrap:nowrap!important;background:transparent!important;box-shadow:none!important;border:0!important}body>header .logo{position:fixed!important;top:4px!important;left:10px!important;z-index:1002!important;display:flex!important;align-items:center!important;height:64px!important;max-width:calc(100vw - 58px)!important;background:transparent!important}body>header .logo img{width:260px!important;max-width:100%!important;height:auto!important;max-height:64px!important;object-fit:contain!important;background:transparent!important}body>header:before{content:"";display:block;width:260px;height:64px;margin-right:auto;background:transparent!important}body>header .mobile-menu-toggle{position:relative!important;flex:0 0 40px!important;width:40px!important;height:40px!important;margin:0!important}}</style>
-
-<style id="gtn-no-logo-header-redesign">
-/* Header refresh: clean, logo-free, responsive */
-header{min-height:76px!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:14px!important;padding:14px clamp(18px,5vw,64px)!important;background:rgba(255,255,255,.96)!important;border-bottom:1px solid #e5eee9!important;box-shadow:0 8px 28px rgba(18,54,40,.06)!important}
-header .logo,header>a.logo,header .site-header>a{display:none!important}
-header button:not(.gtn-menu-toggle){border:0!important;border-radius:14px!important;padding:12px 22px!important;background:linear-gradient(135deg,#087f5b,#10a477)!important;color:#fff!important;font-weight:800!important;letter-spacing:.1px!important;box-shadow:0 8px 20px rgba(8,127,91,.2)!important;transition:transform .18s ease,box-shadow .18s ease!important}
-header button:not(.gtn-menu-toggle):hover{transform:translateY(-2px)!important;box-shadow:0 12px 24px rgba(8,127,91,.25)!important}
-header .gtn-menu-toggle{display:none}
-@media(max-width:750px){
- header{min-height:70px!important;padding:12px 16px!important;gap:12px!important}
- header .gtn-menu-toggle{display:flex!important;order:0!important;width:48px!important;height:46px!important;flex:0 0 48px!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:6px!important;border:1px solid #d8eee4!important;border-radius:15px!important;background:linear-gradient(145deg,#effaf4,#dff4e9)!important;box-shadow:0 5px 15px rgba(8,127,91,.09)!important;cursor:pointer!important;padding:0!important}
- header .gtn-menu-toggle span{display:block!important;width:21px!important;height:2.5px!important;border-radius:5px!important;background:#087f5b!important;transition:transform .2s ease,opacity .2s ease!important}
- header .gtn-menu-toggle[aria-expanded="true"] span:first-child{transform:translateY(8.5px) rotate(45deg)!important}
- header .gtn-menu-toggle[aria-expanded="true"] span:nth-child(2){opacity:0!important}
- header .gtn-menu-toggle[aria-expanded="true"] span:last-child{transform:translateY(-8.5px) rotate(-45deg)!important}
- header button.gtn-header-login{margin-left:auto!important;min-height:46px!important;padding:0 20px!important;border-radius:14px!important}
- header nav#gtn-mobile-menu{display:none!important;order:3!important;flex:0 0 100%!important;width:100%!important;margin-top:6px!important;padding:12px!important;gap:8px!important;flex-direction:column!important;align-items:stretch!important;background:#fff!important;border:1px solid #e3eee8!important;border-radius:18px!important;box-shadow:0 16px 35px rgba(16,54,38,.1)!important}
- header nav#gtn-mobile-menu.is-open{display:flex!important}
- header nav#gtn-mobile-menu a{display:flex!important;align-items:center!important;min-height:46px!important;padding:11px 14px!important;border-radius:12px!important;background:#f2f9f5!important;color:#244b3b!important;font-weight:700!important;text-decoration:none!important}
-}
-</style>
-
-<style id="gtn-header-concept-02">
-/* New concept: premium dark navigation with emerald accent */
-body>header,header.site-header{
- position:relative!important;isolation:isolate!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:18px!important;
- min-height:82px!important;padding:15px clamp(20px,5vw,76px)!important;
- background:#102b28!important;border:0!important;border-bottom:3px solid #16a477!important;
- box-shadow:0 10px 30px rgba(8,32,28,.16)!important;color:#fff!important;
-}
-body>header:before,header.site-header:before{content:"";position:absolute;left:0;top:0;width:5px;height:100%;background:#16a477;z-index:-1}
-body>header .logo,body>header>a.logo,body>header .site-header>a{display:none!important}
-body>header button,header.site-header button{
- display:inline-flex!important;align-items:center!important;justify-content:center!important;
- min-height:44px!important;padding:0 22px!important;border:1px solid rgba(124,220,180,.48)!important;
- border-radius:999px!important;background:#16a477!important;color:#062b22!important;
- font-weight:800!important;font-size:14px!important;letter-spacing:.2px!important;
- box-shadow:0 5px 16px rgba(22,164,119,.2)!important;cursor:pointer!important;
- transition:all .2s ease!important
-}
-body>header button:hover,header.site-header button:hover{background:#8ce0bb!important;transform:translateY(-2px)!important;box-shadow:0 8px 20px rgba(22,164,119,.28)!important}
-body>header nav#gtn-mobile-menu{display:flex!important;align-items:center!important;gap:8px!important;margin:0!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
-body>header nav#gtn-mobile-menu a{display:inline-flex!important;align-items:center!important;min-height:42px!important;padding:0 15px!important;border-radius:999px!important;color:#e5f5ed!important;background:transparent!important;text-decoration:none!important;font-size:14px!important;font-weight:700!important;transition:all .2s ease!important}
-body>header nav#gtn-mobile-menu a:hover{background:rgba(140,224,187,.13)!important;color:#8ce0bb!important}
-body>header .gtn-menu-toggle{display:none!important}
-@media(max-width:750px){
- body>header,header.site-header{min-height:74px!important;flex-wrap:wrap!important;justify-content:space-between!important;gap:10px!important;padding:12px 16px!important}
- body>header .gtn-menu-toggle{
-  display:flex!important;order:0!important;flex:0 0 46px!important;width:46px!important;height:46px!important;min-height:46px!important;
-  flex-direction:column!important;gap:5px!important;padding:0!important;border:1px solid rgba(140,224,187,.45)!important;
-  border-radius:14px!important;background:#183b35!important;box-shadow:none!important
- }
- body>header .gtn-menu-toggle span{display:block!important;width:19px!important;height:2px!important;border-radius:4px!important;background:#8ce0bb!important;transition:all .2s ease!important}
- body>header .gtn-menu-toggle[aria-expanded="true"] span:first-child{transform:translateY(7px) rotate(45deg)!important}
- body>header .gtn-menu-toggle[aria-expanded="true"] span:nth-child(2){opacity:0!important}
- body>header .gtn-menu-toggle[aria-expanded="true"] span:last-child{transform:translateY(-7px) rotate(-45deg)!important}
- body>header button.gtn-header-login,body>header button#logout{order:1!important;margin-left:auto!important;min-height:46px!important;padding:0 20px!important}
- body>header nav#gtn-mobile-menu{
-  display:none!important;order:2!important;flex:0 0 100%!important;width:100%!important;
-  flex-direction:column!important;align-items:stretch!important;gap:6px!important;margin-top:7px!important;padding:10px!important;
-  border:1px solid rgba(140,224,187,.2)!important;border-radius:18px!important;
-  background:#183b35!important;box-shadow:0 16px 30px rgba(0,0,0,.22)!important
- }
- body>header nav#gtn-mobile-menu.is-open{display:flex!important}
- body>header nav#gtn-mobile-menu a{justify-content:flex-start!important;min-height:47px!important;padding:0 15px!important;border-radius:12px!important;background:transparent!important;color:#e5f5ed!important}
- body>header nav#gtn-mobile-menu a:hover{background:rgba(140,224,187,.12)!important;color:#8ce0bb!important}
-}
-</style>
 </head>
 <body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="./index.html" aria-label="Garantie.tn — Accueil"><img src="./logo.svg" alt="Garantie.tn"></a>
+      <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false">☰</button>
+      <nav class="nav" id="main-nav" aria-label="Navigation principale">
+        <a href="#fonctionnalites">Fonctionnalités</a>
+        <a href="#fonctionnement">Comment ça marche</a>
+        <a href="./demande-magasin.html">Espace magasin</a>
+        <button class="btn" id="open-auth" type="button">Connexion</button>
+      </nav>
+    </div>
+  </header>
 
-<header><a class="gtn-brand" href="./index.html" aria-label="Garantie.tn - Accueil"><img src="https://raw.githubusercontent.com/opamarwen360-beep/garantie.tn/main/Garantie.tn___Logo_concept_2-removebg-preview.png" alt="Garantie.tn"></a><nav class="gtn-nav-new" aria-label="Navigation principale"><a href="./index.html#accueil">Accueil</a><a href="./index.html#services">Fonctionnalités</a><a href="./demande-magasin.html">Espace magasin</a></nav><button class="gtn-header-login" type="button" id="open-auth">Connexion</button></header>
-<main>
-  <section class="hero" id="accueil">
-    <div class="hero-content">
-      <span class="tag">✦ La gestion de garantie, nouvelle génération</span>
-      <h1>Vos achats.<br>Vos garanties.<br><span>Tout au même endroit.</span></h1>
-      <p>Une plateforme simple et sécurisée pour retrouver vos factures, suivre vos garanties et contacter le service après-vente sans perdre vos documents.</p>
-      <a href="#services" class="btn">Découvrir la plateforme →</a>
-      <a href="./demande-magasin.html" class="btn secondary-link">Espace magasin</a>
-    </div>
-    <div class="hero-card">
-      <div class="preview-head"><h3>Vue d’ensemble</h3><span>● ESPACE CLIENT</span></div>
-      <div class="preview-stat"><small>Mes garanties enregistrées</small><strong>12</strong><em>↑ Toutes vos garanties accessibles en un clic</em></div>
-      <div class="item"><div class="icon">❄️</div><div><strong>Réfrigérateur</strong><small>Garantie active · jusqu’au 14.08.2027</small></div></div>
-      <div class="item"><div class="icon">📺</div><div><strong>Téléviseur Smart TV</strong><small>Garantie active · jusqu’au 02.03.2028</small></div></div>
-      <div class="item"><div class="icon">📱</div><div><strong>Smartphone</strong><small>Garantie active · facture disponible</small></div></div>
-    </div>
-  </section>
-  <section id="services">
-    <div class="section-title"><h2>Tout votre suivi, dans une seule plateforme.</h2><p>Garantie.tn simplifie la gestion de vos achats, du ticket de caisse jusqu’au service après-vente.</p></div>
-    <div class="features">
-      <article class="feature"><div class="icon">▤</div><h3>Factures numériques</h3><p>Centralisez vos factures et retrouvez-les facilement depuis votre espace personnel.</p></article>
-      <article class="feature"><div class="icon">◷</div><h3>Suivi des garanties</h3><p>Consultez les dates de début et de fin de garantie de chaque produit.</p></article>
-      <article class="feature"><div class="icon">⌁</div><h3>QR Code personnel</h3><p>Présentez votre QR code au magasin pour associer rapidement vos achats.</p></article>
-      <article class="feature"><div class="icon">⚙</div><h3>Service après-vente</h3><p>Envoyez vos demandes d’assistance et suivez leur traitement.</p></article>
-      <article class="feature"><div class="icon">▣</div><h3>Espace magasin</h3><p>Enregistrez les achats de vos clients et gérez leurs garanties depuis un seul tableau de bord.</p></article>
-      <article class="feature"><div class="icon">⌑</div><h3>Données sécurisées</h3><p>Vos informations et documents restent accessibles dans des espaces protégés.</p></article>
-    </div>
-  </section>
-  <div class="cta" id="contact"><h2>Vous gérez un magasin ?</h2><p>Rejoignez Garantie.tn et simplifiez le suivi des garanties de vos clients.</p><a href="./demande-magasin.html" class="btn">Demander un accès magasin →</a><a href="mailto:contact@garantie.tn" class="btn">Nous contacter</a></div>
-  <div id="auth-modal" style="display:none;position:fixed;inset:0;z-index:1000;justify-content:center;align-items:center;padding:20px;">
-    <div style="background:white;width:100%;max-width:430px;position:relative;">
-      <button id="close-auth" type="button" style="position:absolute;right:14px;top:14px;font-size:22px">×</button>
-      <h2 style="margin:0 0 8px">Bienvenue sur Garantie.tn</h2><p style="color:#738096;margin:0 0 22px;font-size:14px">Connectez-vous à votre espace personnel.</p>
-      <div style="display:flex;gap:10px;margin-bottom:20px"><button id="show-login" type="button" style="flex:1">Connexion</button><button id="show-signup" type="button" style="flex:1;background:#182947!important;border-color:#182947!important">Inscription</button></div>
-      <form id="auth-form" novalidate>
-        <input id="full-name" type="text" placeholder="Nom complet" style="display:none">
-        <input id="phone" type="tel" placeholder="Téléphone" style="display:none">
-        <input id="national-id" type="text" inputmode="numeric" maxlength="8" pattern="[0-9]{8}" placeholder="Carte d’identité (8 chiffres)" style="display:none">
-        <input id="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="Adresse e-mail" required>
-        <input id="password" type="password" autocomplete="current-password" placeholder="Mot de passe (8 caractères minimum)" required minlength="8">
-        <button id="auth-submit" type="submit" style="width:100%;min-height:48px;touch-action:manipulation">Continuer →</button>
-      </form><p id="auth-message" style="margin-top:15px;font-size:13px" aria-live="polite"></p>
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow"><span class="eyebrow-dot"></span> La gestion des garanties, simplifiée</div>
+          <h1>Vos achats méritent une garantie <span>bien gardée.</span></h1>
+          <p class="hero-copy">Retrouvez vos factures, suivez vos garanties et gardez toutes les informations de vos produits au même endroit. Simplement, depuis votre téléphone ou votre ordinateur.</p>
+          <div class="hero-actions">
+            <button class="btn" id="hero-login" type="button">Accéder à mon espace <span aria-hidden="true">→</span></button>
+            <a class="btn btn-outline" href="./demande-magasin.html">Devenir magasin partenaire</a>
+          </div>
+          <div class="trust-row"><span><b class="check">✓</b> Espace personnel</span><span><b class="check">✓</b> Documents centralisés</span><span><b class="check">✓</b> Accès mobile</span></div>
+        </div>
+        <div class="dashboard-card" aria-label="Aperçu illustratif de l'espace garanties">
+          <div class="dash-top"><strong>Mon espace garanties</strong><span class="status">APERÇU</span></div>
+          <div class="dash-summary"><small>Mes produits enregistrés</small><strong>03 produits</strong><span>Vos garanties réunies au même endroit</span></div>
+          <div class="warranty-row"><div class="product-icon">❄️</div><div class="product-info"><strong>Réfrigérateur</strong><small>Garantie enregistrée</small></div><span class="active-dot"></span></div>
+          <div class="warranty-row"><div class="product-icon">📺</div><div class="product-info"><strong>Téléviseur Smart TV</strong><small>Facture disponible</small></div><span class="active-dot"></span></div>
+          <div class="warranty-row"><div class="product-icon">📱</div><div class="product-info"><strong>Smartphone</strong><small>Informations du produit</small></div><span class="active-dot"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="fonctionnalites">
+      <div class="container">
+        <div class="section-head"><div class="kicker">Tout au même endroit</div><h2>Une meilleure façon de gérer vos garanties</h2><p>Les outils essentiels pour retrouver vos achats et suivre vos produits sans chercher dans les papiers.</p></div>
+        <div class="features">
+          <article class="feature"><div class="feature-icon">▤</div><h3>Factures numériques</h3><p>Gardez vos justificatifs d'achat accessibles depuis votre espace personnel.</p></article>
+          <article class="feature"><div class="feature-icon">◷</div><h3>Suivi des garanties</h3><p>Consultez les informations et les périodes de garantie de vos produits enregistrés.</p></article>
+          <article class="feature"><div class="feature-icon">▦</div><h3>Accès par QR code</h3><p>Retrouvez rapidement les informations associées à vos achats.</p></article>
+          <article class="feature"><div class="feature-icon">⌂</div><h3>Espace client</h3><p>Un tableau de bord personnel pour consulter vos achats et vos garanties.</p></article>
+          <article class="feature"><div class="feature-icon">▣</div><h3>Espace magasin</h3><p>Enregistrez les achats et gérez les garanties de vos clients depuis un espace dédié.</p></article>
+          <article class="feature"><div class="feature-icon">♧</div><h3>Service après-vente</h3><p>Retrouvez le suivi de vos demandes d'assistance et de réparation.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section steps-section" id="fonctionnement">
+      <div class="container">
+        <div class="section-head"><div class="kicker">Simple et pratique</div><h2>Comment ça marche ?</h2><p>Quelques étapes pour retrouver vos garanties quand vous en avez besoin.</p></div>
+        <div class="steps">
+          <article class="step"><div class="step-num">01</div><h3>Créez votre espace</h3><p>Inscrivez-vous et accédez à votre espace personnel sécurisé.</p></article>
+          <article class="step"><div class="step-num">02</div><h3>Enregistrez vos achats</h3><p>Vos achats sont associés à votre compte par le magasin partenaire.</p></article>
+          <article class="step"><div class="step-num">03</div><h3>Retrouvez vos garanties</h3><p>Consultez vos produits et documents depuis votre téléphone ou ordinateur.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="partner-banner">
+      <div class="container"><div class="partner-box"><div><h2>Vous êtes un magasin ?</h2><p>Rejoignez Garantie.tn et simplifiez l'enregistrement des achats et le suivi des garanties de vos clients.</p></div><a class="btn" href="./demande-magasin.html">Demander un espace magasin →</a></div></div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="container footer-inner"><div class="footer-brand"><img src="./logo.svg" alt="Garantie.tn"></div><div>© 2026 Garantie.tn — Tous droits réservés.</div><div>Vos garanties, toujours avec vous.</div></div></footer>
+
+  <div class="modal" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+    <div class="modal-card">
+      <button class="modal-close" id="close-auth" type="button" aria-label="Fermer">×</button>
+      <h2 id="auth-title">Bienvenue sur Garantie.tn</h2>
+      <p class="modal-intro">Connectez-vous pour retrouver vos achats et vos garanties.</p>
+      <div class="auth-tabs"><button class="active" id="show-login" type="button">Connexion</button><button id="show-signup" type="button">Inscription</button></div>
+      <form id="auth-form">
+        <label class="field" id="name-field" hidden><span>Nom complet</span><input id="full-name" type="text" autocomplete="name" placeholder="Votre nom complet"></label>
+        <label class="field" id="phone-field" hidden><span>Téléphone</span><input id="phone" type="tel" autocomplete="tel" placeholder="Votre numéro de téléphone"></label>
+        <label class="field"><span>Adresse e-mail</span><input id="email" type="email" autocomplete="email" required placeholder="nom@exemple.com"></label>
+        <label class="field"><span>Mot de passe</span><input id="password" type="password" autocomplete="current-password" required minlength="8" placeholder="8 caractères minimum"></label>
+        <button class="btn auth-submit" id="auth-submit" type="submit">Se connecter</button>
+      </form>
+      <p class="auth-message" id="auth-message" aria-live="polite"></p>
     </div>
   </div>
-</main>
-<footer>© 2026 Garantie.tn — La gestion de vos garanties, en toute simplicité.</footer>
-<script type="module">
-  import { supabase } from "./supabase.js";
 
-  const modal = document.getElementById("auth-modal");
-  const form = document.getElementById("auth-form");
-  const fullName = document.getElementById("full-name");
-  const phone = document.getElementById("phone");
-  const nationalId = document.getElementById("national-id");
-  const email = document.getElementById("email");
-  const password = document.getElementById("password");
-  const message = document.getElementById("auth-message");
+  <script type="module">
+    import { supabase } from "./supabase.js";
 
-  let mode = "login";
-  let isSubmitting = false;
-  let signupCooldown = false;
-  const submitButton = form.querySelector('button[type="submit"]');
+    const $ = (id) => document.getElementById(id);
+    const modal = $("auth-modal");
+    const form = $("auth-form");
+    const message = $("auth-message");
+    let mode = "login";
 
-  function startSignupCooldown(seconds = 60) {
-    signupCooldown = true;
-    let remaining = seconds;
-    submitButton.disabled = true;
-    submitButton.textContent = `Attendez ${remaining}s`;
-    const timer = setInterval(() => {
-      remaining -= 1;
-      if (remaining <= 0) {
-        clearInterval(timer);
-        signupCooldown = false;
-        submitButton.disabled = false;
-        submitButton.textContent = "Continuer";
-      } else {
-        submitButton.textContent = `Attendez ${remaining}s`;
-      }
-    }, 1000);
-  }
-
-
-  const mobileMenuToggle = document.querySelector(".mobile-menu-toggle");
-  const mobileMenu = document.getElementById("gtn-mobile-menu");
-  function closeMobileMenu() {
-    if (!mobileMenuToggle || !mobileMenu) return;
-    mobileMenu.classList.remove("is-open");
-    mobileMenuToggle.setAttribute("aria-expanded", "false");
-    mobileMenuToggle.setAttribute("aria-label", "Ouvrir le menu");
-  }
-  mobileMenu?.querySelectorAll("a").forEach(link => link.addEventListener("click", closeMobileMenu));
-  document.getElementById("open-auth").addEventListener("click", () => {
-    closeMobileMenu();
-    modal.style.display = "flex";
-  });
-
-
-  document.getElementById("close-auth").addEventListener("click", () => {
-    modal.style.display = "none";
-  });
-
-  function setMode(newMode) {
-    mode = newMode;
-    const signup = mode === "signup";
-    submitButton.textContent = signup ? "Créer mon compte →" : "Se connecter →";
-    document.getElementById("show-login").style.opacity = signup ? "0.65" : "1";
-    document.getElementById("show-signup").style.opacity = signup ? "1" : "0.65";
-
-    fullName.style.display = signup ? "block" : "none";
-    phone.style.display = signup ? "block" : "none";
-    nationalId.style.display = signup ? "block" : "none";
-    nationalId.required = signup;
-    fullName.required = signup;
-
-    message.textContent = "";
-  }
-
-  document.getElementById("show-login").addEventListener("click", () => {
-    setMode("login");
-  });
-
-  document.getElementById("show-signup").addEventListener("click", () => {
-    setMode("signup");
-  });
-
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if (isSubmitting || signupCooldown) return;
-
-    // Validation explicite : évite que les navigateurs mobiles bloquent
-    // l'envoi du formulaire sans afficher notre message d'erreur.
-    const emailValue = email.value.trim();
-    if (!emailValue || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
-      message.textContent = "Veuillez saisir une adresse e-mail valide.";
-      email.focus();
-      return;
+    function setMessage(text = "", kind = "") {
+      message.textContent = text;
+      message.className = "auth-message" + (kind ? " " + kind : "");
     }
-    if (!password.value || password.value.length < 8) {
-      message.textContent = "Le mot de passe doit contenir au moins 8 caractères.";
-      password.focus();
-      return;
-    }
-    isSubmitting = true;
-    submitButton.disabled = true;
-    message.textContent = "Veuillez patienter...";
 
-    try {
-      if (mode === "signup") {
-        if (!/^[0-9]{8}$/.test(nationalId.value.trim())) throw new Error("Le numéro de carte d’identité doit contenir exactement 8 chiffres.");
-        const { data, error } = await supabase.auth.signUp({
-          email: emailValue,
-          password: password.value,
-          options: {
-            data: {
-              full_name: fullName.value.trim(),
-              phone: phone.value.trim(),
-              national_id_number: nationalId.value.trim()
-            }
+    function openModal(nextMode = "login") {
+      modal.classList.add("open");
+      document.body.style.overflow = "hidden";
+      setMode(nextMode);
+      window.setTimeout(() => $(nextMode === "signup" ? "full-name" : "email").focus(), 30);
+    }
+
+    function closeModal() {
+      modal.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+
+    function setMode(nextMode) {
+      mode = nextMode;
+      const signup = mode === "signup";
+      $("name-field").hidden = !signup;
+      $("phone-field").hidden = !signup;
+      $("full-name").required = signup;
+      $("password").autocomplete = signup ? "new-password" : "current-password";
+      $("show-login").classList.toggle("active", !signup);
+      $("show-signup").classList.toggle("active", signup);
+      $("auth-submit").textContent = signup ? "Créer mon compte" : "Se connecter";
+      setMessage();
+    }
+
+    async function goToRoleSpace() {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
+      if (!user) return;
+      const { data: profile, error } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+      if (error) throw error;
+      const role = profile?.role;
+      if (role === "admin") location.href = "./admin.html";
+      else if (role === "magasin") location.href = "./dashboard.html";
+      else if (role === "client") location.href = "./espace-client.html";
+      else setMessage("Votre compte est connecté. Votre espace sera disponible dès que votre profil sera configuré.", "success");
+    }
+
+    $("open-auth").addEventListener("click", () => openModal("login"));
+    $("hero-login").addEventListener("click", () => openModal("login"));
+    $("close-auth").addEventListener("click", closeModal);
+    $("show-login").addEventListener("click", () => setMode("login"));
+    $("show-signup").addEventListener("click", () => setMode("signup"));
+    modal.addEventListener("click", (event) => { if (event.target === modal) closeModal(); });
+    document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeModal(); });
+
+    $("menu-toggle").addEventListener("click", () => {
+      const expanded = $("menu-toggle").getAttribute("aria-expanded") === "true";
+      $("menu-toggle").setAttribute("aria-expanded", String(!expanded));
+      $("menu-toggle").textContent = expanded ? "☰" : "×";
+      $("main-nav").classList.toggle("open", !expanded);
+    });
+    $("main-nav").querySelectorAll("a").forEach((link) => link.addEventListener("click", () => {
+      $("main-nav").classList.remove("open");
+      $("menu-toggle").setAttribute("aria-expanded", "false");
+      $("menu-toggle").textContent = "☰";
+    }));
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const submit = $("auth-submit");
+      submit.disabled = true;
+      submit.textContent = "Veuillez patienter…";
+      setMessage("Connexion en cours…");
+      try {
+        const email = $("email").value.trim();
+        const password = $("password").value;
+        if (mode === "signup") {
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: $("full-name").value.trim(), phone: $("phone").value.trim() } }
+          });
+          if (error) throw error;
+          if (data.session) {
+            setMessage("Votre compte a été créé. Redirection…", "success");
+            await goToRoleSpace();
+          } else {
+            setMessage("Compte créé. Vérifiez votre e-mail pour confirmer votre inscription.", "success");
+            form.reset();
           }
-        });
-
-        if (error) throw error;
-
-        message.textContent = data.session
-          ? "Compte créé avec succès !"
-          : "Compte créé. Vérifiez votre e-mail pour confirmer l'inscription.";
-
-        form.reset();
-        startSignupCooldown(60);
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: emailValue,
-          password: password.value
-        });
-
-        if (error) throw error;
-
-        message.textContent = "Connexion réussie !";
-        await redirectByRole();
-      }
-    } catch (error) {
-      const errorText = String(error?.message || "").toLowerCase();
-      if (errorText.includes("email rate limit") || errorText.includes("rate limit")) {
-        message.textContent = "Trop de demandes d’e-mail. Attendez avant de réessayer. Si votre compte existe déjà, utilisez Connexion au lieu de Inscription.";
-        startSignupCooldown(60);
-      } else {
-        message.textContent = "Erreur : " + error.message;
-      }
-    } finally {
-      isSubmitting = false;
-      if (!signupCooldown) submitButton.disabled = false;
-    }
-  });
-
-  async function redirectByRole() {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) {
-      message.textContent = "Impossible de vérifier votre compte. Reconnectez-vous.";
-      return;
-    }
-
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    if (profileError || !profile?.role) {
-      message.textContent = "Votre profil n'est pas encore prêt. Contactez l'administrateur.";
-      return;
-    }
-
-    if (profile.role === "client") {
-      window.location.href = "./espace-client.html";
-    } else if (profile.role === "magasin") {
-      window.location.href = "./dashboard.html";
-    } else if (profile.role === "admin") {
-      window.location.href = "./admin.html";
-    } else {
-      message.textContent = "Rôle de compte non reconnu. Contactez l'administrateur.";
-    }
-  }
-
-  setMode("login");
-
-  supabase.auth.onAuthStateChange((event, session) => {
-    const button = document.getElementById("open-auth");
-
-    if (session) {
-      button.textContent = "Déconnexion";
-      button.onclick = async () => {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-          alert(error.message);
-          return;
+        } else {
+          const { error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          setMessage("Connexion réussie. Redirection…", "success");
+          await goToRoleSpace();
         }
-        location.reload();
-      };
-    } else {
-      button.textContent = "Connexion";
+      } catch (error) {
+        setMessage(error?.message || "Une erreur est survenue. Réessayez.", "error");
+      } finally {
+        submit.disabled = false;
+        submit.textContent = mode === "signup" ? "Créer mon compte" : "Se connecter";
+      }
+    });
+
+    $("password").addEventListener("input", () => { if (message.classList.contains("error")) setMessage(); });
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      $("open-auth").textContent = "Mon espace";
+      $("open-auth").addEventListener("click", async (event) => {
+        event.preventDefault();
+        try { await goToRoleSpace(); } catch (error) { openModal("login"); setMessage(error.message, "error"); }
+      }, { once: true });
     }
-  });
-
-  console.log("Supabase connecté avec succès !");
-
-  // Feedback tactile immédiat sur mobile.
-  submitButton.addEventListener("click", () => {
-    if (!isSubmitting && !signupCooldown) message.textContent = "";
-  });
-</script>
-
-
-
-
-
-<!-- Support WhatsApp Garantie.tn -->
-<style>
-.gtn-whatsapp{position:fixed;right:20px;bottom:20px;z-index:9999;display:flex;align-items:center;gap:10px;padding:12px 17px;border-radius:999px;background:#25D366;color:#fff;text-decoration:none;font:600 14px/1.2 Arial,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.22);transition:transform .2s,box-shadow .2s}
-.gtn-whatsapp:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.28)}
-.gtn-whatsapp svg{width:25px;height:25px;flex:none;fill:currentColor}
-@media(max-width:480px){.gtn-whatsapp{right:14px;bottom:14px;padding:13px;border-radius:50%}.gtn-whatsapp span{display:none}}
-</style>
-<a class="gtn-whatsapp" href="https://wa.me/21628683448?text=Bonjour%2C%20je%20vous%20contacte%20depuis%20Garantie.tn.%20J%E2%80%99ai%20un%20probl%C3%A8me%20%2F%20besoin%20d%E2%80%99assistance." target="_blank" rel="noopener noreferrer" aria-label="Contacter l’administration de Garantie.tn sur WhatsApp" title="Contacter l’administration sur WhatsApp">
-<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16.02 3C8.86 3 3.04 8.78 3.04 15.9c0 2.28.6 4.5 1.75 6.46L3 29l6.84-1.78a13.1 13.1 0 0 0 6.18 1.55h.01c7.16 0 12.98-5.79 12.98-12.9A12.84 12.84 0 0 0 16.02 3Zm0 23.58h-.01a10.9 10.9 0 0 1-5.55-1.51l-.4-.24-4.06 1.06 1.08-3.93-.26-.41a10.66 10.66 0 0 1-1.66-5.65c0-5.96 4.9-10.81 10.87-10.81 2.9 0 5.63 1.12 7.68 3.16a10.7 10.7 0 0 1 3.18 7.65c0 5.96-4.9 10.81-10.87 10.81Zm5.97-8.1c-.33-.16-1.94-.95-2.24-1.06-.3-.11-.52-.16-.74.16-.22.33-.85 1.06-1.04 1.28-.19.22-.38.25-.71.08-.33-.16-1.4-.51-2.67-1.63-.99-.88-1.66-1.96-1.85-2.29-.19-.33-.02-.5.14-.66.15-.15.33-.38.49-.57.16-.19.22-.33.33-.55.11-.22.06-.41-.03-.57-.08-.16-.74-1.77-1.01-2.42-.27-.63-.54-.55-.74-.56h-.63c-.22 0-.57.08-.87.41-.3.33-1.14 1.11-1.14 2.7s1.17 3.13 1.33 3.35c.16.22 2.3 3.5 5.57 4.91.78.34 1.39.54 1.86.69.78.25 1.49.21 2.05.13.63-.09 1.94-.79 2.21-1.55.27-.76.27-1.42.19-1.55-.08-.14-.3-.22-.63-.38Z"/></svg>
-<span>Besoin d’aide ? WhatsApp</span></a>
-
-<style id="gtn-menu-position-fix">
-@media(max-width:750px){
- body>header{display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:flex-end!important;gap:12px!important;min-height:72px!important;padding:12px 18px!important}
- body>header button#open-auth{order:1!important;margin:0 auto 0 0!important}
- body>header button.mobile-menu-toggle{order:2!important;display:flex!important;position:relative!important;inset:auto!important;flex:0 0 48px!important;width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;margin:0!important;padding:0!important;align-items:center!important;justify-content:center!important;gap:5px!important;border:1px solid #4c8d79!important;border-radius:13px!important;background:#1b4038!important;box-shadow:0 5px 14px rgba(0,0,0,.18)!important;cursor:pointer!important;z-index:30!important}
- body>header button.mobile-menu-toggle span{display:block!important;width:20px!important;height:2px!important;margin:0!important;background:#a4e8ca!important;border-radius:3px!important}
- body>header nav#gtn-mobile-menu{order:3!important;display:none!important;position:relative!important;inset:auto!important;flex:0 0 100%!important;width:100%!important;margin:8px 0 0!important;padding:10px!important;box-sizing:border-box!important;border:1px solid #315e52!important;border-radius:15px!important;background:#15342e!important;box-shadow:0 14px 28px rgba(0,0,0,.24)!important}
- body>header nav#gtn-mobile-menu.is-open{display:flex!important}
- body>header nav#gtn-mobile-menu a{display:flex!important;width:100%!important;min-height:48px!important;box-sizing:border-box!important;padding:0 15px!important;align-items:center!important;border-radius:10px!important;color:#f0fff7!important;background:transparent!important;font-size:15px!important;font-weight:700!important}
- body>header nav#gtn-mobile-menu a:active,body>header nav#gtn-mobile-menu a:hover{background:#245347!important;color:#a4e8ca!important}
-}
-</style>
-<script>
-(function(){
- function initGuaranteeMenu(){
-  const button=document.querySelector("button.mobile-menu-toggle");
-  const menu=document.getElementById("gtn-mobile-menu");
-  if(!button||!menu||button.dataset.menuReady==="1") return;
-  button.dataset.menuReady="1";
-  button.addEventListener("click",function(event){
-   event.preventDefault();
-   event.stopPropagation();
-   const opened=menu.classList.toggle("is-open");
-   button.setAttribute("aria-expanded",opened?"true":"false");
-   button.setAttribute("aria-label",opened?"Fermer le menu":"Ouvrir le menu");
-  });
-  menu.querySelectorAll("a").forEach(function(link){
-   link.addEventListener("click",function(){
-    menu.classList.remove("is-open");
-    button.setAttribute("aria-expanded","false");
-    button.setAttribute("aria-label","Ouvrir le menu");
-   });
-  });
- }
- if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",initGuaranteeMenu);
- else initGuaranteeMenu();
-})();
-</script>
-
-
-<style id="gtn-brand-header-refresh">
-body>header,header.site-header{display:flex!important;align-items:center!important;gap:20px!important;min-height:82px!important;padding:10px clamp(16px,4vw,56px)!important;box-sizing:border-box!important;background:#102b28!important;border-bottom:3px solid #16a477!important}
-body>header .gtn-brand,header.site-header .gtn-brand{display:flex!important;align-items:center!important;flex:0 0 auto!important;max-width:190px!important;text-decoration:none!important}
-body>header .gtn-brand img,header.site-header .gtn-brand img{display:block!important;width:auto!important;height:auto!important;max-width:180px!important;max-height:58px!important;object-fit:contain!important}
-body>header button#open-auth,body>header button#logout,header.site-header button#logout{margin-left:auto!important}
-body>header nav#gtn-mobile-menu{display:flex!important;align-items:center!important;gap:6px!important;margin:0 auto!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
-body>header nav#gtn-mobile-menu a{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:42px!important;padding:0 13px!important;border-radius:10px!important;color:#e9f7f0!important;background:transparent!important;text-decoration:none!important;font-weight:700!important;white-space:nowrap!important}
-body>header nav#gtn-mobile-menu a:hover{background:#1b4038!important;color:#a4e8ca!important}
-@media(max-width:750px){
- body>header,header.site-header{min-height:70px!important;flex-wrap:wrap!important;gap:10px!important;padding:9px 13px!important}
- body>header .gtn-brand,header.site-header .gtn-brand{max-width:145px!important}
- body>header .gtn-brand img,header.site-header .gtn-brand img{max-width:140px!important;max-height:48px!important}
- body>header button#open-auth,body>header button#logout,header.site-header button#logout{margin-left:auto!important;min-height:42px!important;padding:0 15px!important}
- body>header nav#gtn-mobile-menu{order:3!important;flex:0 0 100%!important;width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;justify-content:flex-start!important;gap:5px!important;padding:5px 0 2px!important;scrollbar-width:none!important}
- body>header nav#gtn-mobile-menu::-webkit-scrollbar{display:none!important}
- body>header nav#gtn-mobile-menu a{flex:0 0 auto!important;min-height:38px!important;padding:0 12px!important;background:#183b35!important;font-size:13px!important}
-}
-</style>
-<style id="gtn-header-white-logo-proposition">
-body>header,header.site-header{position:relative!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:clamp(16px,3vw,34px)!important;min-height:104px!important;height:auto!important;padding:14px clamp(20px,5vw,72px)!important;background:#fff!important;border:0!important;border-bottom:1px solid #e8eee9!important;box-shadow:0 5px 22px rgba(20,55,40,.055)!important;color:#183b32!important}
-body>header:before,header.site-header:before{display:none!important;content:none!important}
-body>header .gtn-brand,header.site-header .gtn-brand{display:flex!important;align-items:center!important;justify-content:flex-start!important;flex:0 0 auto!important;width:auto!important;max-width:260px!important;margin:0!important;text-decoration:none!important}
-body>header .gtn-brand img,header.site-header .gtn-brand img{display:block!important;width:auto!important;height:auto!important;max-width:245px!important;max-height:76px!important;object-fit:contain!important}
-body>header nav#gtn-mobile-menu{display:flex!important;align-items:center!important;justify-content:center!important;gap:clamp(4px,1vw,14px)!important;margin:0 auto!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
-body>header nav#gtn-mobile-menu a{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:44px!important;padding:0 15px!important;border-radius:10px!important;color:#344b40!important;background:transparent!important;text-decoration:none!important;font-size:14px!important;font-weight:700!important;white-space:nowrap!important;transition:background .18s ease,color .18s ease!important}
-body>header nav#gtn-mobile-menu a:hover{background:#edf6f0!important;color:#147d58!important}
-body>header button#open-auth,body>header button#logout,header.site-header button#logout{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:46px!important;padding:0 23px!important;margin-left:auto!important;border:1px solid #147d58!important;border-radius:12px!important;background:#147d58!important;color:#fff!important;font-size:14px!important;font-weight:800!important;box-shadow:0 5px 14px rgba(20,125,88,.15)!important;cursor:pointer!important}
-body>header button#open-auth:hover,body>header button#logout:hover,header.site-header button#logout:hover{background:#0f6849!important;transform:translateY(-1px)!important}
-@media(max-width:750px){body>header,header.site-header{min-height:0!important;flex-wrap:wrap!important;gap:9px 12px!important;padding:12px 15px!important;justify-content:space-between!important}body>header .gtn-brand,header.site-header .gtn-brand{max-width:190px!important}body>header .gtn-brand img,header.site-header .gtn-brand img{max-width:180px!important;max-height:58px!important}body>header button#open-auth,body>header button#logout,header.site-header button#logout{min-height:42px!important;padding:0 16px!important;margin-left:auto!important}body>header nav#gtn-mobile-menu{order:3!important;display:flex!important;flex:0 0 100%!important;width:100%!important;max-width:100%!important;justify-content:flex-start!important;gap:5px!important;overflow-x:auto!important;overflow-y:hidden!important;padding:4px 0 2px!important;scrollbar-width:none!important}body>header nav#gtn-mobile-menu::-webkit-scrollbar{display:none!important}body>header nav#gtn-mobile-menu a{flex:0 0 auto!important;min-height:38px!important;padding:0 12px!important;background:#f1f7f3!important;color:#294b3a!important;font-size:13px!important}}
-</style>
-<style id="gtn-logo-larger-v2">
-body>header,header.site-header{min-height:124px!important;padding-top:12px!important;padding-bottom:12px!important}
-body>header .gtn-brand,header.site-header .gtn-brand{max-width:340px!important}
-body>header .gtn-brand img,header.site-header .gtn-brand img{max-width:320px!important;max-height:100px!important}
-@media(max-width:750px){
-body>header,header.site-header{min-height:0!important}
-body>header .gtn-brand,header.site-header .gtn-brand{max-width:230px!important}
-body>header .gtn-brand img,header.site-header .gtn-brand img{max-width:220px!important;max-height:72px!important}
-}
-</style><style id="gtn-header-proposal-2026">
-/* Garantie.tn — Professional responsive header */
-body>header,header.site-header{
- position:sticky!important;top:0!important;z-index:1000!important;
- width:100%!important;min-height:86px!important;box-sizing:border-box!important;
- display:flex!important;align-items:center!important;justify-content:space-between!important;
- gap:30px!important;padding:10px clamp(22px,5.2vw,84px)!important;
- background:rgba(255,255,255,.98)!important;
- border:0!important;border-bottom:1px solid #e9eef2!important;border-radius:0!important;
- box-shadow:0 8px 28px rgba(26,48,67,.055)!important;
- backdrop-filter:blur(12px)!important;
-}
-body>header .gtn-brand,header.site-header .gtn-brand{
- display:flex!important;align-items:center!important;justify-content:flex-start!important;
- flex:0 0 194px!important;width:194px!important;max-width:194px!important;
- margin:0!important;padding:0!important;line-height:0!important;
-}
-body>header .gtn-brand img,header.site-header .gtn-brand img{
- display:block!important;width:100%!important;max-width:194px!important;height:auto!important;
- max-height:62px!important;object-fit:contain!important;object-position:left center!important;
-}
-.gtn-nav-new{
- display:flex!important;align-items:center!important;justify-content:center!important;
- flex:1 1 auto!important;min-width:0!important;gap:clamp(20px,3vw,44px)!important;
- margin:0!important;padding:0!important;
-}
-.gtn-nav-new a{
- display:inline-flex!important;align-items:center!important;min-height:42px!important;
- color:#344456!important;text-decoration:none!important;font-size:14px!important;
- font-weight:650!important;letter-spacing:.05px!important;white-space:nowrap!important;
- padding:0 2px!important;position:relative!important;transition:color .18s ease!important;
-}
-.gtn-nav-new a:after{
- content:""!important;position:absolute!important;left:0!important;right:100%!important;
- bottom:3px!important;height:2px!important;border-radius:2px!important;
- background:#16845b!important;transition:right .2s ease!important;
-}
-.gtn-nav-new a:hover{color:#16845b!important}
-.gtn-nav-new a:hover:after{right:0!important}
-body>header #open-auth,body>header #logout,header.site-header #open-auth,header.site-header #logout{
- display:inline-flex!important;align-items:center!important;justify-content:center!important;
- flex:0 0 auto!important;min-height:44px!important;padding:0 23px!important;
- border:1px solid #16845b!important;border-radius:9px!important;
- background:#16845b!important;color:#fff!important;font-size:13px!important;
- font-weight:700!important;letter-spacing:.1px!important;white-space:nowrap!important;
- box-shadow:0 5px 14px rgba(22,132,91,.16)!important;cursor:pointer!important;
- transition:background .18s ease,box-shadow .18s ease,transform .18s ease!important;
-}
-body>header #open-auth:hover,body>header #logout:hover,header.site-header #open-auth:hover,header.site-header #logout:hover{
- background:#116c49!important;box-shadow:0 7px 18px rgba(22,132,91,.22)!important;
- transform:translateY(-1px)!important;
-}
-@media(max-width:760px){
- body>header,header.site-header{
-  min-height:0!important;display:grid!important;
-  grid-template-columns:minmax(0,1fr) auto!important;grid-template-rows:auto auto!important;
-  align-items:center!important;gap:7px 10px!important;padding:9px 14px 7px!important;
- }
- body>header .gtn-brand,header.site-header .gtn-brand{
-  grid-column:1!important;grid-row:1!important;width:154px!important;
-  max-width:154px!important;flex-basis:154px!important;
- }
- body>header .gtn-brand img,header.site-header .gtn-brand img{
-  max-width:154px!important;max-height:48px!important;
- }
- .gtn-nav-new{
-  grid-column:1/-1!important;grid-row:2!important;display:flex!important;
-  justify-content:flex-start!important;align-items:center!important;gap:25px!important;
-  width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;
-  white-space:nowrap!important;padding:1px 1px 4px!important;margin:0!important;
-  scrollbar-width:none!important;-webkit-overflow-scrolling:touch!important;
- }
- .gtn-nav-new::-webkit-scrollbar{display:none!important}
- .gtn-nav-new a{font-size:12.5px!important;min-height:32px!important;padding:0 1px!important}
- .gtn-nav-new a:after{bottom:0!important}
- body>header #open-auth,body>header #logout,header.site-header #open-auth,header.site-header #logout{
-  grid-column:2!important;grid-row:1!important;min-height:38px!important;
-  padding:0 13px!important;font-size:11.5px!important;border-radius:8px!important;
- }
-}
-@media(max-width:360px){
- body>header,header.site-header{padding-left:10px!important;padding-right:10px!important}
- body>header .gtn-brand,header.site-header .gtn-brand{width:136px!important;max-width:136px!important;flex-basis:136px!important}
- body>header .gtn-brand img,header.site-header .gtn-brand img{max-width:136px!important}
-}
-</style>
-<style id="gtn-professional-header-v2">
-/* Garantie.tn — clean professional header */
-body>header, body>.site-header{
-  box-sizing:border-box!important;width:100%!important;min-height:104px!important;
-  height:auto!important;padding:14px clamp(18px,4vw,56px)!important;
-  display:flex!important;flex-direction:row!important;align-items:center!important;
-  justify-content:space-between!important;gap:28px!important;
-  background:#fff!important;border:0!important;border-bottom:1px solid #e8eee9!important;
-  border-radius:0!important;box-shadow:0 4px 18px rgba(22,54,39,.055)!important;
-  position:relative!important;top:auto!important;z-index:20!important;flex-wrap:nowrap!important;
-}
-body>header .gtn-brand,body>.site-header .gtn-brand{
-  display:flex!important;align-items:center!important;justify-content:flex-start!important;
-  flex:0 0 auto!important;min-width:0!important;max-width:34%!important;
-  position:static!important;text-decoration:none!important;background:transparent!important;
-}
-body>header .gtn-brand img,body>.site-header .gtn-brand img{
-  display:block!important;width:clamp(220px,24vw,310px)!important;height:auto!important;
-  max-width:100%!important;max-height:78px!important;object-fit:contain!important;
-  object-position:left center!important;background:transparent!important;
-}
-body>header nav.gtn-nav-new,body>.site-header nav.gtn-nav-new{
-  display:flex!important;align-items:center!important;justify-content:center!important;
-  gap:clamp(12px,2vw,28px)!important;flex:1 1 auto!important;min-width:0!important;
-  width:auto!important;margin:0!important;padding:0!important;overflow:visible!important;
-  background:transparent!important;box-shadow:none!important;
-}
-body>header nav.gtn-nav-new a,body>.site-header nav.gtn-nav-new a{
-  flex:0 0 auto!important;white-space:nowrap!important;text-decoration:none!important;
-  color:#25483b!important;font-size:14px!important;font-weight:650!important;
-  line-height:1.3!important;padding:10px 3px!important;border:0!important;
-  border-radius:0!important;background:transparent!important;transition:color .18s ease!important;
-}
-body>header nav.gtn-nav-new a:hover,body>.site-header nav.gtn-nav-new a:hover{color:#0b9569!important}
-body>header>button,body>.site-header>button{
-  flex:0 0 auto!important;margin:0!important;white-space:nowrap!important;
-  border:0!important;border-radius:12px!important;padding:12px 21px!important;
-  background:#087f5b!important;color:#fff!important;font-weight:750!important;
-  box-shadow:0 5px 14px rgba(8,127,91,.15)!important;
-}
-@media(max-width:760px){
- body>header,body>.site-header{
-   min-height:0!important;padding:12px 15px 10px!important;gap:9px!important;
-   display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
-   grid-template-rows:auto auto!important;align-items:center!important;
- }
- body>header .gtn-brand,body>.site-header .gtn-brand{
-   grid-column:1!important;grid-row:1!important;max-width:100%!important;
- }
- body>header .gtn-brand img,body>.site-header .gtn-brand img{
-   width:min(230px,58vw)!important;max-height:58px!important;
- }
- body>header>button,body>.site-header>button{
-   grid-column:2!important;grid-row:1!important;padding:10px 14px!important;
-   font-size:13px!important;border-radius:10px!important;
- }
- body>header nav.gtn-nav-new,body>.site-header nav.gtn-nav-new{
-   grid-column:1 / -1!important;grid-row:2!important;width:100%!important;
-   display:flex!important;flex-direction:row!important;justify-content:flex-start!important;
-   align-items:center!important;gap:9px!important;overflow-x:auto!important;
-   overflow-y:hidden!important;white-space:nowrap!important;padding:2px 0 5px!important;
-   scrollbar-width:none!important;-webkit-overflow-scrolling:touch!important;
- }
- body>header nav.gtn-nav-new::-webkit-scrollbar,body>.site-header nav.gtn-nav-new::-webkit-scrollbar{display:none!important}
- body>header nav.gtn-nav-new a,body>.site-header nav.gtn-nav-new a{
-   flex:0 0 auto!important;font-size:12px!important;padding:8px 11px!important;
-   border-radius:9px!important;background:#f2f7f4!important;color:#244b3b!important;
- }
-}
-</style>
-<style id="gtn-header-revolution">
-body>header,body>header.site-header{width:100%!important;min-height:94px!important;height:auto!important;padding:14px clamp(20px,5.2vw,76px)!important;display:grid!important;grid-template-columns:minmax(190px,260px) 1fr auto!important;align-items:center!important;column-gap:clamp(22px,4vw,64px)!important;background:#fff!important;border:0!important;border-bottom:1px solid #e9eee9!important;border-radius:0!important;box-shadow:0 8px 28px rgba(21,52,39,.055)!important;position:sticky!important;top:0!important;z-index:100!important;backdrop-filter:blur(16px)!important}
-body>header .gtn-brand,body>header.site-header .gtn-brand{display:flex!important;align-items:center!important;justify-content:flex-start!important;width:100%!important;max-width:260px!important;min-width:0!important;margin:0!important;padding:0!important;background:transparent!important;text-decoration:none!important}
-body>header .gtn-brand img,body>header.site-header .gtn-brand img{display:block!important;width:100%!important;max-width:245px!important;max-height:66px!important;height:auto!important;object-fit:contain!important;object-position:left center!important}
-body>header nav.gtn-nav-new,body>header.site-header nav.gtn-nav-new{display:flex!important;align-items:center!important;justify-content:center!important;justify-self:center!important;gap:clamp(5px,1vw,13px)!important;width:max-content!important;max-width:100%!important;min-width:0!important;margin:0!important;padding:7px!important;overflow:visible!important;border:1px solid #edf2ee!important;border-radius:16px!important;background:#f8faf8!important;box-shadow:inset 0 1px 2px rgba(21,52,39,.025)!important}
-body>header nav.gtn-nav-new a,body>header.site-header nav.gtn-nav-new a{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:40px!important;padding:0 16px!important;border:0!important;border-radius:11px!important;background:transparent!important;color:#52675c!important;text-decoration:none!important;font-family:inherit!important;font-size:13px!important;font-weight:700!important;line-height:1.2!important;white-space:nowrap!important;transition:background .18s ease,color .18s ease,transform .18s ease!important}
-body>header nav.gtn-nav-new a:hover,body>header.site-header nav.gtn-nav-new a:hover{background:#e7f5ed!important;color:#087f5b!important;transform:translateY(-1px)!important}
-body>header>button,body>header.site-header>button{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:46px!important;margin:0!important;padding:0 23px!important;border:0!important;border-radius:13px!important;background:#087f5b!important;color:#fff!important;font-size:13px!important;font-weight:800!important;letter-spacing:.1px!important;white-space:nowrap!important;box-shadow:0 7px 17px rgba(8,127,91,.19)!important;transition:transform .18s ease,box-shadow .18s ease!important}
-body>header>button:hover,body>header.site-header>button:hover{transform:translateY(-2px)!important;box-shadow:0 10px 22px rgba(8,127,91,.24)!important}
-@media(max-width:760px){body>header,body>header.site-header{min-height:0!important;height:auto!important;padding:12px 16px 10px!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-rows:auto auto!important;gap:9px 12px!important}body>header .gtn-brand,body>header.site-header .gtn-brand{grid-column:1!important;grid-row:1!important;max-width:min(220px,58vw)!important}body>header .gtn-brand img,body>header.site-header .gtn-brand img{width:100%!important;max-width:220px!important;max-height:52px!important}body>header>button,body>header.site-header>button{grid-column:2!important;grid-row:1!important;min-height:40px!important;padding:0 15px!important;border-radius:11px!important;font-size:12px!important}body>header nav.gtn-nav-new,body>header.site-header nav.gtn-nav-new{grid-column:1/-1!important;grid-row:2!important;justify-self:stretch!important;display:flex!important;justify-content:flex-start!important;align-items:center!important;width:100%!important;max-width:100%!important;min-width:0!important;gap:6px!important;margin:0!important;padding:5px!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;border-radius:12px!important;scrollbar-width:none!important;-webkit-overflow-scrolling:touch!important}body>header nav.gtn-nav-new::-webkit-scrollbar,body>header.site-header nav.gtn-nav-new::-webkit-scrollbar{display:none!important}body>header nav.gtn-nav-new a,body>header.site-header nav.gtn-nav-new a{flex:0 0 auto!important;min-height:35px!important;padding:0 12px!important;border-radius:9px!important;font-size:11.5px!important}}
-@media(max-width:360px){body>header,body>header.site-header{padding-left:12px!important;padding-right:12px!important}body>header .gtn-brand,body>header.site-header .gtn-brand{max-width:55vw!important}body>header>button,body>header.site-header>button{padding:0 11px!important}body>header nav.gtn-nav-new a,body>header.site-header nav.gtn-nav-new a{padding:0 10px!important;font-size:11px!important}}
-</style>
+  </script>
 </body>
 </html>
