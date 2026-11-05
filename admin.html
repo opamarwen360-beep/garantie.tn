@@ -283,11 +283,11 @@ $("sav-filter-client").addEventListener("change",renderSavTable);$("sav-filter-s
 function renderApplications(){
  const query=$("application-search").value.trim().toLocaleLowerCase("fr"),filter=$("application-filter").value;
  const rows=applications.filter(a=>(!filter||a.status===filter)&&(!query||[a.business_name,a.phone,a.address,a.national_id_number].some(v=>String(v||"").toLocaleLowerCase("fr").includes(query))));
- $("applications-data").innerHTML=table(["Commerce","Téléphone","Adresse","Identité","Date","Statut","Détails / Action"],rows.map(a=>'<tr><td><strong>'+esc(a.business_name)+'</strong></td><td>'+esc(a.phone)+'</td><td>'+esc(a.address)+'</td><td>'+esc(a.national_id_number)+'</td><td>'+fmt(a.created_at)+'</td><td>'+statusPill(a.status)+'</td><td><div class="actions"><button class="refresh" data-application-detail="'+esc(a.id)+'">Détails</button>'+(a.status==="pending"?'<button data-status="approved" data-id="'+esc(a.id)+'">Accepter</button><button class="reject" data-status="rejected" data-id="'+esc(a.id)+'">Refuser</button>':'')+'</div></td></tr>'));
+ $("applications-data").innerHTML=table(["Type","Commerce","Téléphone","Adresse","Identité","Date","Statut","Détails / Action"],rows.map(a=>'<tr><td>'+(a.application_type==="branch"?"Nouveau point de vente":"Ouverture initiale")+'</td><td><strong>'+esc(a.business_name)+'</strong></td><td>'+esc(a.phone)+'</td><td>'+esc(a.address)+'</td><td>'+esc(a.national_id_number)+'</td><td>'+fmt(a.created_at)+'</td><td>'+statusPill(a.status)+'</td><td><div class="actions"><button class="refresh" data-application-detail="'+esc(a.id)+'">Détails</button>'+(a.status==="pending"?'<button data-status="approved" data-id="'+esc(a.id)+'">Accepter</button><button class="reject" data-status="rejected" data-id="'+esc(a.id)+'">Refuser</button>':'')+'</div></td></tr>'));
  if(!rows.length)$("applications-data").innerHTML='<div class="empty">Aucune demande ne correspond à votre recherche.</div>';
 }
 async function loadApplications(){
- const {data,error}=await supabase.from("store_applications").select("id,user_id,business_name,phone,address,national_id_number,patent_photo_path,status,created_at").order("created_at",{ascending:false});
+ const {data,error}=await supabase.from("store_applications").select("id,user_id,application_type,business_name,phone,address,national_id_number,patent_photo_path,status,created_at").order("created_at",{ascending:false});
  if(error)throw error;applications=data||[];renderApplications();
  $("message").textContent=applications.filter(a=>a.status==="pending").length+" demande(s) en attente.";
 }
@@ -297,7 +297,7 @@ async function openApplicationDocument(path){
 }
 function showApplicationDetails(id){
  const a=applications.find(x=>x.id===id);if(!a)return;
- const fields=[["Commerce",a.business_name],["Téléphone",a.phone],["Adresse",a.address],["N° carte d’identité",a.national_id_number],["Date de demande",fmt(a.created_at)],["Statut",({pending:"En attente",approved:"Acceptée",rejected:"Refusée"}[a.status]||a.status)],["Identifiant du compte",a.user_id]];
+ const fields=[["Type de demande",a.application_type==="branch"?"Ajout d’un point de vente":"Ouverture initiale"],["Commerce",a.business_name],["Téléphone",a.phone],["Adresse",a.address],["N° carte d’identité",a.national_id_number],["Date de demande",fmt(a.created_at)],["Statut",({pending:"En attente",approved:"Acceptée",rejected:"Refusée"}[a.status]||a.status)],["Identifiant du compte",a.user_id]];
  $("application-detail-content").innerHTML='<div class="detail-grid">'+fields.map(([label,value])=>'<div class="detail-field"><span>'+esc(label)+'</span><strong>'+esc(value)+'</strong></div>').join("")+'</div><div class="detail-actions">'+(a.patent_photo_path?'<button type="button" class="detail-doc" id="open-application-patent">Voir le document patente</button>':'<div class="empty">Aucun document patente joint.</div>')+(a.status==="pending"?'<button type="button" data-status="approved" data-id="'+esc(a.id)+'">Accepter la demande</button><button type="button" class="reject" data-status="rejected" data-id="'+esc(a.id)+'">Refuser</button>':'')+'</div>';
  $("application-modal").hidden=false;
  $("open-application-patent")?.addEventListener("click",async e=>{const button=e.currentTarget;button.disabled=true;try{await openApplicationDocument(a.patent_photo_path);}catch(err){$("message").textContent="Impossible d’ouvrir le document : "+err.message;}finally{button.disabled=false;}});
