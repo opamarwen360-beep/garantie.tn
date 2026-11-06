@@ -21,6 +21,21 @@ input{width:100%;padding:12px;border:1px solid #dce3e8;border-radius:8px;font:in
 .invoice-form{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:end;margin-top:12px}.empty{padding:22px;text-align:center;background:#f8fafb;border-radius:9px;color:var(--muted)}
 @media(max-width:720px){.grid{grid-template-columns:1fr}.fields{grid-template-columns:1fr}.invoice-form{grid-template-columns:1fr}}
 .store-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}.store-tools input{flex:1;min-width:220px}.store-tools select{padding:12px;border:1px solid #dce3e8;border-radius:8px;font:inherit;background:#fff}
+
+/* Gestion SAV */
+.sav-stats{margin:16px 0 20px}
+.sav-request-card{padding:20px!important}
+.sav-request-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.sav-status{display:inline-flex;align-items:center;padding:6px 11px;border-radius:999px;font-size:12px;font-weight:700;background:#f1f5f9;color:#475569}
+.sav-pending{background:#fff7e6;color:#9a6700}.sav-processing{background:#eaf2ff;color:#2457a6}.sav-completed{background:#e9f7ef;color:#187245}.sav-rejected{background:#fff0ef;color:#b42318}
+.sav-request-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 18px;margin:14px 0}
+.sav-request-details p{overflow-wrap:anywhere}
+.sav-description{padding:12px 14px;border-radius:10px;background:#f7f9fc;margin:12px 0}
+.sav-description p{margin:6px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.sav-status-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.sav-status-form label{grid-column:1/-1;margin-bottom:-5px}
+.sav-status-form select{min-width:0;padding:12px;border:1px solid #dce3e8;border-radius:8px;background:#fff;font:inherit}
+@media(max-width:520px){.sav-request-details{grid-template-columns:1fr}.sav-status-form{grid-template-columns:1fr}.sav-status-form label{grid-column:auto}.sav-status-form button{width:100%}}
 </style>
 
 <!-- Garantie.tn Modern Premium design system -->
@@ -390,7 +405,7 @@ body>header button#logout:hover{
 <p id="list-message" class="message" role="status"></p>
 </section>
 </div>
-<section class="panel"><h2>Demandes SAV reçues</h2><p class="muted">Demandes envoyées par vos clients pour les garanties de votre magasin.</p><div class="store-tools"><input id="sav-search" type="search" placeholder="Rechercher client, téléphone ou demande..."><select id="sav-status-filter"><option value="">Tous les statuts</option><option value="pending">En attente</option><option value="processing">En cours</option><option value="completed">Terminée</option><option value="rejected">Refusée</option></select><span id="sav-count" class="muted"></span></div><div id="store-sav-list"><div class="empty">Chargement...</div></div><p id="store-sav-message" class="message" role="status"></p></section>
+<section class="panel"><h2>Gestion du service après-vente</h2><p class="muted">Suivez les demandes de vos clients et mettez à jour chaque dossier de réparation.</p><div class="stats-grid sav-stats" aria-label="Statistiques SAV"><article class="stat-card"><span>Total des demandes</span><strong id="sav-stat-total">0</strong></article><article class="stat-card"><span>En attente</span><strong id="sav-stat-pending">0</strong></article><article class="stat-card"><span>En cours</span><strong id="sav-stat-processing">0</strong></article><article class="stat-card"><span>Terminées</span><strong id="sav-stat-completed">0</strong></article></div><div class="store-tools"><input id="sav-search" type="search" placeholder="Rechercher client, téléphone ou demande..."><select id="sav-status-filter"><option value="">Tous les statuts</option><option value="pending">En attente</option><option value="processing">En cours</option><option value="completed">Terminée</option><option value="rejected">Refusée</option></select><span id="sav-count" class="muted"></span></div><div id="store-sav-list"><div class="empty">Chargement...</div></div><p id="store-sav-message" class="message" role="status"></p></section>
 </main>
 <script type="module">
 import { supabase } from "./supabase.js";
@@ -461,12 +476,22 @@ async function loadStoreSav(){
  if(error)throw error;storeSavRequests=data||[];renderStoreSav();
 }
 function renderStoreSav(){
+ const counts={pending:0,processing:0,completed:0,rejected:0};
+ storeSavRequests.forEach(r=>{if(Object.prototype.hasOwnProperty.call(counts,r.status))counts[r.status]++;});
+ $("sav-stat-total").textContent=storeSavRequests.length;
+ $("sav-stat-pending").textContent=counts.pending;
+ $("sav-stat-processing").textContent=counts.processing;
+ $("sav-stat-completed").textContent=counts.completed;
  const q=$("sav-search").value.trim().toLocaleLowerCase("fr"),status=$("sav-status-filter").value;
- const rows=storeSavRequests.filter(r=>{const w=r.warranties||{},p=w.products||{};const hay=[r.subject,r.description,r.customer_phone,w.customer_name,w.customer_email,w.warranty_number,p.name].join(" ").toLocaleLowerCase("fr");return (!status||r.status===status)&&(!q||hay.includes(q))});
+ const rows=storeSavRequests.filter(r=>{const w=r.warranties||{},p=w.products||{};const hay=[r.subject,r.description,r.customer_phone,w.customer_name,w.customer_email,w.warranty_number,p.name].join(" ").toLocaleLowerCase("fr");return (!status||r.status===status)&&(!q||hay.includes(q));});
  $("sav-count").textContent=rows.length+" / "+storeSavRequests.length+" demande(s)";
  if(!rows.length){$("store-sav-list").innerHTML='<div class="empty">Aucune demande ne correspond aux filtres.</div>';return;}
  const labels={pending:"En attente",processing:"En cours",completed:"Terminée",rejected:"Refusée"};
- $("store-sav-list").innerHTML=rows.map(r=>'<article class="warranty"><h3>'+esc(r.subject)+'</h3><p><strong>Client :</strong> '+esc(r.warranties?.customer_name||r.warranties?.customer_email||"Client")+'</p><p><strong>Téléphone :</strong> '+esc(r.customer_phone||"Non renseigné")+'</p><p><strong>Produit :</strong> '+esc(r.warranties?.products?.name||"Produit")+' · <strong>Garantie :</strong> '+esc(r.warranties?.warranty_number||"—")+'</p><p>'+esc(r.description||"—")+'</p><p><strong>Statut :</strong> '+esc(labels[r.status]||r.status)+' · '+dateLabel(r.created_at?.slice(0,10))+'</p><form class="sav-status-form" data-sav-id="'+esc(r.id)+'"><label>Modifier le statut</label><select name="status"><option value="pending" '+(r.status==="pending"?"selected":"")+'>En attente</option><option value="processing" '+(r.status==="processing"?"selected":"")+'>En cours</option><option value="completed" '+(r.status==="completed"?"selected":"")+'>Terminée</option><option value="rejected" '+(r.status==="rejected"?"selected":"")+'>Refusée</option></select><button type="submit">Enregistrer</button></form></article>').join("");
+ const classes={pending:"sav-pending",processing:"sav-processing",completed:"sav-completed",rejected:"sav-rejected"};
+ $("store-sav-list").innerHTML=rows.map(r=>{
+  const w=r.warranties||{},product=w.products||{};
+  return '<article class="warranty sav-request-card"><div class="sav-request-head"><div><h3>'+esc(r.subject)+'</h3><p class="muted">Reçue le '+dateLabel(r.created_at?.slice(0,10))+'</p></div><span class="sav-status '+(classes[r.status]||"")+'">'+esc(labels[r.status]||r.status)+'</span></div><div class="sav-request-details"><p><strong>Client :</strong> '+esc(w.customer_name||"Client")+'</p><p><strong>E-mail :</strong> '+esc(w.customer_email||"Non renseigné")+'</p><p><strong>Téléphone :</strong> '+esc(r.customer_phone||"Non renseigné")+'</p><p><strong>Produit :</strong> '+esc(product.name||"Produit")+'</p><p><strong>N° garantie :</strong> '+esc(w.warranty_number||"—")+'</p></div><div class="sav-description"><strong>Description du problème</strong><p>'+esc(r.description||"Aucune description fournie.")+'</p></div><form class="sav-status-form" data-sav-id="'+esc(r.id)+'"><label>Faire évoluer le dossier</label><select name="status"><option value="pending" '+(r.status==="pending"?"selected":"")+'>En attente</option><option value="processing" '+(r.status==="processing"?"selected":"")+'>En cours</option><option value="completed" '+(r.status==="completed"?"selected":"")+'>Terminée</option><option value="rejected" '+(r.status==="rejected"?"selected":"")+'>Refusée</option></select><button type="submit">Enregistrer le statut</button></form></article>';
+ }).join("");
 }
 
 $("store-sav-list").addEventListener("submit",async e=>{const form=e.target.closest(".sav-status-form");if(!form)return;e.preventDefault();const btn=form.querySelector("button");btn.disabled=true;try{const {data,error}=await supabase.from("sav_requests").update({status:form.status.value}).eq("id",form.dataset.savId).select("id").maybeSingle();if(error)throw error;if(!data)throw new Error("Demande introuvable ou accès refusé.");$("store-sav-message").textContent="Statut SAV mis à jour.";await loadStoreSav();}catch(err){$("store-sav-message").textContent="Erreur : "+err.message;btn.disabled=false;}});
