@@ -380,19 +380,33 @@ $("client-invoice-search").addEventListener("input",renderInvoices);
 $("client-sav-search").addEventListener("input",renderSavHistory);
 $("client-sav-status").addEventListener("change",renderSavHistory);
 $("sav-form").addEventListener("submit",async event=>{
- event.preventDefault();$("message").textContent="Envoi en cours...";
- const warrantyId=$("sav-warranty").value;
- try{
- if(!warranties.some(w=>w.id===warrantyId))throw new Error("Choisissez une garantie valide.");
- const {data:{user}}=await supabase.auth.getUser();
- const {data:profile,error:profileError}=await supabase.from("profiles").select("phone").eq("id",user.id).single();
- if(profileError)throw profileError;
- const {error}=await supabase.from("sav_requests").insert({warranty_id:warrantyId,customer_user_id:user.id,customer_phone:profile?.phone||null,subject:$("sav-subject").value.trim(),description:$("sav-description").value.trim()||null});
- if(error)throw error;
- $("message").textContent="Votre demande SAV a été envoyée avec succès.";
- $("sav-form").reset();
- }catch(e){$("message").textContent="Erreur : "+e.message;}
-});
+  event.preventDefault();
+  const form=event.currentTarget;
+  const submitButton=form.querySelector('button[type="submit"]');
+  const message=$("message");
+  message.textContent="Envoi en cours...";
+  message.className="message";
+  submitButton.disabled=true;
+  const warrantyId=$("sav-warranty").value;
+  try{
+    if(!warranties.some(w=>w.id===warrantyId))throw new Error("Choisissez une garantie valide.");
+    const {data:{user}}=await supabase.auth.getUser();
+    if(!user)throw new Error("Votre session a expiré. Reconnectez-vous.");
+    const {data:profile,error:profileError}=await supabase.from("profiles").select("phone").eq("id",user.id).single();
+    if(profileError)throw profileError;
+    const {error}=await supabase.from("sav_requests").insert({warranty_id:warrantyId,customer_user_id:user.id,customer_phone:profile?.phone||null,subject:$("sav-subject").value.trim(),description:$("sav-description").value.trim()||null});
+    if(error)throw error;
+    form.reset();
+    message.className="message success";
+    message.textContent="Votre demande SAV a été envoyée avec succès.";
+    await loadSavHistory();
+  }catch(e){
+    message.className="message error";
+    message.textContent="Erreur : "+e.message;
+  }finally{
+    submitButton.disabled=false;
+  }
+ });
 $("logout").addEventListener("click",async()=>{const {error}=await supabase.auth.signOut();if(error){alert(error.message);return;}location.href="index.html";});
 start().catch(e=>{console.error(e);$("warranties").innerHTML='<div class="empty">Erreur de chargement : '+esc(e.message)+'</div>';});
 </script>
