@@ -633,6 +633,7 @@ body>header .gtn-menu-toggle{display:none!important}
   const message = document.getElementById("auth-message");
 
   let mode = "login";
+  let invitationMode = false;
   let isSubmitting = false;
   let signupCooldown = false;
   const submitButton = form.querySelector('button[type="submit"]');
@@ -676,6 +677,7 @@ body>header .gtn-menu-toggle{display:none!important}
   });
 
   function setMode(newMode) {
+    if (invitationMode) return;
     mode = newMode;
     const signup = mode === "signup";
     submitButton.textContent = signup ? "Créer mon compte →" : "Se connecter →";
@@ -688,7 +690,33 @@ body>header .gtn-menu-toggle{display:none!important}
     nationalId.required = signup;
     fullName.required = signup;
 
+    document.getElementById("show-login").style.display = "inline-block";
+    document.getElementById("show-signup").style.display = "inline-block";
+    email.disabled = false;
+    password.autocomplete = signup ? "new-password" : "current-password";
     message.textContent = "";
+  }
+
+  function showInvitationPasswordSetup(session) {
+    invitationMode = true;
+    mode = "invitation";
+    modal.style.display = "flex";
+    document.getElementById("show-login").style.display = "none";
+    document.getElementById("show-signup").style.display = "none";
+    fullName.style.display = "none";
+    phone.style.display = "none";
+    nationalId.style.display = "none";
+    fullName.required = false;
+    nationalId.required = false;
+    email.value = session?.user?.email || email.value;
+    email.disabled = true;
+    password.value = "";
+    password.autocomplete = "new-password";
+    password.placeholder = "Choisissez votre mot de passe (8 caractères minimum)";
+    document.querySelector("#auth-modal h2").textContent = "Activez votre compte magasin";
+    document.querySelector("#auth-modal > div > p").textContent = "Choisissez un mot de passe pour terminer l’activation de votre compte.";
+    submitButton.textContent = "Activer mon compte →";
+    message.textContent = "Invitation vérifiée. Définissez votre mot de passe pour continuer.";
   }
 
   document.getElementById("show-login").addEventListener("click", () => {
@@ -721,7 +749,13 @@ body>header .gtn-menu-toggle{display:none!important}
     message.textContent = "Veuillez patienter...";
 
     try {
-      if (mode === "signup") {
+      if (invitationMode) {
+        const { error } = await supabase.auth.updateUser({ password: password.value });
+        if (error) throw error;
+        message.textContent = "Mot de passe enregistré. Ouverture de votre espace magasin...";
+        email.disabled = false;
+        await redirectByRole();
+      } else if (mode === "signup") {
         if (!/^[0-9]{8}$/.test(nationalId.value.trim())) throw new Error("Le numéro de carte d’identité doit contenir exactement 8 chiffres.");
         const { data, error } = await supabase.auth.signUp({
           email: emailValue,
@@ -799,7 +833,22 @@ body>header .gtn-menu-toggle{display:none!important}
 
   setMode("login");
 
+  const invitationLinkType = new URLSearchParams(window.location.hash.slice(1)).get("type");
+  supabase.auth.getSession().then(({ data, error }) => {
+    if (error) {
+      message.textContent = "Impossible de vérifier l’invitation : " + error.message;
+      return;
+    }
+    const session = data?.session;
+    if (session && (invitationLinkType === "invite" || invitationLinkType === "recovery" || session.user?.user_metadata?.invited_store_id)) {
+      showInvitationPasswordSetup(session);
+    }
+  });
+
   supabase.auth.onAuthStateChange((event, session) => {
+    if (session && (invitationLinkType === "invite" || invitationLinkType === "recovery" || session.user?.user_metadata?.invited_store_id)) {
+      showInvitationPasswordSetup(session);
+    }
     const button = document.getElementById("open-auth");
 
     if (session) {
