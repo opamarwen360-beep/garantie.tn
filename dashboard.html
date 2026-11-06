@@ -334,217 +334,35 @@ function exportWarrantiesCsv(){
 }
 function exportWarrantiesPdf(){
  const rows=storeWarranties.map(w=>'<tr><td>'+esc(w.products?.name||"—")+'</td><td>'+esc(w.warranty_number)+'</td><td>'+esc(w.customer_name||w.customer_email||"—")+'</td><td>'+esc(dateLabel(w.purchase_date))+'</td><td>'+esc(dateLabel(w.end_date))+'</td><td>'+esc(w.status)+'</td></tr>').join("");
- const win=window.open("","_blank");if(!win){alert("Autorisez les fenêtres contextuelles pour exporter le PDF.");return;}
- win.document.write('<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Rapport garanties</title><style>body{font:13px Arial;padding:24px;color:#183b52}h1{font-size:22px}p{color:#667}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{padding:9px;border:1px solid #dce5e9;text-align:left}th{background:#eef5f1}</style></head><body><h1>Rapport des garanties — '+esc(currentStore?.name||"Magasin")+'</h1><p>Généré le '+new Date().toLocaleDateString("fr-FR")+' · '+storeWarranties.length+' garantie(s)</p><table><thead><tr><th>Produit</th><th>N° garantie</th><th>Client</th><th>Achat</th><th>Fin</th><th>Statut</th></tr></thead><tbody>'+rows+'</tbody></table><script>window.onload=()=>window.print()<\\/script>
-<style id="gtn-brand-header-refresh">
-body>header,header.site-header{display:flex!important;align-items:center!important;gap:20px!important;min-height:82px!important;padding:10px clamp(16px,4vw,56px)!important;box-sizing:border-box!important;background:#102b28!important;border-bottom:3px solid #16a477!important}
-body>header .gtn-brand,header.site-header .gtn-brand{display:flex!important;align-items:center!important;flex:0 0 auto!important;max-width:190px!important;text-decoration:none!important}
-body>header .gtn-brand img,header.site-header .gtn-brand img{display:block!important;width:auto!important;height:auto!important;max-width:180px!important;max-height:58px!important;object-fit:contain!important}
-body>header button#open-auth,body>header button#logout,header.site-header button#logout{margin-left:auto!important}
-body>header nav#gtn-mobile-menu{display:flex!important;align-items:center!important;gap:6px!important;margin:0 auto!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
-body>header nav#gtn-mobile-menu a{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:42px!important;padding:0 13px!important;border-radius:10px!important;color:#e9f7f0!important;background:transparent!important;text-decoration:none!important;font-weight:700!important;white-space:nowrap!important}
-body>header nav#gtn-mobile-menu a:hover{background:#1b4038!important;color:#a4e8ca!important}
-@media(max-width:750px){
- body>header,header.site-header{min-height:70px!important;flex-wrap:wrap!important;gap:10px!important;padding:9px 13px!important}
- body>header .gtn-brand,header.site-header .gtn-brand{max-width:145px!important}
- body>header .gtn-brand img,header.site-header .gtn-brand img{max-width:140px!important;max-height:48px!important}
- body>header button#open-auth,body>header button#logout,header.site-header button#logout{margin-left:auto!important;min-height:42px!important;padding:0 15px!important}
- body>header nav#gtn-mobile-menu{order:3!important;flex:0 0 100%!important;width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;justify-content:flex-start!important;gap:5px!important;padding:5px 0 2px!important;scrollbar-width:none!important}
- body>header nav#gtn-mobile-menu::-webkit-scrollbar{display:none!important}
- body>header nav#gtn-mobile-menu a{flex:0 0 auto!important;min-height:38px!important;padding:0 12px!important;background:#183b35!important;font-size:13px!important}
-}
+ const win=window.open("","_blank");
+ if(!win){alert("Autorisez les fenêtres contextuelles pour exporter le PDF.");return;}
+ const html=`<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Rapport garanties</title>
+<style>
+body{font:13px Arial;padding:24px;color:#183b52}
+h1{font-size:22px}
+p{color:#667}
+table{width:100%;border-collapse:collapse;margin-top:20px}
+th,td{padding:9px;border:1px solid #dce5e9;text-align:left}
+th{background:#eef5f1}
 </style>
-<style id="gtn-header-white-logo-proposition">
-body>header,header.site-header{position:relative!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:clamp(16px,3vw,34px)!important;min-height:104px!important;height:auto!important;padding:14px clamp(20px,5vw,72px)!important;background:#fff!important;border:0!important;border-bottom:1px solid #e8eee9!important;box-shadow:0 5px 22px rgba(20,55,40,.055)!important;color:#183b32!important}
-body>header:before,header.site-header:before{display:none!important;content:none!important}
-body>header .gtn-brand,header.site-header .gtn-brand{display:flex!important;align-items:center!important;justify-content:flex-start!important;flex:0 0 auto!important;width:auto!important;max-width:260px!important;margin:0!important;text-decoration:none!important}
-body>header .gtn-brand img,header.site-header .gtn-brand img{display:block!important;width:auto!important;height:auto!important;max-width:245px!important;max-height:76px!important;object-fit:contain!important}
-body>header nav#gtn-mobile-menu{display:flex!important;align-items:center!important;justify-content:center!important;gap:clamp(4px,1vw,14px)!important;margin:0 auto!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
-body>header nav#gtn-mobile-menu a{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:44px!important;padding:0 15px!important;border-radius:10px!important;color:#344b40!important;background:transparent!important;text-decoration:none!important;font-size:14px!important;font-weight:700!important;white-space:nowrap!important;transition:background .18s ease,color .18s ease!important}
-body>header nav#gtn-mobile-menu a:hover{background:#edf6f0!important;color:#147d58!important}
-body>header button#open-auth,body>header button#logout,header.site-header button#logout{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:46px!important;padding:0 23px!important;margin-left:auto!important;border:1px solid #147d58!important;border-radius:12px!important;background:#147d58!important;color:#fff!important;font-size:14px!important;font-weight:800!important;box-shadow:0 5px 14px rgba(20,125,88,.15)!important;cursor:pointer!important}
-body>header button#open-auth:hover,body>header button#logout:hover,header.site-header button#logout:hover{background:#0f6849!important;transform:translateY(-1px)!important}
-@media(max-width:750px){body>header,header.site-header{min-height:0!important;flex-wrap:wrap!important;gap:9px 12px!important;padding:12px 15px!important;justify-content:space-between!important}body>header .gtn-brand,header.site-header .gtn-brand{max-width:190px!important}body>header .gtn-brand img,header.site-header .gtn-brand img{max-width:180px!important;max-height:58px!important}body>header button#open-auth,body>header button#logout,header.site-header button#logout{min-height:42px!important;padding:0 16px!important;margin-left:auto!important}body>header nav#gtn-mobile-menu{order:3!important;display:flex!important;flex:0 0 100%!important;width:100%!important;max-width:100%!important;justify-content:flex-start!important;gap:5px!important;overflow-x:auto!important;overflow-y:hidden!important;padding:4px 0 2px!important;scrollbar-width:none!important}body>header nav#gtn-mobile-menu::-webkit-scrollbar{display:none!important}body>header nav#gtn-mobile-menu a{flex:0 0 auto!important;min-height:38px!important;padding:0 12px!important;background:#f1f7f3!important;color:#294b3a!important;font-size:13px!important}}
-</style>
-<style id="gtn-logo-larger-v2">
-body>header,header.site-header{min-height:124px!important;padding-top:12px!important;padding-bottom:12px!important}
-body>header .gtn-brand,header.site-header .gtn-brand{max-width:340px!important}
-body>header .gtn-brand img,header.site-header .gtn-brand img{max-width:320px!important;max-height:100px!important}
-@media(max-width:750px){
-body>header,header.site-header{min-height:0!important}
-body>header .gtn-brand,header.site-header .gtn-brand{max-width:230px!important}
-body>header .gtn-brand img,header.site-header .gtn-brand img{max-width:220px!important;max-height:72px!important}
-}
-</style><style id="gtn-header-proposal-2026">
-/* Garantie.tn — Professional responsive header */
-body>header,header.site-header{
- position:sticky!important;top:0!important;z-index:1000!important;
- width:100%!important;min-height:86px!important;box-sizing:border-box!important;
- display:flex!important;align-items:center!important;justify-content:space-between!important;
- gap:30px!important;padding:10px clamp(22px,5.2vw,84px)!important;
- background:rgba(255,255,255,.98)!important;
- border:0!important;border-bottom:1px solid #e9eef2!important;border-radius:0!important;
- box-shadow:0 8px 28px rgba(26,48,67,.055)!important;
- backdrop-filter:blur(12px)!important;
-}
-body>header .gtn-brand,header.site-header .gtn-brand{
- display:flex!important;align-items:center!important;justify-content:flex-start!important;
- flex:0 0 194px!important;width:194px!important;max-width:194px!important;
- margin:0!important;padding:0!important;line-height:0!important;
-}
-body>header .gtn-brand img,header.site-header .gtn-brand img{
- display:block!important;width:100%!important;max-width:194px!important;height:auto!important;
- max-height:62px!important;object-fit:contain!important;object-position:left center!important;
-}
-.gtn-nav-new{
- display:flex!important;align-items:center!important;justify-content:center!important;
- flex:1 1 auto!important;min-width:0!important;gap:clamp(20px,3vw,44px)!important;
- margin:0!important;padding:0!important;
-}
-.gtn-nav-new a{
- display:inline-flex!important;align-items:center!important;min-height:42px!important;
- color:#344456!important;text-decoration:none!important;font-size:14px!important;
- font-weight:650!important;letter-spacing:.05px!important;white-space:nowrap!important;
- padding:0 2px!important;position:relative!important;transition:color .18s ease!important;
-}
-.gtn-nav-new a:after{
- content:""!important;position:absolute!important;left:0!important;right:100%!important;
- bottom:3px!important;height:2px!important;border-radius:2px!important;
- background:#16845b!important;transition:right .2s ease!important;
-}
-.gtn-nav-new a:hover{color:#16845b!important}
-.gtn-nav-new a:hover:after{right:0!important}
-body>header #open-auth,body>header #logout,header.site-header #open-auth,header.site-header #logout{
- display:inline-flex!important;align-items:center!important;justify-content:center!important;
- flex:0 0 auto!important;min-height:44px!important;padding:0 23px!important;
- border:1px solid #16845b!important;border-radius:9px!important;
- background:#16845b!important;color:#fff!important;font-size:13px!important;
- font-weight:700!important;letter-spacing:.1px!important;white-space:nowrap!important;
- box-shadow:0 5px 14px rgba(22,132,91,.16)!important;cursor:pointer!important;
- transition:background .18s ease,box-shadow .18s ease,transform .18s ease!important;
-}
-body>header #open-auth:hover,body>header #logout:hover,header.site-header #open-auth:hover,header.site-header #logout:hover{
- background:#116c49!important;box-shadow:0 7px 18px rgba(22,132,91,.22)!important;
- transform:translateY(-1px)!important;
-}
-@media(max-width:760px){
- body>header,header.site-header{
-  min-height:0!important;display:grid!important;
-  grid-template-columns:minmax(0,1fr) auto!important;grid-template-rows:auto auto!important;
-  align-items:center!important;gap:7px 10px!important;padding:9px 14px 7px!important;
- }
- body>header .gtn-brand,header.site-header .gtn-brand{
-  grid-column:1!important;grid-row:1!important;width:154px!important;
-  max-width:154px!important;flex-basis:154px!important;
- }
- body>header .gtn-brand img,header.site-header .gtn-brand img{
-  max-width:154px!important;max-height:48px!important;
- }
- .gtn-nav-new{
-  grid-column:1/-1!important;grid-row:2!important;display:flex!important;
-  justify-content:flex-start!important;align-items:center!important;gap:25px!important;
-  width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;
-  white-space:nowrap!important;padding:1px 1px 4px!important;margin:0!important;
-  scrollbar-width:none!important;-webkit-overflow-scrolling:touch!important;
- }
- .gtn-nav-new::-webkit-scrollbar{display:none!important}
- .gtn-nav-new a{font-size:12.5px!important;min-height:32px!important;padding:0 1px!important}
- .gtn-nav-new a:after{bottom:0!important}
- body>header #open-auth,body>header #logout,header.site-header #open-auth,header.site-header #logout{
-  grid-column:2!important;grid-row:1!important;min-height:38px!important;
-  padding:0 13px!important;font-size:11.5px!important;border-radius:8px!important;
- }
-}
-@media(max-width:360px){
- body>header,header.site-header{padding-left:10px!important;padding-right:10px!important}
- body>header .gtn-brand,header.site-header .gtn-brand{width:136px!important;max-width:136px!important;flex-basis:136px!important}
- body>header .gtn-brand img,header.site-header .gtn-brand img{max-width:136px!important}
-}
-</style>
-<style id="gtn-professional-header-v2">
-/* Garantie.tn — clean professional header */
-body>header, body>.site-header{
-  box-sizing:border-box!important;width:100%!important;min-height:104px!important;
-  height:auto!important;padding:14px clamp(18px,4vw,56px)!important;
-  display:flex!important;flex-direction:row!important;align-items:center!important;
-  justify-content:space-between!important;gap:28px!important;
-  background:#fff!important;border:0!important;border-bottom:1px solid #e8eee9!important;
-  border-radius:0!important;box-shadow:0 4px 18px rgba(22,54,39,.055)!important;
-  position:relative!important;top:auto!important;z-index:20!important;flex-wrap:nowrap!important;
-}
-body>header .gtn-brand,body>.site-header .gtn-brand{
-  display:flex!important;align-items:center!important;justify-content:flex-start!important;
-  flex:0 0 auto!important;min-width:0!important;max-width:34%!important;
-  position:static!important;text-decoration:none!important;background:transparent!important;
-}
-body>header .gtn-brand img,body>.site-header .gtn-brand img{
-  display:block!important;width:clamp(220px,24vw,310px)!important;height:auto!important;
-  max-width:100%!important;max-height:78px!important;object-fit:contain!important;
-  object-position:left center!important;background:transparent!important;
-}
-body>header nav.gtn-nav-new,body>.site-header nav.gtn-nav-new{
-  display:flex!important;align-items:center!important;justify-content:center!important;
-  gap:clamp(12px,2vw,28px)!important;flex:1 1 auto!important;min-width:0!important;
-  width:auto!important;margin:0!important;padding:0!important;overflow:visible!important;
-  background:transparent!important;box-shadow:none!important;
-}
-body>header nav.gtn-nav-new a,body>.site-header nav.gtn-nav-new a{
-  flex:0 0 auto!important;white-space:nowrap!important;text-decoration:none!important;
-  color:#25483b!important;font-size:14px!important;font-weight:650!important;
-  line-height:1.3!important;padding:10px 3px!important;border:0!important;
-  border-radius:0!important;background:transparent!important;transition:color .18s ease!important;
-}
-body>header nav.gtn-nav-new a:hover,body>.site-header nav.gtn-nav-new a:hover{color:#0b9569!important}
-body>header>button,body>.site-header>button{
-  flex:0 0 auto!important;margin:0!important;white-space:nowrap!important;
-  border:0!important;border-radius:12px!important;padding:12px 21px!important;
-  background:#087f5b!important;color:#fff!important;font-weight:750!important;
-  box-shadow:0 5px 14px rgba(8,127,91,.15)!important;
-}
-@media(max-width:760px){
- body>header,body>.site-header{
-   min-height:0!important;padding:12px 15px 10px!important;gap:9px!important;
-   display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
-   grid-template-rows:auto auto!important;align-items:center!important;
- }
- body>header .gtn-brand,body>.site-header .gtn-brand{
-   grid-column:1!important;grid-row:1!important;max-width:100%!important;
- }
- body>header .gtn-brand img,body>.site-header .gtn-brand img{
-   width:min(230px,58vw)!important;max-height:58px!important;
- }
- body>header>button,body>.site-header>button{
-   grid-column:2!important;grid-row:1!important;padding:10px 14px!important;
-   font-size:13px!important;border-radius:10px!important;
- }
- body>header nav.gtn-nav-new,body>.site-header nav.gtn-nav-new{
-   grid-column:1 / -1!important;grid-row:2!important;width:100%!important;
-   display:flex!important;flex-direction:row!important;justify-content:flex-start!important;
-   align-items:center!important;gap:9px!important;overflow-x:auto!important;
-   overflow-y:hidden!important;white-space:nowrap!important;padding:2px 0 5px!important;
-   scrollbar-width:none!important;-webkit-overflow-scrolling:touch!important;
- }
- body>header nav.gtn-nav-new::-webkit-scrollbar,body>.site-header nav.gtn-nav-new::-webkit-scrollbar{display:none!important}
- body>header nav.gtn-nav-new a,body>.site-header nav.gtn-nav-new a{
-   flex:0 0 auto!important;font-size:12px!important;padding:8px 11px!important;
-   border-radius:9px!important;background:#f2f7f4!important;color:#244b3b!important;
- }
-}
-</style>
-<style id="gtn-header-revolution">
-body>header,body>header.site-header{width:100%!important;min-height:94px!important;height:auto!important;padding:14px clamp(20px,5.2vw,76px)!important;display:grid!important;grid-template-columns:minmax(190px,260px) 1fr auto!important;align-items:center!important;column-gap:clamp(22px,4vw,64px)!important;background:#fff!important;border:0!important;border-bottom:1px solid #e9eee9!important;border-radius:0!important;box-shadow:0 8px 28px rgba(21,52,39,.055)!important;position:sticky!important;top:0!important;z-index:100!important;backdrop-filter:blur(16px)!important}
-body>header .gtn-brand,body>header.site-header .gtn-brand{display:flex!important;align-items:center!important;justify-content:flex-start!important;width:100%!important;max-width:260px!important;min-width:0!important;margin:0!important;padding:0!important;background:transparent!important;text-decoration:none!important}
-body>header .gtn-brand img,body>header.site-header .gtn-brand img{display:block!important;width:100%!important;max-width:245px!important;max-height:66px!important;height:auto!important;object-fit:contain!important;object-position:left center!important}
-body>header nav.gtn-nav-new,body>header.site-header nav.gtn-nav-new{display:flex!important;align-items:center!important;justify-content:center!important;justify-self:center!important;gap:clamp(5px,1vw,13px)!important;width:max-content!important;max-width:100%!important;min-width:0!important;margin:0!important;padding:7px!important;overflow:visible!important;border:1px solid #edf2ee!important;border-radius:16px!important;background:#f8faf8!important;box-shadow:inset 0 1px 2px rgba(21,52,39,.025)!important}
-body>header nav.gtn-nav-new a,body>header.site-header nav.gtn-nav-new a{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:40px!important;padding:0 16px!important;border:0!important;border-radius:11px!important;background:transparent!important;color:#52675c!important;text-decoration:none!important;font-family:inherit!important;font-size:13px!important;font-weight:700!important;line-height:1.2!important;white-space:nowrap!important;transition:background .18s ease,color .18s ease,transform .18s ease!important}
-body>header nav.gtn-nav-new a:hover,body>header.site-header nav.gtn-nav-new a:hover{background:#e7f5ed!important;color:#087f5b!important;transform:translateY(-1px)!important}
-body>header>button,body>header.site-header>button{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:46px!important;margin:0!important;padding:0 23px!important;border:0!important;border-radius:13px!important;background:#087f5b!important;color:#fff!important;font-size:13px!important;font-weight:800!important;letter-spacing:.1px!important;white-space:nowrap!important;box-shadow:0 7px 17px rgba(8,127,91,.19)!important;transition:transform .18s ease,box-shadow .18s ease!important}
-body>header>button:hover,body>header.site-header>button:hover{transform:translateY(-2px)!important;box-shadow:0 10px 22px rgba(8,127,91,.24)!important}
-@media(max-width:760px){body>header,body>header.site-header{min-height:0!important;height:auto!important;padding:12px 16px 10px!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-rows:auto auto!important;gap:9px 12px!important}body>header .gtn-brand,body>header.site-header .gtn-brand{grid-column:1!important;grid-row:1!important;max-width:min(220px,58vw)!important}body>header .gtn-brand img,body>header.site-header .gtn-brand img{width:100%!important;max-width:220px!important;max-height:52px!important}body>header>button,body>header.site-header>button{grid-column:2!important;grid-row:1!important;min-height:40px!important;padding:0 15px!important;border-radius:11px!important;font-size:12px!important}body>header nav.gtn-nav-new,body>header.site-header nav.gtn-nav-new{grid-column:1/-1!important;grid-row:2!important;justify-self:stretch!important;display:flex!important;justify-content:flex-start!important;align-items:center!important;width:100%!important;max-width:100%!important;min-width:0!important;gap:6px!important;margin:0!important;padding:5px!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;border-radius:12px!important;scrollbar-width:none!important;-webkit-overflow-scrolling:touch!important}body>header nav.gtn-nav-new::-webkit-scrollbar,body>header.site-header nav.gtn-nav-new::-webkit-scrollbar{display:none!important}body>header nav.gtn-nav-new a,body>header.site-header nav.gtn-nav-new a{flex:0 0 auto!important;min-height:35px!important;padding:0 12px!important;border-radius:9px!important;font-size:11.5px!important}}
-@media(max-width:360px){body>header,body>header.site-header{padding-left:12px!important;padding-right:12px!important}body>header .gtn-brand,body>header.site-header .gtn-brand{max-width:55vw!important}body>header>button,body>header.site-header>button{padding:0 11px!important}body>header nav.gtn-nav-new a,body>header.site-header nav.gtn-nav-new a{padding:0 10px!important;font-size:11px!important}}
-</style>
-</body></html>');
+</head>
+<body>
+<h1>Rapport des garanties — ${esc(currentStore?.name||"Magasin")}</h1>
+<p>Généré le ${new Date().toLocaleDateString("fr-FR")} · ${storeWarranties.length} garantie(s)</p>
+<table>
+<thead><tr><th>Produit</th><th>N° garantie</th><th>Client</th><th>Achat</th><th>Fin</th><th>Statut</th></tr></thead>
+<tbody>${rows}</tbody>
+</table>
+</body>
+</html>`;
+ win.document.open();
+ win.document.write(html);
  win.document.close();
+ win.onload=()=>win.print();
 }
 function renderStoreWarranties(){
  const q=$("warranty-search").value.trim().toLocaleLowerCase("fr");
