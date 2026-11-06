@@ -234,10 +234,10 @@ function table(headers,rows){if(!rows.length)return '<div class="empty">Aucune d
 async function fetchRows(tableName,columns,order="created_at"){const q=supabase.from(tableName).select(columns).order(order,{ascending:false}).limit(250);const {data,error}=await q;if(error)throw error;return data||[]}
 async function loadDashboard(){
  const specs=[
-  ["profiles","id,full_name,phone,role,created_at","created_at","stat-users"],
+  ["profiles","id,full_name,phone,role,created_at,national_id_number","created_at","stat-users"],
   ["stores","id,owner_id,name,phone,address,created_at,is_paused,paused_at","created_at","stat-stores"],
   ["products","id,store_id,name,brand,model,serial_number,created_at","created_at",null],
-  ["warranties","id,store_id,product_id,customer_name,customer_email,warranty_number,status,start_date,end_date,created_at","created_at","stat-warranties"],
+  ["warranties","id,store_id,product_id,customer_user_id,customer_name,customer_email,customer_national_id_number,purchase_date,duration_months,warranty_number,status,start_date,end_date,created_at","created_at","stat-warranties"],
   ["sav_requests","id,warranty_id,customer_user_id,customer_phone,subject,description,status,created_at","created_at","stat-sav"],
   ["invoices","id,warranty_id,file_name,file_path,created_at","created_at",null]
  ];
@@ -320,10 +320,20 @@ function refreshProductStoreFilter(){
 
 function showWarrantyDetails(id){
  const w=adminWarranties.find(x=>x.id===id);if(!w)return;
- const store=adminStores.find(x=>x.id===w.store_id),product=adminProducts.find(x=>x.id===w.product_id),invoice=adminInvoices.filter(x=>x.warranty_id===w.id);
+ const store=adminStores.find(x=>x.id===w.store_id),product=adminProducts.find(x=>x.id===w.product_id),invoice=adminInvoices.filter(x=>x.warranty_id===w.id),requests=savRows.filter(x=>x.warranty_id===w.id);
  const customer=adminUsers.find(x=>x.id===w.customer_user_id);
- const fields=[["Numéro de garantie",w.warranty_number],["Statut",({active:"Active",expired:"Expirée",pending:"En attente"}[String(w.status||"").toLowerCase()]||w.status)],["Nom du client",w.customer_name],["E-mail du client",w.customer_email],["Téléphone du client",customer?.phone],["Compte client",customer?.full_name],["Magasin",store?.name],["Produit",product?.name],["Marque",product?.brand],["Modèle",product?.model],["Numéro de série",product?.serial_number],["Début de garantie",fmt(w.start_date)],["Fin de garantie",fmt(w.end_date)],["Date d’enregistrement",fmt(w.created_at)],["Factures associées",invoice.map(x=>x.file_name).filter(Boolean).join(", ")||"Aucune"]];
- $("warranty-detail-content").innerHTML='<div class="user-detail-grid">'+fields.map(([label,value])=>'<div class="user-detail-field"><span>'+esc(label)+'</span><strong>'+esc(value||"—")+'</strong></div>').join("")+'</div>';
+ const fields=[
+  ["Numéro de garantie",w.warranty_number],["Statut",({active:"Active",expired:"Expirée",pending:"En attente"}[String(w.status||"").toLowerCase()]||w.status)],
+  ["Nom du client",w.customer_name],["E-mail du client",w.customer_email],["Téléphone du client",customer?.phone],
+  ["Numéro client / identifiant du compte",w.customer_user_id],["N° CIN / pièce d’identité",w.customer_national_id_number||customer?.national_id_number],
+  ["Magasin",store?.name],["Téléphone du magasin",store?.phone],["Adresse du magasin",store?.address],
+  ["Produit",product?.name],["Marque",product?.brand],["Modèle",product?.model],["Numéro de série",product?.serial_number],
+  ["Date d’achat",fmt(w.purchase_date)],["Début de garantie",fmt(w.start_date)],["Fin de garantie",fmt(w.end_date)],
+  ["Durée de garantie",w.duration_months!=null?w.duration_months+" mois":null],["Date d’enregistrement",w.created_at?new Date(w.created_at).toLocaleString("fr-FR"):"—"],
+  ["Identifiant technique de la garantie",w.id],["Nombre de factures",invoice.length],["Documents",invoice.map(x=>x.file_name).filter(Boolean).join(", ")||"Aucune"],
+  ["Demandes SAV liées",requests.length],["Détails SAV",requests.map(x=>[x.subject,x.description,"Téléphone : "+(x.customer_phone||"—"),"Statut : "+(x.status||"—"),"Date : "+fmt(x.created_at)].filter(Boolean).join(" — ")).join("\n\n")||"Aucune demande SAV"]
+ ];
+ $("warranty-detail-content").innerHTML='<div class="user-detail-grid">'+fields.map(([label,value])=>'<div class="user-detail-field"><span>'+esc(label)+'</span><strong style="overflow-wrap:anywhere;white-space:pre-line">'+esc(value||"—")+'</strong></div>').join("")+'</div>';
  $("warranty-modal").hidden=false;
 }
 
