@@ -174,6 +174,7 @@ body>header .gtn-menu-toggle{display:none!important}
 <main>
 <section class="welcome"><div><h1>Mon espace client</h1><p class="muted" id="greeting">Bienvenue sur votre espace personnel.</p></div><a class="btn" href="index.html">Accueil</a></section>
 
+<section class="panel" id="store-invitations-panel"><h2>Invitations de magasin</h2><p class="muted">Les magasins qui vous invitent apparaîtront ici. Votre compte client et vos garanties restent inchangés.</p><div id="store-invitations-list"><div class="empty">Vérification des invitations...</div></div></section>
 <section class="panel"><h2>Mon QR Code client</h2><p class="muted">Présentez ce QR code au magasin pour enregistrer vos achats et activer vos garanties automatiquement.</p><div id="client-qr" style="display:grid;place-items:center;min-height:180px;padding:12px"><div class="empty">Génération de votre QR code...</div></div><p class="muted" style="text-align:center">Ce QR code est personnel. Présentez-le uniquement à un magasin de confiance.</p></section>
 <section class="panel"><h2>Mon profil</h2><form id="client-profile-form"><label for="national-id">Numéro de carte d’identité</label><input id="national-id" inputmode="numeric" maxlength="20" placeholder="Votre numéro de carte d’identité"><label for="client-photo">Photo personnelle (JPG, PNG ou WebP — 5 Mo max.)</label><input id="client-photo" type="file" accept="image/jpeg,image/png,image/webp"><img id="client-photo-preview" alt="Ma photo" style="display:none;width:110px;height:110px;object-fit:cover;border-radius:50%"><button type="submit">Enregistrer mon profil</button></form><p id="profile-message" role="status"></p></section><section class="stats">
  <div class="stat"><span class="muted">Mes garanties</span><strong id="total">—</strong></div>
@@ -197,6 +198,20 @@ const date = (value) => value ? new Date(value + (value.length === 10 ? "T00:00:
 let warranties = [];
 let pendingWarranties = [];
 let currentUser = null;
+async function loadStoreInvitations(){
+ const box=$("store-invitations-list");
+ const {data,error}=await supabase.from("store_invitations").select("id,store_id,owner_id,invited_email,status,created_at,stores(name)").eq("status","pending").order("created_at",{ascending:false});
+ if(error){box.innerHTML='<div class="empty">Impossible de charger les invitations : '+esc(error.message)+'</div>';return;}
+ const list=(data||[]).filter(x=>String(x.invited_email||"").toLowerCase()===String(currentUser.email||"").toLowerCase());
+ if(!list.length){box.innerHTML='<div class="empty">Aucune invitation en attente.</div>';return;}
+ box.innerHTML=list.map(x=>'<article class="warranty"><h3>'+esc(x.stores?.name||"Magasin Garantie.tn")+'</h3><p>Invitation reçue le '+date(x.created_at.slice(0,10))+'</p><p class="small">Compte invité : '+esc(x.invited_email)+'</p><div class="store-tools"><button type="button" data-invitation="'+esc(x.id)+'" data-action="accept">Accepter</button><button type="button" class="secondary" data-invitation="'+esc(x.id)+'" data-action="reject">Refuser</button></div></article>').join("");
+ box.querySelectorAll("button[data-invitation]").forEach(btn=>btn.addEventListener("click",async()=>{
+  const id=btn.dataset.invitation,action=btn.dataset.action;
+  box.querySelectorAll("button").forEach(b=>b.disabled=true);
+  try{const {data,error}=await supabase.functions.invoke("respond-store-invitation",{body:{invitation_id:id,action}});if(error)throw error;if(data?.error)throw new Error(data.error);await loadStoreInvitations();if(action==="accept"){const note=document.createElement("p");note.className="message success";note.textContent=data?.message||"Invitation acceptée.";box.prepend(note);}}
+  catch(e){alert("Erreur : "+(e.message||"Action impossible."));box.querySelectorAll("button").forEach(b=>b.disabled=false);}
+ }));
+}
 async function start() {
  const {data:{user},error:userError}=await supabase.auth.getUser();
  if(userError || !user){location.href="index.html";return;}
@@ -208,6 +223,7 @@ async function start() {
  $("greeting").textContent="Bienvenue"+(profile.full_name ? ", "+profile.full_name : "")+" ! Retrouvez ici vos achats et vos garanties.";
  $("national-id").value=profileData.national_id_number||"";
  if(profileData.photo_path){const {data:photo}=await supabase.storage.from("profile-photos").createSignedUrl(profileData.photo_path,3600);if(photo?.signedUrl){$("client-photo-preview").src=photo.signedUrl;$("client-photo-preview").style.display="block";}}
+ await loadStoreInvitations();
  await loadClientQr();
  await loadPendingWarranties();
  await loadSavHistory();
