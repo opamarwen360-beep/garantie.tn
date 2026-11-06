@@ -45,6 +45,16 @@ input{width:100%;padding:12px;border:1px solid #dce3e8;border-radius:8px;font:in
 .sav-note-form textarea{resize:vertical;min-height:72px}
 .sav-status-form select{min-width:0;padding:12px;border:1px solid #dce3e8;border-radius:8px;background:#fff;font:inherit}
 @media(max-width:520px){.sav-request-details{grid-template-columns:1fr}.sav-status-form{grid-template-columns:1fr}.sav-status-form label{grid-column:auto}.sav-status-form button{width:100%}}
+
+.invite-entry{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.invite-entry h2,.invite-panel h2{margin:0 0 5px}.invite-entry p,.invite-panel p{margin:0}
+.plan-tag{display:inline-flex;align-items:center;border-radius:20px;padding:5px 9px;background:#eef2ff;color:#3446a5;font-size:10px;font-weight:800;letter-spacing:.06em}
+.invite-entry button{display:inline-flex;align-items:center;gap:9px}
+.invite-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+.invite-member-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;margin-bottom:12px}
+.invite-member-form label{grid-column:1/-1;font-weight:650;margin-bottom:-5px}
+.invite-member-form input{min-width:0}
+@media(max-width:650px){.invite-member-form{grid-template-columns:1fr}.invite-member-form label{grid-column:auto}.invite-member-form button{width:100%}}
 </style>
 
 <!-- Garantie.tn Modern Premium design system -->
@@ -383,6 +393,8 @@ body>header button#logout:hover{
 <header><a class="gtn-brand" href="./index.html" aria-label="Garantie.tn - Accueil"><img src="https://raw.githubusercontent.com/opamarwen360-beep/garantie.tn/main/Garantie.tn___Logo_concept_2-removebg-preview.png" alt="Garantie.tn"></a><nav class="gtn-nav-new" aria-label="Navigation principale"><a href="./dashboard.html">Tableau de bord</a><a href="./espace-client.html">Espace client</a><a href="./index.html#services">Services</a></nav><button id="logout" type="button">Déconnexion</button></header>
 <main id="app" style="display:none">
 <section class="intro"><div class="store-heading"><div><h1>Espace magasin</h1><p class="muted" id="store-label">Gérez vos produits et les garanties de vos clients.</p></div><div class="store-switcher"><label for="store-select">Point de vente</label><select id="store-select" aria-label="Choisir un magasin"></select></div></div></section>
+<section class="panel invite-entry hidden" id="invite-entry"><div><h2>Équipe du magasin</h2><p class="muted">Invitez vos employés à gérer ce point de vente avec vous.</p></div><button type="button" id="toggle-invite-panel">＋ Inviter du personnel <span class="plan-tag">PREMIUM</span></button></section>
+<section class="panel invite-panel hidden" id="invite-panel"><div class="invite-panel-head"><div><h2>Personnel du magasin</h2><p class="muted">Invitez un employé par e-mail pour lui donner accès à ce point de vente.</p></div><span class="plan-tag">PREMIUM</span></div><form id="invite-member-form" class="invite-member-form"><label for="invite-member-email">Adresse e-mail du personnel</label><input id="invite-member-email" type="email" maxlength="254" required placeholder="employe@exemple.com"><button type="submit" id="invite-member-submit">Envoyer l’invitation</button></form><p class="small">Cette fonctionnalité est réservée à l’offre Premium. L’accès de l’employé sera limité au magasin sélectionné.</p><p id="invite-member-message" class="message" role="status"></p></section>
 <section class="panel store-management"><form id="new-store-form" class="new-store-form"><input id="new-store-name" maxlength="120" required placeholder="Nom du nouveau point de vente"><input id="new-store-phone" type="tel" maxlength="30" required placeholder="Téléphone du magasin"><input id="new-store-address" maxlength="220" required placeholder="Adresse du magasin"><button type="submit">Envoyer la demande</button></form><p class="small">L’ajout d’un nouveau point de vente sera effectif après validation par l’administration.</p><p id="new-store-message" class="message" role="status"></p></section>
 <section class="stats-grid" aria-label="Statistiques du magasin"><article class="stat-card"><span>Total garanties</span><strong id="stat-total">0</strong></article><article class="stat-card"><span>Garanties actives</span><strong id="stat-active">0</strong></article><article class="stat-card"><span>Expirent sous 30 jours</span><strong id="stat-expiring">0</strong></article><article class="stat-card"><span>Garanties expirées</span><strong id="stat-expired">0</strong></article></section>
 <section class="panel"><h2>Photo de mon magasin</h2><form id="store-photo-form"><input id="store-photo" type="file" accept="image/jpeg,image/png,image/webp" required><button type="submit">Enregistrer la photo</button></form><img id="store-photo-preview" alt="Photo du magasin" style="display:none;max-width:180px;margin-top:12px"><p id="store-photo-message" class="message"></p></section><section class="panel"><h2>Enregistrement par QR code</h2><p class="muted">Demandez au client d’ouvrir son QR code personnel dans son espace client, puis scannez-le avec l’appareil photo du téléphone. Le formulaire d’enregistrement des articles s’ouvrira automatiquement. Connectez-vous au compte magasin sur ce téléphone avant le scan.</p></section>
@@ -456,12 +468,23 @@ async function init() {
  isStoreOwner=ownedStores.some(store=>store.owner_id===user.id);
  $("app").style.display="block";$("purchase-date").value=new Date().toISOString().slice(0,10);
  $("new-store-form").classList.toggle("hidden",!isStoreOwner);
+ $("invite-entry").classList.toggle("hidden",!isStoreOwner);
  $("store-photo-form").closest(".panel").classList.toggle("hidden",!isStoreOwner);
  $("store-select").innerHTML=ownedStores.map(store=>'<option value="'+esc(store.id)+'">'+esc(store.name)+'</option>').join("");
  if(!ownedStores.length){$("store-label").textContent="Aucun point de vente n'est encore associé à ce compte. Ajoutez votre premier magasin ci-dessous.";$("warranty-form").classList.add("hidden");$("warranty-list").innerHTML='<div class="empty">Ajoutez un point de vente pour commencer.</div>';$("store-select").disabled=true;return;}
  await selectStore(ownedStores[0].id);
 }
+
 $("store-select").addEventListener("change",e=>selectStore(e.target.value).catch(err=>alert("Erreur : "+err.message)));
+$("toggle-invite-panel").addEventListener("click",()=>{$("invite-panel").classList.toggle("hidden");if(!$("invite-panel").classList.contains("hidden"))$("invite-member-email").focus();});
+$("invite-member-form").addEventListener("submit",async e=>{
+ e.preventDefault();const btn=$("invite-member-submit"),msg=$("invite-member-message");
+ const email=$("invite-member-email").value.trim();if(!currentStore){msg.textContent="Sélectionnez un magasin avant d’envoyer une invitation.";return;}
+ btn.disabled=true;msg.textContent="Envoi de l’invitation...";
+ try{const {data,error}=await supabase.functions.invoke("invite-store-member",{body:{email,store_id:currentStore.id}});if(error)throw error;if(data?.error)throw new Error(data.error);msg.textContent=data?.message||"Invitation envoyée.";e.currentTarget.reset();}
+ catch(err){let message=err.message||"Erreur lors de l’invitation.";try{const body=await err.context?.json?.();if(body?.error)message=body.error;}catch{}msg.textContent="Erreur : "+message;}
+ finally{btn.disabled=false;}
+});
 $("new-store-form").addEventListener("submit",async e=>{
  e.preventDefault();
  const btn=e.currentTarget.querySelector("button"),msg=$("new-store-message");
