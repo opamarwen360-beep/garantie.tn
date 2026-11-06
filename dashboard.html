@@ -477,15 +477,17 @@ async function init() {
  isStoreOwner=ownedStores.some(store=>store.owner_id===user.id);
  let canInviteStaff=false,staffLimit=0,staffUsed=0;
  if(isStoreOwner){
-  const [{data:subscription,error:subscriptionError},{data:members,error:membersError}]=await Promise.all([
+  const [{data:subscription,error:subscriptionError},{data:members,error:membersError},{data:pendingInvites,error:pendingError}]=await Promise.all([
    supabase.from("owner_subscriptions").select("plan,status").eq("owner_id",user.id).maybeSingle(),
-   supabase.from("store_members").select("user_id").eq("owner_id",user.id)
+   supabase.from("store_members").select("user_id").eq("owner_id",user.id),
+   supabase.from("store_invitations").select("id").eq("owner_id",user.id).eq("status","pending")
   ]);
   if(subscriptionError)console.warn("Impossible de vérifier l’abonnement pour l’invitation :",subscriptionError);
   if(membersError)console.warn("Impossible de charger les membres :",membersError);
+  if(pendingError)console.warn("Impossible de charger les invitations :",pendingError);
   const plan=String(subscription?.plan||"").toLowerCase();
   staffLimit=({starter:1,pro:2,premium:4})[plan]||0;
-  staffUsed=new Set((members||[]).map(m=>m.user_id)).size;
+  staffUsed=new Set((members||[]).map(m=>m.user_id)).size+(pendingInvites||[]).length;
   canInviteStaff=subscription?.status==="active"&&staffLimit>0;
  }
  $("app").style.display="block";$("purchase-date").value=new Date().toISOString().slice(0,10);
@@ -494,7 +496,7 @@ async function init() {
  $("staff-capacity").textContent="Utilisateurs ajoutés : "+staffUsed+" / "+staffLimit; 
  $("invite-member-submit").disabled=staffUsed>=staffLimit;
  $("invite-member-submit").textContent=staffUsed>=staffLimit?"Limite atteinte":"Envoyer l’invitation";
- $("store-photo-form").closest(".panel").classList.toggle("hidden",!isStoreOwner);
+ $("store-photo-form").closest(".panel").classList.toggle("hidden",!isStoreOwner);\n $("store-pending-invitations").classList.toggle("hidden",!isStoreOwner);
  $("store-select").innerHTML=ownedStores.map(store=>'<option value="'+esc(store.id)+'">'+esc(store.name)+'</option>').join("");
  if(!ownedStores.length){$("store-label").textContent="Aucun point de vente n'est encore associé à ce compte. Ajoutez votre premier magasin ci-dessous.";$("warranty-form").classList.add("hidden");$("warranty-list").innerHTML='<div class="empty">Ajoutez un point de vente pour commencer.</div>';$("store-select").disabled=true;return;}
  await selectStore(ownedStores[0].id);
@@ -506,7 +508,7 @@ $("invite-member-form").addEventListener("submit",async e=>{
  e.preventDefault();const form=$("invite-member-form"),btn=$("invite-member-submit"),msg=$("invite-member-message");
  const email=$("invite-member-email").value.trim();if(!currentStore){msg.textContent="Sélectionnez un point de vente dans la liste en haut avant d’envoyer l’invitation.";return;}
  btn.disabled=true;msg.textContent="Envoi de l’invitation...";
- try{const {data,error}=await supabase.functions.invoke("invite-store-member",{body:{email,store_id:currentStore.id}});if(error)throw error;if(data?.error)throw new Error(data.error);msg.textContent=data?.message||"Invitation envoyée.";if(data?.used!=null&&data?.limit!=null){$("staff-capacity").textContent="Utilisateurs ajoutés : "+data.used+" / "+data.limit;$("invite-member-submit").disabled=data.used>=data.limit;$("invite-member-submit").textContent=data.used>=data.limit?"Limite atteinte":"Envoyer l’invitation";}form.reset();}
+ try{const {data,error}=await supabase.functions.invoke("invite-store-member",{body:{email,store_id:currentStore.id}});if(error)throw error;if(data?.error)throw new Error(data.error);msg.textContent=data?.message||"Invitation envoyée.";if(data?.used!=null&&data?.limit!=null){$("staff-capacity").textContent="Utilisateurs ajoutés : "+data.used+" / "+data.limit;limitReached=data.used>=data.limit;$("invite-member-submit").disabled=limitReached;$("invite-member-submit").textContent=limitReached?"Limite atteinte":"Envoyer l’invitation";}await loadStoreInvitations();form.reset();}
  catch(err){let message=err.message||"Erreur lors de l’invitation.";try{const body=await err.context?.json?.();if(body?.error)message=body.error;}catch{}msg.textContent="Erreur : "+message;}
  finally{btn.disabled=false;}
 });
