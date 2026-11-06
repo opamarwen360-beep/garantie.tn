@@ -237,7 +237,7 @@ async function loadDashboard(){
   ["profiles","id,full_name,phone,role,created_at,national_id_number","created_at","stat-users"],
   ["stores","id,owner_id,name,phone,address,created_at,is_paused,paused_at","created_at","stat-stores"],
   ["products","id,store_id,name,brand,model,serial_number,created_at","created_at",null],
-  ["warranties","id,store_id,product_id,customer_user_id,customer_name,customer_email,customer_national_id_number,purchase_date,duration_months,warranty_number,status,start_date,end_date,created_at","created_at","stat-warranties"],
+  ["warranties","id,store_id,product_id,customer_user_id,customer_name,customer_email,customer_phone,customer_national_id_number,purchase_date,duration_months,warranty_number,status,start_date,end_date,created_at","created_at","stat-warranties"],
   ["sav_requests","id,warranty_id,customer_user_id,customer_phone,subject,description,status,created_at","created_at","stat-sav"],
   ["invoices","id,warranty_id,file_name,file_path,created_at","created_at",null]
  ];
@@ -324,8 +324,7 @@ function showWarrantyDetails(id){
  const customer=adminUsers.find(x=>x.id===w.customer_user_id);
  const fields=[
   ["Numéro de garantie",w.warranty_number],["Statut",({active:"Active",expired:"Expirée",pending:"En attente"}[String(w.status||"").toLowerCase()]||w.status)],
-  ["Nom du client",w.customer_name],["E-mail du client",w.customer_email],["Téléphone du client",customer?.phone],
-  ["Numéro client / identifiant du compte",w.customer_user_id],["N° CIN / pièce d’identité",w.customer_national_id_number||customer?.national_id_number],
+  ["Nom du client",w.customer_name],["E-mail du client",w.customer_email],["Téléphone du client",w.customer_phone||customer?.phone],["N° CIN / pièce d’identité",w.customer_national_id_number||customer?.national_id_number],
   ["Magasin",store?.name],["Téléphone du magasin",store?.phone],["Adresse du magasin",store?.address],
   ["Produit",product?.name],["Marque",product?.brand],["Modèle",product?.model],["Numéro de série",product?.serial_number],
   ["Date d’achat",fmt(w.purchase_date)],["Début de garantie",fmt(w.start_date)],["Fin de garantie",fmt(w.end_date)],
