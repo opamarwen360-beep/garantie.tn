@@ -34,6 +34,15 @@ input{width:100%;padding:12px;border:1px solid #dce3e8;border-radius:8px;font:in
 .sav-description p{margin:6px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
 .sav-status-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
 .sav-status-form label{grid-column:1/-1;margin-bottom:-5px}
+.sav-notes{margin:16px 0;padding:15px;border:1px solid var(--line);border-radius:12px;background:#fbfcfe}
+.sav-notes h4{margin:0 0 12px;color:var(--navy);font-size:15px}
+.sav-note-list{display:grid;gap:9px;margin-bottom:12px}
+.sav-note{padding:11px 13px;background:#f1f6f4;border-radius:9px;border-left:3px solid #16a477}
+.sav-note p{margin:0 0 5px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink)!important}
+.sav-note small{font-size:11px;color:var(--muted)}
+.sav-note-form{display:grid;gap:8px}
+.sav-note-form label{margin:2px 0 0}
+.sav-note-form textarea{resize:vertical;min-height:72px}
 .sav-status-form select{min-width:0;padding:12px;border:1px solid #dce3e8;border-radius:8px;background:#fff;font:inherit}
 @media(max-width:520px){.sav-request-details{grid-template-columns:1fr}.sav-status-form{grid-template-columns:1fr}.sav-status-form label{grid-column:auto}.sav-status-form button{width:100%}}
 </style>
@@ -473,7 +482,16 @@ $("new-store-form").addEventListener("submit",async e=>{
 async function loadStoreSav(){
  if(!currentStore){storeSavRequests=[];renderStoreSav();return;}
  const {data,error}=await supabase.from("sav_requests").select("id,warranty_id,customer_phone,subject,description,status,created_at,warranties!inner(store_id,warranty_number,customer_name,customer_email,products(name))").eq("warranties.store_id",currentStore.id).order("created_at",{ascending:false});
- if(error)throw error;storeSavRequests=data||[];renderStoreSav();
+ if(error)throw error;
+ storeSavRequests=data||[];
+ const ids=storeSavRequests.map(r=>r.id);
+ if(ids.length){
+  const {data:notes,error:notesError}=await supabase.from("sav_request_notes").select("id,sav_request_id,author_user_id,note,created_at").in("sav_request_id",ids).order("created_at",{ascending:true});
+  if(notesError)throw notesError;
+  const byRequest={};(notes||[]).forEach(n=>(byRequest[n.sav_request_id]??=[]).push(n));
+  storeSavRequests.forEach(r=>r.notes=byRequest[r.id]||[]);
+ }else storeSavRequests.forEach(r=>r.notes=[]);
+ renderStoreSav();
 }
 function renderStoreSav(){
  const counts={pending:0,processing:0,completed:0,rejected:0};
@@ -490,11 +508,31 @@ function renderStoreSav(){
  const classes={pending:"sav-pending",processing:"sav-processing",completed:"sav-completed",rejected:"sav-rejected"};
  $("store-sav-list").innerHTML=rows.map(r=>{
   const w=r.warranties||{},product=w.products||{};
-  return '<article class="warranty sav-request-card"><div class="sav-request-head"><div><h3>'+esc(r.subject)+'</h3><p class="muted">Reçue le '+dateLabel(r.created_at?.slice(0,10))+'</p></div><span class="sav-status '+(classes[r.status]||"")+'">'+esc(labels[r.status]||r.status)+'</span></div><div class="sav-request-details"><p><strong>Client :</strong> '+esc(w.customer_name||"Client")+'</p><p><strong>E-mail :</strong> '+esc(w.customer_email||"Non renseigné")+'</p><p><strong>Téléphone :</strong> '+esc(r.customer_phone||"Non renseigné")+'</p><p><strong>Produit :</strong> '+esc(product.name||"Produit")+'</p><p><strong>N° garantie :</strong> '+esc(w.warranty_number||"—")+'</p></div><div class="sav-description"><strong>Description du problème</strong><p>'+esc(r.description||"Aucune description fournie.")+'</p></div><form class="sav-status-form" data-sav-id="'+esc(r.id)+'"><label>Faire évoluer le dossier</label><select name="status"><option value="pending" '+(r.status==="pending"?"selected":"")+'>En attente</option><option value="processing" '+(r.status==="processing"?"selected":"")+'>En cours</option><option value="completed" '+(r.status==="completed"?"selected":"")+'>Terminée</option><option value="rejected" '+(r.status==="rejected"?"selected":"")+'>Refusée</option></select><button type="submit">Enregistrer le statut</button></form></article>';
+  const notes=r.notes||[];
+  const noteHistory=notes.length?notes.map(n=>'<div class="sav-note"><p>'+esc(n.note)+'</p><small>'+new Date(n.created_at).toLocaleString("fr-FR")+'</small></div>').join(""):'<p class="muted">Aucune note pour le moment.</p>';
+  return '<article class="warranty sav-request-card"><div class="sav-request-head"><div><h3>'+esc(r.subject)+'</h3><p class="muted">Reçue le '+dateLabel(r.created_at?.slice(0,10))+'</p></div><span class="sav-status '+(classes[r.status]||"")+'">'+esc(labels[r.status]||r.status)+'</span></div><div class="sav-request-details"><p><strong>Client :</strong> '+esc(w.customer_name||"Client")+'</p><p><strong>E-mail :</strong> '+esc(w.customer_email||"Non renseigné")+'</p><p><strong>Téléphone :</strong> '+esc(r.customer_phone||"Non renseigné")+'</p><p><strong>Produit :</strong> '+esc(product.name||"Produit")+'</p><p><strong>N° garantie :</strong> '+esc(w.warranty_number||"—")+'</p></div><div class="sav-description"><strong>Description du problème</strong><p>'+esc(r.description||"Aucune description fournie.")+'</p></div><section class="sav-notes"><h4>Historique interne de suivi ('+notes.length+')</h4><div class="sav-note-list">'+noteHistory+'</div><form class="sav-note-form" data-sav-id="'+esc(r.id)+'"><label>Ajouter une note interne</label><textarea name="note" rows="2" maxlength="3000" placeholder="Ex. : Client contacté, pièce commandée, réparation effectuée..." required></textarea><button type="submit">Ajouter la note</button></form></section><form class="sav-status-form" data-sav-id="'+esc(r.id)+'"><label>Faire évoluer le dossier</label><select name="status"><option value="pending" '+(r.status==="pending"?"selected":"")+'>En attente</option><option value="processing" '+(r.status==="processing"?"selected":"")+'>En cours</option><option value="completed" '+(r.status==="completed"?"selected":"")+'>Terminée</option><option value="rejected" '+(r.status==="rejected"?"selected":"")+'>Refusée</option></select><button type="submit">Enregistrer le statut</button></form></article>';
  }).join("");
 }
 
-$("store-sav-list").addEventListener("submit",async e=>{const form=e.target.closest(".sav-status-form");if(!form)return;e.preventDefault();const btn=form.querySelector("button");btn.disabled=true;try{const {data,error}=await supabase.from("sav_requests").update({status:form.status.value}).eq("id",form.dataset.savId).select("id").maybeSingle();if(error)throw error;if(!data)throw new Error("Demande introuvable ou accès refusé.");$("store-sav-message").textContent="Statut SAV mis à jour.";await loadStoreSav();}catch(err){$("store-sav-message").textContent="Erreur : "+err.message;btn.disabled=false;}});
+$("store-sav-list").addEventListener("submit",async e=>{
+ const noteForm=e.target.closest(".sav-note-form");
+ const statusForm=e.target.closest(".sav-status-form");
+ const form=noteForm||statusForm;if(!form)return;e.preventDefault();
+ const btn=form.querySelector("button");btn.disabled=true;
+ try{
+  if(noteForm){
+   const note=form.note.value.trim();if(!note)throw new Error("Écrivez une note avant l’envoi.");
+   const {error}=await supabase.from("sav_request_notes").insert({sav_request_id:form.dataset.savId,author_user_id:currentUser.id,note});
+   if(error)throw error;
+   $("store-sav-message").textContent="Note interne ajoutée à l’historique.";
+  }else{
+   const {data,error}=await supabase.from("sav_requests").update({status:form.status.value}).eq("id",form.dataset.savId).select("id").maybeSingle();
+   if(error)throw error;if(!data)throw new Error("Demande introuvable ou accès refusé.");
+   $("store-sav-message").textContent="Statut SAV mis à jour.";
+  }
+  await loadStoreSav();
+ }catch(err){$("store-sav-message").textContent="Erreur : "+err.message;btn.disabled=false;}
+});
 
 async function loadWarranties() {
   $("warranty-list").innerHTML = '<div class="empty">Chargement des garanties...</div>';
