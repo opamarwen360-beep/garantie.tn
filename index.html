@@ -634,6 +634,7 @@ body>header .gtn-menu-toggle{display:none!important}
 
   let mode = "login";
   let invitationMode = false;
+  let invitationPasswordSaved = false;
   let isSubmitting = false;
   let signupCooldown = false;
   const submitButton = form.querySelector('button[type="submit"]');
@@ -752,6 +753,7 @@ body>header .gtn-menu-toggle{display:none!important}
       if (invitationMode) {
         const { error } = await supabase.auth.updateUser({ password: password.value });
         if (error) throw error;
+        invitationPasswordSaved = true;
         message.textContent = "Mot de passe enregistré. Ouverture de votre espace magasin...";
         email.disabled = false;
         await redirectByRole();
@@ -840,13 +842,13 @@ body>header .gtn-menu-toggle{display:none!important}
       return;
     }
     const session = data?.session;
-    if (session && (invitationLinkType === "invite" || invitationLinkType === "recovery" || session.user?.user_metadata?.invited_store_id)) {
+    if (session && !invitationPasswordSaved && (invitationLinkType === "invite" || invitationLinkType === "recovery" || session.user?.user_metadata?.invited_store_id)) {
       showInvitationPasswordSetup(session);
     }
   });
 
   supabase.auth.onAuthStateChange((event, session) => {
-    if (session && (invitationLinkType === "invite" || invitationLinkType === "recovery" || session.user?.user_metadata?.invited_store_id)) {
+    if (session && !invitationPasswordSaved && (invitationLinkType === "invite" || invitationLinkType === "recovery" || session.user?.user_metadata?.invited_store_id)) {
       showInvitationPasswordSetup(session);
     }
     const button = document.getElementById("open-auth");
