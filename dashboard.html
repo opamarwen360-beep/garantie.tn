@@ -309,6 +309,51 @@ body>header button#logout:hover{background:#8ce0bb!important;transform:translate
 }
 </style>
 
+
+<style id="gtn-store-header-professional">
+/* Clean, professional neutral header */
+body>header{
+  background:#ffffff!important;
+  border-bottom:1px solid #e5e9ef!important;
+  box-shadow:0 3px 14px rgba(15,23,42,.055)!important;
+  padding:12px clamp(20px,5vw,72px)!important;
+}
+body>header .gtn-brand img{filter:none!important}
+body>header nav.gtn-nav-new a{
+  color:#344054!important;
+  background:transparent!important;
+  border:1px solid transparent!important;
+  border-radius:9px!important;
+  font-weight:600!important;
+  transition:all .18s ease!important;
+}
+body>header nav.gtn-nav-new a:hover,
+body>header nav.gtn-nav-new a:focus-visible{
+  color:#174ea6!important;
+  background:#f2f6fc!important;
+  border-color:#e4ebf5!important;
+}
+body>header button#logout{
+  background:#fff!important;
+  color:#344054!important;
+  border:1px solid #d0d5dd!important;
+  box-shadow:none!important;
+  border-radius:9px!important;
+  font-weight:650!important;
+}
+body>header button#logout:hover{
+  background:#f8fafc!important;
+  border-color:#98a2b3!important;
+  color:#101828!important;
+  transform:none!important;
+}
+@media(max-width:760px){
+ body>header nav.gtn-nav-new a{
+  background:#f8fafc!important;border-color:#eaecf0!important;color:#344054!important;
+ }
+}
+</style>
+
 </head>
 <body>
 <header><a class="gtn-brand" href="./index.html" aria-label="Garantie.tn - Accueil"><img src="https://raw.githubusercontent.com/opamarwen360-beep/garantie.tn/main/Garantie.tn___Logo_concept_2-removebg-preview.png" alt="Garantie.tn"></a><nav class="gtn-nav-new" aria-label="Navigation principale"><a href="./dashboard.html">Tableau de bord</a><a href="./espace-client.html">Espace client</a><a href="./index.html#services">Services</a></nav><button id="logout" type="button">Déconnexion</button></header>
