@@ -241,6 +241,74 @@ body>header button#logout{
 }
 </style>
 
+
+<style id="gtn-store-header-new-look">
+/* Fresh header design for the store dashboard */
+body>header{
+  position:sticky!important;top:0!important;z-index:100!important;
+  display:grid!important;grid-template-columns:minmax(170px,230px) minmax(0,1fr) auto!important;
+  align-items:center!important;gap:22px!important;
+  min-height:88px!important;height:auto!important;padding:12px clamp(20px,5vw,72px)!important;
+  background:linear-gradient(110deg,#102b28 0%,#173b32 58%,#102b28 100%)!important;
+  border:0!important;border-bottom:3px solid #16a477!important;
+  box-shadow:0 8px 26px rgba(8,32,28,.16)!important;
+}
+body>header:before{display:none!important;content:none!important}
+body>header .gtn-brand{
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  position:static!important;flex:none!important;width:auto!important;max-width:100%!important;
+  height:auto!important;margin:0!important;padding:0!important;background:transparent!important;
+}
+body>header .gtn-brand img{
+  display:block!important;width:205px!important;max-width:100%!important;height:auto!important;
+  max-height:58px!important;object-fit:contain!important;object-position:left center!important;
+}
+body>header nav.gtn-nav-new{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  flex-wrap:wrap!important;gap:8px!important;min-width:0!important;width:auto!important;
+  margin:0!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;
+}
+body>header nav.gtn-nav-new a{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  min-height:43px!important;padding:0 17px!important;border-radius:12px!important;
+  background:transparent!important;color:#e6f4ed!important;border:1px solid transparent!important;
+  text-decoration:none!important;font-size:14px!important;font-weight:700!important;white-space:nowrap!important;
+  transition:background .18s ease,border-color .18s ease,color .18s ease!important;
+}
+body>header nav.gtn-nav-new a:hover,
+body>header nav.gtn-nav-new a:focus-visible{
+  background:rgba(140,224,187,.13)!important;border-color:rgba(140,224,187,.25)!important;color:#8ce0bb!important;
+}
+body>header button#logout{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  min-height:44px!important;margin:0!important;padding:0 20px!important;border-radius:12px!important;
+  background:#16a477!important;color:#082b22!important;border:1px solid #56c69a!important;
+  font-size:13px!important;font-weight:800!important;white-space:nowrap!important;
+  box-shadow:0 5px 14px rgba(22,164,119,.2)!important;
+}
+body>header button#logout:hover{background:#8ce0bb!important;transform:translateY(-1px)!important}
+@media(max-width:760px){
+ body>header{
+  grid-template-columns:minmax(0,1fr) auto!important;grid-template-rows:auto auto!important;
+  gap:8px 12px!important;min-height:0!important;padding:10px 14px 8px!important;
+ }
+ body>header .gtn-brand{grid-column:1!important;grid-row:1!important}
+ body>header .gtn-brand img{width:174px!important;max-height:46px!important}
+ body>header button#logout{grid-column:2!important;grid-row:1!important;min-height:40px!important;padding:0 14px!important}
+ body>header nav.gtn-nav-new{
+  grid-column:1/-1!important;grid-row:2!important;justify-content:flex-start!important;
+  flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;
+  padding:3px 0 6px!important;gap:7px!important;scrollbar-width:thin!important;
+  -webkit-overflow-scrolling:touch!important;
+ }
+ body>header nav.gtn-nav-new a{min-height:38px!important;padding:0 13px!important;font-size:13px!important;background:rgba(255,255,255,.07)!important;border-color:rgba(255,255,255,.08)!important}
+}
+@media(max-width:360px){
+ body>header .gtn-brand img{width:145px!important}
+ body>header button#logout{padding:0 10px!important;font-size:12px!important}
+}
+</style>
+
 </head>
 <body>
 <header><a class="gtn-brand" href="./index.html" aria-label="Garantie.tn - Accueil"><img src="https://raw.githubusercontent.com/opamarwen360-beep/garantie.tn/main/Garantie.tn___Logo_concept_2-removebg-preview.png" alt="Garantie.tn"></a><nav class="gtn-nav-new" aria-label="Navigation principale"><a href="./dashboard.html">Tableau de bord</a><a href="./espace-client.html">Espace client</a><a href="./index.html#services">Services</a></nav><button id="logout" type="button">Déconnexion</button></header>
