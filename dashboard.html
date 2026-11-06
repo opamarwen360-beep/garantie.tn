@@ -414,6 +414,7 @@ body>header button#logout:hover{
 <hr style="border:0;border-top:1px solid var(--line);width:100%;margin:8px 0">
 <label for="customer-name">Nom du client</label><input id="customer-name" maxlength="150" placeholder="Nom et prénom">
 <label for="customer-email">E-mail du client *</label><input id="customer-email" type="email" maxlength="254" required placeholder="client@email.com">
+<label for="customer-phone">Téléphone du client *</label><input id="customer-phone" type="tel" maxlength="30" required placeholder="Ex. : 20 123 456">
 <div class="fields">
 <div><label for="purchase-date">Date d'achat *</label><input id="purchase-date" type="date" required></div>
 <div><label for="duration">Durée (mois) *</label><input id="duration" type="number" min="1" max="120" value="12" required></div>
@@ -623,7 +624,7 @@ $("store-sav-list").addEventListener("submit",async e=>{
 async function loadWarranties() {
   $("warranty-list").innerHTML = '<div class="empty">Chargement des garanties...</div>';
   const { data, error } = await supabase.from("warranties")
-    .select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,customer_email,customer_national_id_number,products(name,brand,model),invoices(id,file_name)")
+    .select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,customer_email,customer_phone,customer_national_id_number,products(name,brand,model),invoices(id,file_name)")
     .eq("store_id", currentStore.id).order("created_at", {ascending:false});
   if (error) throw error;
   storeWarranties=data||[];renderStoreWarranties();updateStoreStats();
@@ -638,8 +639,8 @@ function updateStoreStats(){
 }
 function csvCell(value){return '"'+String(value??"").replace(/"/g,'""')+'"';}
 function exportWarrantiesCsv(){
- const headers=["Produit","Marque","Modèle","N° garantie","Client","E-mail","Date d'achat","Début garantie","Fin garantie","Statut"];
- const rows=storeWarranties.map(w=>[w.products?.name,w.products?.brand,w.products?.model,w.warranty_number,w.customer_name,w.customer_email,w.purchase_date,w.start_date,w.end_date,w.status]);
+ const headers=["Produit","Marque","Modèle","N° garantie","Client","E-mail","Téléphone","Date d'achat","Début garantie","Fin garantie","Statut"];
+ const rows=storeWarranties.map(w=>[w.products?.name,w.products?.brand,w.products?.model,w.warranty_number,w.customer_name,w.customer_email,w.customer_phone,w.purchase_date,w.start_date,w.end_date,w.status]);
  const csv="\\uFEFF"+[headers,...rows].map(row=>row.map(csvCell).join(";")).join("\\r\\n");
  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
  a.href=url;a.download="garanties-"+(currentStore?.name||"magasin").replace(/[^a-z0-9_-]/gi,"-")+".csv";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
@@ -749,6 +750,7 @@ $("warranty-form").addEventListener("submit", async event => {
       customer_user_id: null,
       customer_name: $("customer-name").value.trim() || null,
       customer_email: $("customer-email").value.trim().toLowerCase(),
+      customer_phone: $("customer-phone").value.trim(),
       purchase_date: purchaseDate,
       start_date: purchaseDate,
       end_date: addMonths(purchaseDate, duration),
