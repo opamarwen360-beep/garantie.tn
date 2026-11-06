@@ -50,7 +50,8 @@ input{width:100%;padding:12px;border:1px solid #dce3e8;border-radius:8px;font:in
 .invite-entry h2,.invite-panel h2{margin:0 0 5px}.invite-entry p,.invite-panel p{margin:0}
 .plan-tag{display:inline-flex;align-items:center;border-radius:20px;padding:5px 9px;background:#eef2ff;color:#3446a5;font-size:10px;font-weight:800;letter-spacing:.06em}
 .invite-entry button{display:inline-flex;align-items:center;gap:9px}
-.invite-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}\n.staff-capacity{margin-top:8px!important;font-weight:700;color:var(--navy)}
+.invite-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+.staff-capacity{margin-top:8px!important;font-weight:700;color:var(--navy)}
 .invite-member-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;margin-bottom:12px}
 .invite-member-form label{grid-column:1/-1;font-weight:650;margin-bottom:-5px}
 .invite-member-form input{min-width:0}
@@ -496,7 +497,8 @@ async function init() {
  $("staff-capacity").textContent="Utilisateurs ajoutés : "+staffUsed+" / "+staffLimit; 
  $("invite-member-submit").disabled=staffUsed>=staffLimit;
  $("invite-member-submit").textContent=staffUsed>=staffLimit?"Limite atteinte":"Envoyer l’invitation";
- $("store-photo-form").closest(".panel").classList.toggle("hidden",!isStoreOwner);\n $("store-pending-invitations").classList.toggle("hidden",!isStoreOwner);
+ $("store-photo-form").closest(".panel").classList.toggle("hidden",!isStoreOwner);
+ $("store-pending-invitations").classList.toggle("hidden",!isStoreOwner);
  $("store-select").innerHTML=ownedStores.map(store=>'<option value="'+esc(store.id)+'">'+esc(store.name)+'</option>').join("");
  if(!ownedStores.length){$("store-label").textContent="Aucun point de vente n'est encore associé à ce compte. Ajoutez votre premier magasin ci-dessous.";$("warranty-form").classList.add("hidden");$("warranty-list").innerHTML='<div class="empty">Ajoutez un point de vente pour commencer.</div>';$("store-select").disabled=true;return;}
  await selectStore(ownedStores[0].id);
