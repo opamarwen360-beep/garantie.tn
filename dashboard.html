@@ -505,7 +505,7 @@ async function init() {
 $("store-select").addEventListener("change",e=>selectStore(e.target.value).catch(err=>alert("Erreur : "+err.message)));
 $("toggle-invite-panel").addEventListener("click",()=>{$("invite-panel").classList.toggle("hidden");if(!$("invite-panel").classList.contains("hidden"))$("invite-member-email").focus();});
 $("invite-member-form").addEventListener("submit",async e=>{
- e.preventDefault();const form=$("invite-member-form"),btn=$("invite-member-submit"),msg=$("invite-member-message");
+ e.preventDefault();const form=$("invite-member-form"),btn=$("invite-member-submit"),msg=$("invite-member-message");let limitReached=false;
  const email=$("invite-member-email").value.trim();if(!currentStore){msg.textContent="Sélectionnez un point de vente dans la liste en haut avant d’envoyer l’invitation.";return;}
  btn.disabled=true;msg.textContent="Envoi de l’invitation...";
  try{const {data,error}=await supabase.functions.invoke("invite-store-member",{body:{email,store_id:currentStore.id}});if(error)throw error;if(data?.error)throw new Error(data.error);msg.textContent=data?.message||"Invitation envoyée.";if(data?.used!=null&&data?.limit!=null){$("staff-capacity").textContent="Utilisateurs ajoutés : "+data.used+" / "+data.limit;limitReached=data.used>=data.limit;$("invite-member-submit").disabled=limitReached;$("invite-member-submit").textContent=limitReached?"Limite atteinte":"Envoyer l’invitation";}await loadStoreInvitations();form.reset();}
