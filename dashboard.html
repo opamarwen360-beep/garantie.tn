@@ -50,7 +50,7 @@ input{width:100%;padding:12px;border:1px solid #dce3e8;border-radius:8px;font:in
 .invite-entry h2,.invite-panel h2{margin:0 0 5px}.invite-entry p,.invite-panel p{margin:0}
 .plan-tag{display:inline-flex;align-items:center;border-radius:20px;padding:5px 9px;background:#eef2ff;color:#3446a5;font-size:10px;font-weight:800;letter-spacing:.06em}
 .invite-entry button{display:inline-flex;align-items:center;gap:9px}
-.invite-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+.invite-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}\n.staff-capacity{margin-top:8px!important;font-weight:700;color:var(--navy)}
 .invite-member-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;margin-bottom:12px}
 .invite-member-form label{grid-column:1/-1;font-weight:650;margin-bottom:-5px}
 .invite-member-form input{min-width:0}
@@ -394,7 +394,7 @@ body>header button#logout:hover{
 <main id="app" style="display:none">
 <section class="intro"><div class="store-heading"><div><h1>Espace magasin</h1><p class="muted" id="store-label">Gérez vos produits et les garanties de vos clients.</p></div><div class="store-switcher"><label for="store-select">Point de vente</label><select id="store-select" aria-label="Choisir un magasin"></select></div></div></section>
 <section class="panel invite-entry hidden" id="invite-entry"><div><h2>Équipe du magasin</h2><p class="muted">Invitez vos employés à gérer ce point de vente avec vous.</p></div><button type="button" id="toggle-invite-panel">＋ Inviter du personnel <span class="plan-tag">PRO / PREMIUM</span></button></section>
-<section class="panel invite-panel hidden" id="invite-panel"><div class="invite-panel-head"><div><h2>Personnel du magasin</h2><p class="muted">Invitez un employé par e-mail pour lui donner accès à ce point de vente.</p></div><span class="plan-tag">PREMIUM</span></div><form id="invite-member-form" class="invite-member-form"><label for="invite-member-email">Adresse e-mail du personnel</label><input id="invite-member-email" type="email" maxlength="254" required placeholder="employe@exemple.com"><button type="submit" id="invite-member-submit">Envoyer l’invitation</button></form><p class="small">Cette fonctionnalité est réservée aux offres Pro et Premium. L’accès de l’employé sera limité au magasin sélectionné.</p><p id="invite-member-message" class="message" role="status"></p></section>
+<section class="panel invite-panel hidden" id="invite-panel"><div class="invite-panel-head"><div><h2>Personnel du magasin</h2><p class="muted">Invitez un employé par e-mail pour lui donner accès à ce point de vente.</p></div><span class="plan-tag">PREMIUM</span></div><form id="invite-member-form" class="invite-member-form"><label for="invite-member-email">Adresse e-mail du personnel</label><input id="invite-member-email" type="email" maxlength="254" required placeholder="employe@exemple.com"><button type="submit" id="invite-member-submit">Envoyer l’invitation</button></form><p class="small">Le propriétaire n’est pas compté dans cette limite. Chaque employé est compté une seule fois, même s’il a accès à plusieurs magasins.</p><p id="invite-member-message" class="message" role="status"></p></section>
 <section class="panel store-management"><form id="new-store-form" class="new-store-form"><input id="new-store-name" maxlength="120" required placeholder="Nom du nouveau point de vente"><input id="new-store-phone" type="tel" maxlength="30" required placeholder="Téléphone du magasin"><input id="new-store-address" maxlength="220" required placeholder="Adresse du magasin"><button type="submit">Envoyer la demande</button></form><p class="small">L’ajout d’un nouveau point de vente sera effectif après validation par l’administration.</p><p id="new-store-message" class="message" role="status"></p></section>
 <section class="stats-grid" aria-label="Statistiques du magasin"><article class="stat-card"><span>Total garanties</span><strong id="stat-total">0</strong></article><article class="stat-card"><span>Garanties actives</span><strong id="stat-active">0</strong></article><article class="stat-card"><span>Expirent sous 30 jours</span><strong id="stat-expiring">0</strong></article><article class="stat-card"><span>Garanties expirées</span><strong id="stat-expired">0</strong></article></section>
 <section class="panel"><h2>Photo de mon magasin</h2><form id="store-photo-form"><input id="store-photo" type="file" accept="image/jpeg,image/png,image/webp" required><button type="submit">Enregistrer la photo</button></form><img id="store-photo-preview" alt="Photo du magasin" style="display:none;max-width:180px;margin-top:12px"><p id="store-photo-message" class="message"></p></section><section class="panel"><h2>Enregistrement par QR code</h2><p class="muted">Demandez au client d’ouvrir son QR code personnel dans son espace client, puis scannez-le avec l’appareil photo du téléphone. Le formulaire d’enregistrement des articles s’ouvrira automatiquement. Connectez-vous au compte magasin sur ce téléphone avant le scan.</p></section>
@@ -466,15 +466,25 @@ async function init() {
  if(storeError)throw storeError;ownedStores=stores||[];
  if(profile?.role!=="magasin"&&!ownedStores.length){location.href="./index.html";return;}
  isStoreOwner=ownedStores.some(store=>store.owner_id===user.id);
- let canInviteStaff=false;
+ let canInviteStaff=false,staffLimit=0,staffUsed=0;
  if(isStoreOwner){
-  const {data:subscription,error:subscriptionError}=await supabase.from("owner_subscriptions").select("plan,status").eq("owner_id",user.id).maybeSingle();
+  const [{data:subscription,error:subscriptionError},{data:members,error:membersError}]=await Promise.all([
+   supabase.from("owner_subscriptions").select("plan,status").eq("owner_id",user.id).maybeSingle(),
+   supabase.from("store_members").select("user_id").eq("owner_id",user.id)
+  ]);
   if(subscriptionError)console.warn("Impossible de vérifier l’abonnement pour l’invitation :",subscriptionError);
-  canInviteStaff=subscription?.status==="active"&&["pro","premium"].includes(String(subscription.plan||"").toLowerCase());
+  if(membersError)console.warn("Impossible de charger les membres :",membersError);
+  const plan=String(subscription?.plan||"").toLowerCase();
+  staffLimit=({starter:1,pro:2,premium:4})[plan]||0;
+  staffUsed=new Set((members||[]).map(m=>m.user_id)).size;
+  canInviteStaff=subscription?.status==="active"&&staffLimit>0;
  }
  $("app").style.display="block";$("purchase-date").value=new Date().toISOString().slice(0,10);
  $("new-store-form").classList.toggle("hidden",!isStoreOwner);
  $("invite-entry").classList.toggle("hidden",!canInviteStaff);
+ $("staff-capacity").textContent="Utilisateurs ajoutés : "+staffUsed+" / "+staffLimit; 
+ $("invite-member-submit").disabled=staffUsed>=staffLimit;
+ $("invite-member-submit").textContent=staffUsed>=staffLimit?"Limite atteinte":"Envoyer l’invitation";
  $("store-photo-form").closest(".panel").classList.toggle("hidden",!isStoreOwner);
  $("store-select").innerHTML=ownedStores.map(store=>'<option value="'+esc(store.id)+'">'+esc(store.name)+'</option>').join("");
  if(!ownedStores.length){$("store-label").textContent="Aucun point de vente n'est encore associé à ce compte. Ajoutez votre premier magasin ci-dessous.";$("warranty-form").classList.add("hidden");$("warranty-list").innerHTML='<div class="empty">Ajoutez un point de vente pour commencer.</div>';$("store-select").disabled=true;return;}
