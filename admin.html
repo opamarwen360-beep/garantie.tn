@@ -262,7 +262,7 @@ function renderStores(){
  const query=$("store-search").value.trim().toLocaleLowerCase("fr");
  const rows=adminStores.filter(s=>!query||[s.name,s.phone,s.address].some(v=>String(v||"").toLocaleLowerCase("fr").includes(query)));
  $("store-count").textContent=rows.length+" / "+adminStores.length+" magasin(s)";
- $("stores-data").innerHTML=table(["Magasin","Téléphone","Adresse","Création","Activité"],rows.map(s=>'<tr><td>'+esc(s.name)+'</td><td>'+esc(s.phone)+'</td><td>'+esc(s.address)+'</td><td>'+fmt(s.created_at)+'</td><td><div class="actions"><button type="button" class="refresh" data-store-detail="'+esc(s.id)+'">Consulter</button><button type="button" class="reject" data-store-delete="'+esc(s.id)+'">Supprimer</button></div></td></tr>'));
+ $("stores-data").innerHTML=table(["Magasin","Téléphone","Adresse","Création","Statut / actions"],rows.map(s=>'<tr><td>'+esc(s.name)+'</td><td>'+esc(s.phone)+'</td><td>'+esc(s.address)+'</td><td>'+fmt(s.created_at)+'</td><td><div class="actions">'+(s.is_paused?'<span class="pill rejected">En pause</span>':'<span class="pill">Actif</span>')+'<button type="button" class="refresh" data-store-detail="'+esc(s.id)+'">Consulter</button><button type="button" '+(s.is_paused?'':'class="refresh"')+' data-store-pause="'+esc(s.id)+'" data-paused="'+(s.is_paused?'true':'false')+'">'+(s.is_paused?'Réactiver':'Mettre en pause')+'</button><button type="button" class="reject" data-store-delete="'+esc(s.id)+'">Supprimer</button></div></td></tr>'));
 }
 function showStoreDetails(id){
  const s=adminStores.find(x=>x.id===id);if(!s)return;
@@ -393,6 +393,21 @@ $("store-search").addEventListener("input",renderStores);
 $("stores-data").addEventListener("click",async e=>{
  const detail=e.target.closest("button[data-store-detail]");
  if(detail){showStoreDetails(detail.dataset.storeDetail);return;}
+ const pause=e.target.closest("button[data-store-pause]");
+ if(pause){
+  const store=adminStores.find(s=>s.id===pause.dataset.storePause);if(!store)return;
+  const wasPaused=pause.dataset.paused==="true",nextPaused=!wasPaused;
+  const action=nextPaused?"mettre en pause":"réactiver";
+  if(!confirm("Confirmer : "+action+" le point de vente « "+store.name+" » ?"+(nextPaused?" Le magasin ne pourra plus être utilisé tant qu’il restera en pause.":"")))return;
+  pause.disabled=true; $("message").textContent="Mise à jour du point de vente...";
+  try{
+   const {error}=await supabase.rpc("admin_set_store_pause",{p_store_id:store.id,p_paused:nextPaused});
+   if(error)throw error;
+   $("message").textContent=nextPaused?"Point de vente mis en pause.":"Point de vente réactivé.";
+   await loadDashboard();
+  }catch(err){$("message").textContent="Erreur : "+err.message;pause.disabled=false;}
+  return;
+ }
  const remove=e.target.closest("button[data-store-delete]");if(!remove)return;
  const store=adminStores.find(s=>s.id===remove.dataset.storeDelete);if(!store)return;
  const origin=adminStores.filter(s=>s.owner_id===store.owner_id&&s.id!==store.id).sort((x,y)=>new Date(x.created_at)-new Date(y.created_at))[0];
