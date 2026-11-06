@@ -227,7 +227,7 @@ async function start() {
  await loadClientQr();
  await loadPendingWarranties();
  await loadSavHistory();
- const {data,error}=await supabase.from("warranties").select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,customer_national_id_number,products(name,brand,model),invoices(id,file_path,file_name,created_at)").eq("customer_user_id",user.id).order("created_at",{ascending:false});
+ const {data,error}=await supabase.from("warranties").select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,customer_national_id_number,products(name,brand,model,image_path),invoices(id,file_path,file_name,created_at)").eq("customer_user_id",user.id).order("created_at",{ascending:false});
  if(error) throw error;
  warranties=data || [];
  const today=new Date().toISOString().slice(0,10);
@@ -259,7 +259,7 @@ async function loadPendingWarranties(){
   return;
  }
  const {data,error}=await supabase.from("warranties")
-  .select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,products(name,brand,model)")
+  .select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,products(name,brand,model,image_path)")
   .is("customer_user_id",null)
   .eq("customer_email",email)
   .order("created_at",{ascending:false});
@@ -273,7 +273,7 @@ function renderPendingWarranties(){
   return;
  }
  $("pending-warranties").innerHTML=pendingWarranties.map(w=>
-  '<article class="warranty"><div><h3>'+esc(w.products?.name||"Produit")+'</h3><p class="muted">'+esc([w.products?.brand,w.products?.model].filter(Boolean).join(" · "))+'</p><p class="muted">N° garantie : '+esc(w.warranty_number)+'<br>Date d’achat : '+date(w.purchase_date)+'</p></div><div><button type="button" data-claim="'+esc(w.id)+'">Associer à mon compte</button></div></article>'
+  '<article class="warranty">'+(w.products?.image_path?'<img src="'+esc(supabase.storage.from("product-photos").getPublicUrl(w.products.image_path).data.publicUrl)+'" alt="Photo du produit" style="width:120px;height:120px;object-fit:cover;border-radius:12px;margin-bottom:12px">':'')+'<div><h3>'+esc(w.products?.name||"Produit")+'</h3><p class="muted">'+esc([w.products?.brand,w.products?.model].filter(Boolean).join(" · "))+'</p><p class="muted">N° garantie : '+esc(w.warranty_number)+'<br>Date d’achat : '+date(w.purchase_date)+'</p></div><div><button type="button" data-claim="'+esc(w.id)+'">Associer à mon compte</button></div></article>'
  ).join("");
 }
 
@@ -337,7 +337,8 @@ function renderWarranties(){
   const expired=w.status==="expired" || w.end_date<today;
   const status=w.status==="claimed"?"En SAV":expired?"Expirée":"Active";
   const cls=w.status==="claimed"?"claimed":expired?"expired":"";
-  return '<article class="warranty"><div class="warranty-top"><div><h3>'+esc(w.products?.name||"Produit")+'</h3><p class="muted">'+esc([w.products?.brand,w.products?.model].filter(Boolean).join(" · "))+'</p><p class="warranty-number">N° garantie : '+esc(w.warranty_number)+'</p></div><span class="pill '+cls+'">'+status+'</span></div><div class="warranty-meta"><span>Date d’achat<strong>'+date(w.purchase_date)+'</strong></span><span>Début de garantie<strong>'+date(w.start_date)+'</strong></span><span>Fin de garantie<strong>'+date(w.end_date)+'</strong></span></div></article>';
+  const photoUrl=w.products?.image_path?supabase.storage.from("product-photos").getPublicUrl(w.products.image_path).data.publicUrl:"";
+  return '<article class="warranty">'+(photoUrl?'<img src="'+esc(photoUrl)+'" alt="Photo du produit" style="width:120px;height:120px;object-fit:cover;border-radius:12px;margin-bottom:12px">':'')+'<div class="warranty-top"><div><h3>'+esc(w.products?.name||"Produit")+'</h3><p class="muted">'+esc([w.products?.brand,w.products?.model].filter(Boolean).join(" · "))+'</p><p class="warranty-number">N° garantie : '+esc(w.warranty_number)+'</p></div><span class="pill '+cls+'">'+status+'</span></div><div class="warranty-meta"><span>Date d’achat<strong>'+date(w.purchase_date)+'</strong></span><span>Début de garantie<strong>'+date(w.start_date)+'</strong></span><span>Fin de garantie<strong>'+date(w.end_date)+'</strong></span></div></article>';
  }).join("");
 }
 
