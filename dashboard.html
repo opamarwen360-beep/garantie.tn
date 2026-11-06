@@ -457,7 +457,7 @@ async function loadStoreMembers(){
  const {data,error}=await supabase.from("store_members").select("user_id,email,created_at").eq("store_id",currentStore.id).order("created_at",{ascending:true});
  if(error){box.innerHTML='<div class="empty">Erreur : '+esc(error.message)+'</div>';return;}
  if(!data?.length){box.innerHTML='<div class="empty">Aucun membre associé pour le moment.</div>';return;}
- box.innerHTML=data.map(m=>'<div class="warranty"><strong>'+esc(m.email||"E-mail non disponible")+'</strong><p class="small">Membre actif depuis le '+new Date(m.created_at).toLocaleDateString("fr-FR")+'</p></div>').join("");
+ box.innerHTML=data.map(m=>'<div class="warranty"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><strong>'+esc(m.email||"E-mail non disponible")+'</strong><p class="small">Membre actif depuis le '+new Date(m.created_at).toLocaleDateString("fr-FR")+'</p></div><button type="button" class="secondary remove-store-member" data-user-id="'+esc(m.user_id)+'">Retirer l’accès</button></div></div>').join("");
 }
 async function loadStoreInvitations(){
  const box=$("store-pending-invitations-list");
@@ -516,6 +516,14 @@ async function init() {
 
 $("store-select").addEventListener("change",e=>selectStore(e.target.value).catch(err=>alert("Erreur : "+err.message)));
 $("toggle-invite-panel").addEventListener("click",()=>{$("invite-panel").classList.toggle("hidden");if(!$("invite-panel").classList.contains("hidden"))$("invite-member-email").focus();});
+$("store-members-list").addEventListener("click",async e=>{
+ const btn=e.target.closest(".remove-store-member");if(!btn)return;
+ const memberId=btn.dataset.userId;
+ if(!confirm("Retirer l’accès de ce membre à "+currentStore.name+" ? Il ne pourra plus consulter ni gérer ce magasin."))return;
+ btn.disabled=true;btn.textContent="Retrait...";
+ try{const {data,error}=await supabase.functions.invoke("remove-store-member",{body:{store_id:currentStore.id,user_id:memberId}});if(error)throw error;if(data?.error)throw new Error(data.error);await loadStoreMembers();await loadStoreInvitations();const cap=$("staff-capacity").textContent.match(/\/\s*(\d+)/);if(cap)$("staff-capacity").textContent="Utilisateurs ajoutés : "+data.used+" / "+cap[1];$("invite-member-submit").disabled=!!cap&&data.used>=Number(cap[1]);$("invite-member-submit").textContent=$("invite-member-submit").disabled?"Limite atteinte":"Envoyer l’invitation";alert(data.message||"Accès retiré.");}
+ catch(err){alert("Erreur : "+(err.message||"Impossible de retirer cet accès."));btn.disabled=false;btn.textContent="Retirer l’accès";}
+});
 $("invite-member-form").addEventListener("submit",async e=>{
  e.preventDefault();const form=$("invite-member-form"),btn=$("invite-member-submit"),msg=$("invite-member-message");let limitReached=false;
  const email=$("invite-member-email").value.trim();if(!currentStore){msg.textContent="Sélectionnez un point de vente dans la liste en haut avant d’envoyer l’invitation.";return;}
