@@ -234,7 +234,7 @@ async function fetchRows(tableName,columns,order="created_at"){const q=supabase.
 async function loadDashboard(){
  const specs=[
   ["profiles","id,full_name,phone,role,created_at","created_at","stat-users"],
-  ["stores","id,owner_id,name,phone,address,created_at","created_at","stat-stores"],
+  ["stores","id,owner_id,name,phone,address,created_at,is_paused,paused_at","created_at","stat-stores"],
   ["products","id,store_id,name,brand,model,serial_number,created_at","created_at",null],
   ["warranties","id,store_id,product_id,customer_name,customer_email,warranty_number,status,start_date,end_date,created_at","created_at","stat-warranties"],
   ["sav_requests","id,warranty_id,customer_user_id,customer_phone,subject,description,status,created_at","created_at","stat-sav"],
