@@ -486,10 +486,15 @@ async function loadStoreSav(){
  storeSavRequests=data||[];
  const ids=storeSavRequests.map(r=>r.id);
  if(ids.length){
-  const {data:notes,error:notesError}=await supabase.from("sav_request_notes").select("id,sav_request_id,author_user_id,note,created_at").in("sav_request_id",ids).order("created_at",{ascending:true});
-  if(notesError)throw notesError;
-  const byRequest={};(notes||[]).forEach(n=>(byRequest[n.sav_request_id]??=[]).push(n));
-  storeSavRequests.forEach(r=>r.notes=byRequest[r.id]||[]);
+  const [{data:notes,error:notesError},{data:history,error:historyError}]=await Promise.all([
+   supabase.from("sav_request_notes").select("id,sav_request_id,author_user_id,note,created_at").in("sav_request_id",ids).order("created_at",{ascending:true}),
+   supabase.from("sav_request_status_history").select("id,sav_request_id,old_status,new_status,changed_at").in("sav_request_id",ids).order("changed_at",{ascending:true})
+  ]);
+  if(notesError)throw notesError;if(historyError)throw historyError;
+  const byRequest={},historyByRequest={};
+  (notes||[]).forEach(n=>(byRequest[n.sav_request_id]??=[]).push(n));
+  (history||[]).forEach(h=>(historyByRequest[h.sav_request_id]??=[]).push(h));
+  storeSavRequests.forEach(r=>{r.notes=byRequest[r.id]||[];r.statusHistory=historyByRequest[r.id]||[];});
  }else storeSavRequests.forEach(r=>r.notes=[]);
  renderStoreSav();
 }
@@ -510,7 +515,9 @@ function renderStoreSav(){
   const w=r.warranties||{},product=w.products||{};
   const notes=r.notes||[];
   const noteHistory=notes.length?notes.map(n=>'<div class="sav-note"><p>'+esc(n.note)+'</p><small>'+new Date(n.created_at).toLocaleString("fr-FR")+'</small></div>').join(""):'<p class="muted">Aucune note pour le moment.</p>';
-  return '<article class="warranty sav-request-card"><div class="sav-request-head"><div><h3>'+esc(r.subject)+'</h3><p class="muted">Reçue le '+dateLabel(r.created_at?.slice(0,10))+'</p></div><span class="sav-status '+(classes[r.status]||"")+'">'+esc(labels[r.status]||r.status)+'</span></div><div class="sav-request-details"><p><strong>Client :</strong> '+esc(w.customer_name||"Client")+'</p><p><strong>E-mail :</strong> '+esc(w.customer_email||"Non renseigné")+'</p><p><strong>Téléphone :</strong> '+esc(r.customer_phone||"Non renseigné")+'</p><p><strong>Produit :</strong> '+esc(product.name||"Produit")+'</p><p><strong>N° garantie :</strong> '+esc(w.warranty_number||"—")+'</p></div><div class="sav-description"><strong>Description du problème</strong><p>'+esc(r.description||"Aucune description fournie.")+'</p></div><section class="sav-notes"><h4>Historique interne de suivi ('+notes.length+')</h4><div class="sav-note-list">'+noteHistory+'</div><form class="sav-note-form" data-sav-id="'+esc(r.id)+'"><label>Ajouter une note interne</label><textarea name="note" rows="2" maxlength="3000" placeholder="Ex. : Client contacté, pièce commandée, réparation effectuée..." required></textarea><button type="submit">Ajouter la note</button></form></section><form class="sav-status-form" data-sav-id="'+esc(r.id)+'"><label>Faire évoluer le dossier</label><select name="status"><option value="pending" '+(r.status==="pending"?"selected":"")+'>En attente</option><option value="processing" '+(r.status==="processing"?"selected":"")+'>En cours</option><option value="completed" '+(r.status==="completed"?"selected":"")+'>Terminée</option><option value="rejected" '+(r.status==="rejected"?"selected":"")+'>Refusée</option></select><button type="submit">Enregistrer le statut</button></form></article>';
+  const history=r.statusHistory||[];
+  const statusHistory=history.length?history.map(h=>'<div class="sav-note sav-status-history-item"><p><strong>'+(h.old_status?esc(labels[h.old_status]||h.old_status)+' → ':'')+esc(labels[h.new_status]||h.new_status)+'</strong></p><small>'+new Date(h.changed_at).toLocaleString("fr-FR")+'</small></div>').join(""):'<p class="muted">Aucun changement enregistré.</p>';
+  return '<article class="warranty sav-request-card"><div class="sav-request-head"><div><h3>'+esc(r.subject)+'</h3><p class="muted">Reçue le '+dateLabel(r.created_at?.slice(0,10))+'</p></div><span class="sav-status '+(classes[r.status]||"")+'">'+esc(labels[r.status]||r.status)+'</span></div><div class="sav-request-details"><p><strong>Client :</strong> '+esc(w.customer_name||"Client")+'</p><p><strong>E-mail :</strong> '+esc(w.customer_email||"Non renseigné")+'</p><p><strong>Téléphone :</strong> '+esc(r.customer_phone||"Non renseigné")+'</p><p><strong>Produit :</strong> '+esc(product.name||"Produit")+'</p><p><strong>N° garantie :</strong> '+esc(w.warranty_number||"—")+'</p></div><div class="sav-description"><strong>Description du problème</strong><p>'+esc(r.description||"Aucune description fournie.")+'</p></div><section class="sav-notes sav-status-history"><h4>Historique des statuts ('+history.length+')</h4><div class="sav-note-list">'+statusHistory+'</div></section><section class="sav-notes"><h4>Historique interne de suivi ('+notes.length+')</h4><div class="sav-note-list">'+noteHistory+'</div><form class="sav-note-form" data-sav-id="'+esc(r.id)+'"><label>Ajouter une note interne</label><textarea name="note" rows="2" maxlength="3000" placeholder="Ex. : Client contacté, pièce commandée, réparation effectuée..." required></textarea><button type="submit">Ajouter la note</button></form></section><form class="sav-status-form" data-sav-id="'+esc(r.id)+'"><label>Faire évoluer le dossier</label><select name="status"><option value="pending" '+(r.status==="pending"?"selected":"")+'>En attente</option><option value="processing" '+(r.status==="processing"?"selected":"")+'>En cours</option><option value="completed" '+(r.status==="completed"?"selected":"")+'>Terminée</option><option value="rejected" '+(r.status==="rejected"?"selected":"")+'>Refusée</option></select><button type="submit">Enregistrer le statut</button></form></article>';
  }).join("");
 }
 
@@ -526,8 +533,15 @@ $("store-sav-list").addEventListener("submit",async e=>{
    if(error)throw error;
    $("store-sav-message").textContent="Note interne ajoutée à l’historique.";
   }else{
-   const {data,error}=await supabase.from("sav_requests").update({status:form.status.value}).eq("id",form.dataset.savId).select("id").maybeSingle();
-   if(error)throw error;if(!data)throw new Error("Demande introuvable ou accès refusé.");
+   const request=storeSavRequests.find(r=>r.id===form.dataset.savId);
+   const nextStatus=form.status.value;
+   if(!request)throw new Error("Demande introuvable.");
+   if(request.status!==nextStatus){
+    const {data,error}=await supabase.from("sav_requests").update({status:nextStatus}).eq("id",form.dataset.savId).select("id").maybeSingle();
+    if(error)throw error;if(!data)throw new Error("Demande introuvable ou accès refusé.");
+    const {error:historyError}=await supabase.from("sav_request_status_history").insert({sav_request_id:request.id,old_status:request.status,new_status:nextStatus,changed_by:currentUser.id});
+    if(historyError)throw historyError;
+   }
    $("store-sav-message").textContent="Statut SAV mis à jour.";
   }
   await loadStoreSav();
