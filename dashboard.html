@@ -411,6 +411,7 @@ body>header button#logout:hover{
 <div><label for="model">Modèle</label><input id="model" maxlength="100" placeholder="Modèle"></div>
 </div>
 <label for="serial">Numéro de série (facultatif)</label><input id="serial" maxlength="120" placeholder="N° de série">
+<label for="product-photo">Photo du produit *</label><input id="product-photo" type="file" accept="image/jpeg,image/png,image/webp" required><small class="muted">JPG, PNG ou WEBP · 5 Mo maximum</small>
 <hr style="border:0;border-top:1px solid var(--line);width:100%;margin:8px 0">
 <label for="customer-name">Nom du client</label><input id="customer-name" maxlength="150" placeholder="Nom et prénom">
 <label for="customer-email">E-mail du client *</label><input id="customer-email" type="email" maxlength="254" required placeholder="client@email.com">
@@ -624,7 +625,7 @@ $("store-sav-list").addEventListener("submit",async e=>{
 async function loadWarranties() {
   $("warranty-list").innerHTML = '<div class="empty">Chargement des garanties...</div>';
   const { data, error } = await supabase.from("warranties")
-    .select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,customer_email,customer_phone,customer_national_id_number,products(name,brand,model),invoices(id,file_name)")
+    .select("id,warranty_number,purchase_date,start_date,end_date,duration_months,status,customer_name,customer_email,customer_phone,customer_national_id_number,products(name,brand,model,image_path),invoices(id,file_name)")
     .eq("store_id", currentStore.id).order("created_at", {ascending:false});
   if (error) throw error;
   storeWarranties=data||[];renderStoreWarranties();updateStoreStats();
@@ -685,7 +686,8 @@ function renderStoreWarranties(){
  $("warranty-list").innerHTML = rows.map(w => {
     const product = w.products || {};
     const hasInvoice = Array.isArray(w.invoices) && w.invoices.length > 0;
-    return '<article class="warranty"><h3>'+esc(product.name || "Produit")+'</h3>'+
+    const photoUrl = product.image_path ? supabase.storage.from("product-photos").getPublicUrl(product.image_path).data.publicUrl : "";
+    return '<article class="warranty">'+(photoUrl ? '<img src="'+esc(photoUrl)+'" alt="Photo du produit" style="width:112px;height:112px;object-fit:cover;border-radius:12px;margin-bottom:10px">' : '')+'<h3>'+esc(product.name || "Produit")+'</h3>'+
       '<p>'+esc([product.brand,product.model].filter(Boolean).join(" · "))+'</p>'+
       '<p><strong>N° garantie :</strong> '+esc(w.warranty_number)+'</p>'+
       '<p><strong>Client :</strong> '+esc(w.customer_name || "—")+' · '+esc(w.customer_email || "—")+'</p><p><strong>N° carte d’identité :</strong> '+esc(w.customer_national_id_number || "Non renseigné")+'</p>'+
@@ -733,14 +735,23 @@ $("warranty-form").addEventListener("submit", async event => {
       throw new Error("Vérifiez la date d'achat et la durée du garantie.");
     }
 
+    const photoFile = $("product-photo").files[0];
+    if (!photoFile || !["image/jpeg","image/png","image/webp"].includes(photoFile.type) || photoFile.size > 5*1024*1024) {
+      throw new Error("Ajoutez une photo JPG, PNG ou WEBP de 5 Mo maximum.");
+    }
+    const photoExt = photoFile.type === "image/png" ? "png" : photoFile.type === "image/webp" ? "webp" : "jpg";
+    const photoPath = "stores/" + currentStore.id + "/" + crypto.randomUUID() + "." + photoExt;
+    const { error: photoError } = await supabase.storage.from("product-photos").upload(photoPath, photoFile, {upsert:false,contentType:photoFile.type});
+    if (photoError) throw photoError;
     const { data: product, error: productError } = await supabase.from("products").insert({
       store_id: currentStore.id,
       name: $("product-name").value.trim(),
       brand: $("brand").value.trim() || null,
       model: $("model").value.trim() || null,
-      serial_number: $("serial").value.trim() || null
+      serial_number: $("serial").value.trim() || null,
+      image_path: photoPath
     }).select("id").single();
-    if (productError) throw productError;
+    if (productError) { await supabase.storage.from("product-photos").remove([photoPath]); throw productError; }
     productId = product.id;
 
     const warrantyNumber = "GTN-" + purchaseDate.replaceAll("-","") + "-" + crypto.randomUUID().slice(0,8).toUpperCase();
