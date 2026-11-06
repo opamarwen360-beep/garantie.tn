@@ -780,15 +780,16 @@ body>header .gtn-menu-toggle{display:none!important}
         form.reset();
         startSignupCooldown(60);
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email: emailValue,
           password: password.value
         });
 
         if (error) throw error;
+        if (!data?.user?.id) throw new Error("Connexion réussie, mais le compte n’a pas été identifié. Réessayez.");
 
-        message.textContent = "Connexion réussie !";
-        await redirectByRole();
+        message.textContent = "Connexion réussie ! Ouverture de votre espace...";
+        await redirectByRole(data.user.id);
       }
     } catch (error) {
       const errorText = String(error?.message || "").toLowerCase();
@@ -804,32 +805,35 @@ body>header .gtn-menu-toggle{display:none!important}
     }
   });
 
-  async function redirectByRole() {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) {
-      message.textContent = "Impossible de vérifier votre compte. Reconnectez-vous.";
-      return;
-    }
+  async function redirectByRole(userId = null) {
+    try {
+      if (!userId) {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) throw new Error("Impossible de vérifier votre compte. Reconnectez-vous.");
+        userId = user.id;
+      }
 
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", userId)
+        .maybeSingle();
 
-    if (profileError || !profile?.role) {
-      message.textContent = "Votre profil n'est pas encore prêt. Contactez l'administrateur.";
-      return;
-    }
+      if (profileError) throw new Error("Impossible de lire le profil : " + profileError.message);
+      if (!profile?.role) throw new Error("Votre profil n'est pas encore prêt. Contactez l'administrateur.");
 
-    if (profile.role === "client") {
-      window.location.href = "./espace-client.html";
-    } else if (profile.role === "magasin") {
-      window.location.href = "./dashboard.html";
-    } else if (profile.role === "admin") {
-      window.location.href = "./admin.html";
-    } else {
-      message.textContent = "Rôle de compte non reconnu. Contactez l'administrateur.";
+      const destinations = {
+        client: "./espace-client.html",
+        magasin: "./dashboard.html",
+        admin: "./admin.html"
+      };
+      const destination = destinations[String(profile.role).trim().toLowerCase()];
+      if (!destination) throw new Error("Rôle de compte non reconnu. Contactez l'administrateur.");
+
+      window.location.assign(destination);
+    } catch (error) {
+      message.textContent = "Erreur de redirection : " + (error?.message || "Veuillez réessayer.");
+      console.error("Garantie.tn role redirect failed:", error);
     }
   }
 
