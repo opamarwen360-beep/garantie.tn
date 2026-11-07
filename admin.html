@@ -207,9 +207,10 @@ body>header .gtn-menu-toggle{display:none!important}
 <div class="stat"><span>Demandes SAV</span><strong id="stat-sav">—</strong></div>
 </div>
 <nav class="tabs" aria-label="Sections administration">
-<button class="active" data-tab="overview">Vue générale</button><button data-tab="users">Utilisateurs</button><button data-tab="stores">Magasins</button><button data-tab="products">Produits</button><button data-tab="warranties">Garanties</button><button data-tab="sav">SAV</button><button data-tab="invoices">Factures</button><button data-tab="applications">Demandes magasins</button>
+<button class="active" data-tab="overview">Vue générale</button><button data-tab="password-resets">Demandes mots de passe</button><button data-tab="users">Utilisateurs</button><button data-tab="stores">Magasins</button><button data-tab="products">Produits</button><button data-tab="warranties">Garanties</button><button data-tab="sav">SAV</button><button data-tab="invoices">Factures</button><button data-tab="applications">Demandes magasins</button>
 </nav>
-<section class="panel section active" id="section-overview"><h2>Bienvenue dans l'administration</h2><p class="muted">Choisissez une rubrique pour consulter les données de la plateforme.</p><div id="overview-content" class="empty">Chargement des statistiques...</div></section>
+<section class="panel section" id="section-password-resets"><h2>Demandes de réinitialisation</h2><p class="muted">Vérifiez l’identité du demandeur avant de définir un mot de passe temporaire. Communiquez-le uniquement par un canal privé.</p><p id="password-reset-message" role="status"></p><div id="password-reset-data" class="empty">Chargement...</div></section>
+ <section class="panel section active" id="section-overview"><h2>Bienvenue dans l'administration</h2><p class="muted">Choisissez une rubrique pour consulter les données de la plateforme.</p><div id="overview-content" class="empty">Chargement des statistiques...</div></section>
 <section class="panel section" id="section-users"><h2>Utilisateurs</h2><p class="muted">Comptes clients, magasins et administrateurs.</p><div class="user-tools"><input id="user-search" type="search" placeholder="Rechercher par nom ou téléphone..." aria-label="Rechercher un utilisateur"><select id="user-role-filter" aria-label="Filtrer par rôle"><option value="">Tous les rôles</option><option value="client">Clients</option><option value="magasin">Magasins</option><option value="admin">Administrateurs</option></select><span id="user-count" class="small" aria-live="polite"></span></div><div id="users-data" class="empty">Chargement...</div></section>
 <section class="panel section" id="section-stores"><h2>Magasins</h2><p class="muted">Consultez les coordonnées et l’activité de chaque magasin.</p><div class="user-tools"><input id="store-search" type="search" placeholder="Rechercher par nom, téléphone ou adresse..." aria-label="Rechercher un magasin"><span id="store-count" class="small" aria-live="polite"></span></div><div id="stores-data" class="empty">Chargement...</div></section>
 <section class="panel section" id="section-products"><h2>Produits</h2><p class="muted">Produits enregistrés sur la plateforme.</p><div class="product-tools"><input id="product-search" type="search" placeholder="Rechercher par produit, marque, modèle ou numéro de série..." aria-label="Rechercher un produit"><select id="product-store-filter" aria-label="Filtrer par magasin"><option value="">Tous les magasins</option></select><span id="product-count" class="small" aria-live="polite"></span></div><div id="products-data" class="empty">Chargement...</div></section>
@@ -229,7 +230,7 @@ const esc=v=>String(v??"—").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">"
 const fmt=v=>v?new Date(v).toLocaleDateString("fr-FR"):"—";
 const roleLabel=v=>({client:"Client",magasin:"Magasin",admin:"Admin"}[v]||v||"—");
 const statusPill=v=>'<span class="pill '+(v==="pending"?"pending":v==="rejected"?"rejected":"")+'">'+esc(({pending:"En attente",approved:"Acceptée",rejected:"Refusée",processing:"En cours",completed:"Terminée",open:"Ouverte",in_progress:"En cours",resolved:"Résolue",closed:"Fermée",active:"Active",expired:"Expirée"}[v]||v||"—"))+'</span>';
-let applications=[];let adminUsers=[];let adminStores=[];let adminProducts=[];let adminWarranties=[];let adminInvoices=[];let savRows=[],savWarranties=[],savStores=[],savUsers=[];
+let applications=[];let adminUsers=[];let adminStores=[];let adminProducts=[];let adminWarranties=[];let adminInvoices=[];let passwordResetRequests=[];let savRows=[],savWarranties=[],savStores=[],savUsers=[];
 function table(headers,rows){if(!rows.length)return '<div class="empty">Aucune donnée disponible.</div>';return '<div class="table-wrap"><table><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table></div>'}
 async function fetchRows(tableName,columns,order="created_at"){const q=supabase.from(tableName).select(columns).order(order,{ascending:false}).limit(250);const {data,error}=await q;if(error)throw error;return data||[]}
 async function loadDashboard(){
@@ -256,6 +257,7 @@ async function loadDashboard(){
  renderSavTable();
  renderInvoices();;
  await loadApplications();
+ await loadPasswordResetRequests();
 }
 
 
@@ -396,6 +398,46 @@ function showApplicationDetails(id){
  $("application-modal").hidden=false;
  $("open-application-patent")?.addEventListener("click",async e=>{const button=e.currentTarget;button.disabled=true;try{await openApplicationDocument(a.patent_photo_path);}catch(err){$("message").textContent="Impossible d’ouvrir le document : "+err.message;}finally{button.disabled=false;}});
 }
+async function loadPasswordResetRequests(){
+ const {data,error}=await supabase.from("password_reset_requests").select("id,email,user_id,status,created_at,processed_at").order("created_at",{ascending:false}).limit(200);
+ if(error)throw error;
+ passwordResetRequests=data||[];
+ renderPasswordResetRequests();
+}
+function renderPasswordResetRequests(){
+ const rows=passwordResetRequests;
+ if(!rows.length){$("password-reset-data").innerHTML='<div class="empty">Aucune demande pour le moment.</div>';return;}
+ $("password-reset-data").innerHTML=table(["Adresse e-mail","Compte","Téléphone","Date","Statut","Action"],rows.map(r=>{
+  const u=adminUsers.find(x=>x.id===r.user_id);
+  const state=r.status==="pending"?"En attente":r.status==="processed"?"Mot de passe changé":"Refusée";
+  const action=r.status==="pending"
+   ? '<div style="display:grid;gap:7px;min-width:220px"><input type="password" autocomplete="new-password" data-reset-password="'+esc(r.id)+'" placeholder="Mot de passe temporaire (10 caractères min)"><div class="actions"><button type="button" data-reset-apply="'+esc(r.id)+'">Changer</button><button type="button" class="reject" data-reset-reject="'+esc(r.id)+'">Refuser</button></div></div>'
+   : '<span class="small">'+fmt(r.processed_at)+'</span>';
+  return '<tr><td>'+esc(r.email)+'</td><td>'+esc(u?.full_name||"Compte introuvable")+'</td><td>'+esc(u?.phone||"—")+'</td><td>'+fmt(r.created_at)+'</td><td>'+statusPill(r.status==="pending"?"pending":r.status==="processed"?"completed":"rejected")+'<br><span class="small">'+state+'</span></td><td>'+action+'</td></tr>';
+ }));
+}
+$("password-reset-data").addEventListener("click",async e=>{
+ const reject=e.target.closest("button[data-reset-reject]");
+ const apply=e.target.closest("button[data-reset-apply]");
+ const button=apply||reject;if(!button)return;
+ const requestId=button.dataset.resetApply||button.dataset.resetReject;
+ const passwordInput=$("password-reset-data").querySelector('input[data-reset-password="'+CSS.escape(requestId)+'"]');
+ const action=reject?"reject":"reset";
+ const password=passwordInput?.value||"";
+ if(action==="reset"&&password.length<10){$("password-reset-message").textContent="Choisissez un mot de passe temporaire d’au moins 10 caractères.";passwordInput?.focus();return;}
+ const request=passwordResetRequests.find(x=>x.id===requestId);
+ if(!request)return;
+ if(!confirm(action==="reset"?"Confirmer le changement du mot de passe pour "+request.email+" ?":"Refuser cette demande de réinitialisation ?"))return;
+ button.disabled=true;$("password-reset-message").textContent="Traitement de la demande...";
+ try{
+  const {data,error}=await supabase.functions.invoke("admin-manage-password-request",{body:{request_id:requestId,action,...(action==="reset"?{password}:{})}});
+  if(error)throw error;
+  if(data?.error)throw new Error(data.error);
+  $("password-reset-message").textContent=data?.message||"Demande traitée.";
+  await loadPasswordResetRequests();
+ }catch(err){$("password-reset-message").textContent="Erreur : "+(err?.message||"Impossible de traiter la demande.");button.disabled=false;}
+});
+
 async function init(){
  const {data:{user},error:userError}=await supabase.auth.getUser();
  if(userError||!user){location.href="./index.html";return;}
