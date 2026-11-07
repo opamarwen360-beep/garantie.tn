@@ -175,6 +175,8 @@ function addItem(){
  '<label>Nom du produit *</label><input name="name" maxlength="150" required placeholder="Ex. Téléviseur 55 pouces">'+
  '<div class="grid"><div><label>Marque</label><input name="brand" maxlength="100"></div><div><label>Modèle</label><input name="model" maxlength="100"></div></div>'+
  '<label>Numéro de série</label><input name="serial" maxlength="120">'+
+ '<label>Photo du produit *</label><input name="image" type="file" accept="image/jpeg,image/png,image/webp" required>'+
+ '<p class="muted" style="font-size:12px;margin:5px 0 0">Photo nette et lisible — JPG, PNG ou WEBP — 5 Mo maximum.</p>'+
  '<div class="grid"><div><label>Date d’achat *</label><input name="purchase" type="date" required value="'+new Date().toISOString().slice(0,10)+'"></div><div><label>Durée de garantie (mois) *</label><input name="duration" type="number" min="1" max="120" value="12" required></div></div>';
  el.querySelector(".remove").addEventListener("click",()=>{if($("items").children.length>1)el.remove();else $("result").textContent="Au moins un article est nécessaire.";});
  $("items").appendChild(el);
@@ -204,13 +206,18 @@ $("purchase-form").addEventListener("submit",async e=>{
  try{
   const rows=[...$("items").querySelectorAll(".item")];
   for(const row of rows){
-   const name=row.querySelector('[name="name"]').value.trim(),brand=row.querySelector('[name="brand"]').value.trim(),model=row.querySelector('[name="model"]').value.trim(),serial=row.querySelector('[name="serial"]').value.trim(),purchase=row.querySelector('[name="purchase"]').value,duration=Number(row.querySelector('[name="duration"]').value);
+   const name=row.querySelector('[name="name"]').value.trim(),brand=row.querySelector('[name="brand"]').value.trim(),model=row.querySelector('[name="model"]').value.trim(),serial=row.querySelector('[name="serial"]').value.trim(),purchase=row.querySelector('[name="purchase"]').value,duration=Number(row.querySelector('[name="duration"]').value),photoFile=row.querySelector('[name="image"]').files[0];
    if(!name||!purchase||!Number.isInteger(duration)||duration<1||duration>120)throw new Error("Vérifiez les informations de l’article "+(saved+1)+".");
-   const {data:product,error:pe}=await supabase.from("products").insert({store_id:store.id,name,brand:brand||null,model:model||null,serial_number:serial||null}).select("id").single();
-   if(pe)throw pe;
+   if(!photoFile||!["image/jpeg","image/png","image/webp"].includes(photoFile.type)||photoFile.size>5*1024*1024)throw new Error("Ajoutez une photo JPG, PNG ou WEBP de 5 Mo maximum pour l’article "+(saved+1)+".");
+   const photoExt=photoFile.type==="image/png"?"png":photoFile.type==="image/webp"?"webp":"jpg";
+   const photoPath="stores/"+store.id+"/"+crypto.randomUUID()+"."+photoExt;
+   const {error:photoError}=await supabase.storage.from("product-photos").upload(photoPath,photoFile,{upsert:false,contentType:photoFile.type});
+   if(photoError)throw photoError;
+   const {data:product,error:pe}=await supabase.from("products").insert({store_id:store.id,name,brand:brand||null,model:model||null,serial_number:serial||null,image_path:photoPath}).select("id").single();
+   if(pe){await supabase.storage.from("product-photos").remove([photoPath]);throw pe;}
    const warrantyNumber="GTN-"+purchase.replaceAll("-","")+"-"+crypto.randomUUID().slice(0,8).toUpperCase();
    const {error:we}=await supabase.from("warranties").insert({store_id:store.id,product_id:product.id,customer_user_id:client.customer_user_id,customer_name:client.customer_name||null,customer_email:client.customer_email,customer_national_id_number:client.customer_national_id_number||null,purchase_date:purchase,start_date:purchase,end_date:addMonths(purchase,duration),duration_months:duration,warranty_number:warrantyNumber,status:"active"});
-   if(we){await supabase.from("products").delete().eq("id",product.id);throw we;}
+   if(we){await supabase.from("products").delete().eq("id",product.id);await supabase.storage.from("product-photos").remove([photoPath]);throw we;}
    saved++;
   }
   $("result").className="msg success";$("result").textContent=saved+" garantie(s) enregistrée(s) et associée(s) au compte du client.";
