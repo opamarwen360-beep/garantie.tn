@@ -433,7 +433,8 @@ $("password-reset-data").addEventListener("click",async e=>{
   const {data,error}=await supabase.functions.invoke("admin-manage-password-request",{body:{request_id:requestId,action,...(action==="reset"?{password}:{})}});
   if(error)throw error;
   if(data?.error)throw new Error(data.error);
-  $("password-reset-message").textContent=data?.message||"Demande traitée.";
+  if(action==="reset") $("password-reset-message").innerHTML='Mot de passe modifié. Transmettez ce mot de passe au client par un canal privé : <strong>'+esc(password)+'</strong>';
+  else $("password-reset-message").textContent=data?.message||"Demande traitée.";
   await loadPasswordResetRequests();
  }catch(err){$("password-reset-message").textContent="Erreur : "+(err?.message||"Impossible de traiter la demande.");button.disabled=false;}
 });
