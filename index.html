@@ -615,7 +615,9 @@ body>header .gtn-menu-toggle{display:none!important}
         <input id="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="Adresse e-mail" required>
         <input id="password" type="password" autocomplete="current-password" placeholder="Mot de passe (8 caractères minimum)" required minlength="8">
         <button id="auth-submit" type="submit" style="width:100%;min-height:48px;touch-action:manipulation">Continuer →</button>
-      </form><p id="auth-message" style="margin-top:15px;font-size:13px" aria-live="polite"></p>
+      </form>
+      <button id="forgot-password" type="button" style="display:block;margin:12px auto 0;padding:6px 8px;background:transparent!important;border:0!important;color:#167a65!important;text-decoration:underline;font-size:13px;cursor:pointer">Mot de passe oublié ?</button>
+      <p id="auth-message" style="margin-top:15px;font-size:13px" aria-live="polite"></p>
     </div>
   </div>
 </main>
@@ -693,10 +695,35 @@ body>header .gtn-menu-toggle{display:none!important}
 
     document.getElementById("show-login").style.display = "inline-block";
     document.getElementById("show-signup").style.display = "inline-block";
+    document.getElementById("forgot-password").style.display = signup ? "none" : "block";
     email.disabled = false;
     password.autocomplete = signup ? "new-password" : "current-password";
+    password.placeholder = signup ? "Mot de passe (8 caractères minimum)" : "Mot de passe";
     message.textContent = "";
   }
+
+  document.getElementById("forgot-password").addEventListener("click", async () => {
+    const emailValue = email.value.trim();
+    if (!emailValue || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(emailValue)) {
+      message.textContent = "Saisissez d’abord votre adresse e-mail pour recevoir le lien de réinitialisation.";
+      email.focus();
+      return;
+    }
+    const button = document.getElementById("forgot-password");
+    button.disabled = true;
+    message.textContent = "Envoi du lien de réinitialisation...";
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(emailValue, {
+        redirectTo: window.location.origin + window.location.pathname
+      });
+      if (error) throw error;
+      message.textContent = "Si cette adresse correspond à un compte, un e-mail de réinitialisation vient d’être envoyé. Vérifiez aussi les courriers indésirables.";
+    } catch (error) {
+      message.textContent = "Erreur d’envoi : " + (error?.message || "Veuillez réessayer.");
+    } finally {
+      button.disabled = false;
+    }
+  });
 
   function showInvitationPasswordSetup(session) {
     invitationMode = true;
@@ -704,6 +731,7 @@ body>header .gtn-menu-toggle{display:none!important}
     modal.style.display = "flex";
     document.getElementById("show-login").style.display = "none";
     document.getElementById("show-signup").style.display = "none";
+    document.getElementById("forgot-password").style.display = "none";
     fullName.style.display = "none";
     phone.style.display = "none";
     nationalId.style.display = "none";
@@ -714,9 +742,10 @@ body>header .gtn-menu-toggle{display:none!important}
     password.value = "";
     password.autocomplete = "new-password";
     password.placeholder = "Choisissez votre mot de passe (8 caractères minimum)";
-    document.querySelector("#auth-modal h2").textContent = "Activez votre compte magasin";
-    document.querySelector("#auth-modal > div > p").textContent = "Choisissez un mot de passe pour terminer l’activation de votre compte.";
-    submitButton.textContent = "Activer mon compte →";
+    const isRecovery = invitationLinkType === "recovery" && !session?.user?.user_metadata?.invited_store_id;
+    document.querySelector("#auth-modal h2").textContent = isRecovery ? "Réinitialiser le mot de passe" : "Activez votre compte magasin";
+    document.querySelector("#auth-modal > div > p").textContent = isRecovery ? "Choisissez un nouveau mot de passe pour accéder à votre compte." : "Choisissez un mot de passe pour terminer l’activation de votre compte.";
+    submitButton.textContent = isRecovery ? "Enregistrer le nouveau mot de passe →" : "Activer mon compte →";
     message.textContent = "Invitation vérifiée. Définissez votre mot de passe pour continuer.";
   }
 
