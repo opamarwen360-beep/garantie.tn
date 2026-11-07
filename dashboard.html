@@ -647,69 +647,101 @@ function exportWarrantiesCsv(){
  a.href=url;a.download="garanties-"+(currentStore?.name||"magasin").replace(/[^a-z0-9_-]/gi,"-")+".csv";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
 }
 function exportWarrantiesPdf(){
- const rows=storeWarranties.map(w=>'<tr><td>'+esc(w.products?.name||"—")+'</td><td>'+esc(w.warranty_number)+'</td><td>'+esc(w.customer_name||w.customer_email||"—")+'</td><td>'+esc(dateLabel(w.purchase_date))+'</td><td>'+esc(dateLabel(w.end_date))+'</td><td>'+esc(w.status)+'</td></tr>').join("");
+ if(!currentStore){alert("Aucun magasin sélectionné.");return;}
  const win=window.open("","_blank");
  if(!win){alert("Autorisez les fenêtres contextuelles pour exporter le PDF.");return;}
+ const today=new Date();
+ const todayKey=[today.getFullYear(),String(today.getMonth()+1).padStart(2,"0"),String(today.getDate()).padStart(2,"0")].join("-");
+ const limit=new Date(today);limit.setDate(limit.getDate()+30);
+ const limitKey=[limit.getFullYear(),String(limit.getMonth()+1).padStart(2,"0"),String(limit.getDate()).padStart(2,"0")].join("-");
+ const total=storeWarranties.length;
+ const expired=storeWarranties.filter(w=>w.status==="expired"||(w.end_date&&w.end_date<todayKey)).length;
+ const expiring=storeWarranties.filter(w=>w.status!=="expired"&&w.end_date&&w.end_date>=todayKey&&w.end_date<=limitKey).length;
+ const active=Math.max(0,total-expired-expiring);
+ const statusLabel=w=>{
+  if(w.status==="expired"||(w.end_date&&w.end_date<todayKey))return "Expirée";
+  if(w.status==="active"&&w.end_date&&w.end_date<=limitKey)return "Expire bientôt";
+  if(w.status==="active")return "Active";
+  return w.status==="pending"?"En attente":esc(w.status||"Non renseigné");
+ };
+ const rows=storeWarranties.map(w=>{
+  const p=w.products||{};
+  const product=[p.name,p.brand,p.model].filter(Boolean).map(esc).join(" · ")||"—";
+  const client=[w.customer_name,w.customer_phone,w.customer_email].filter(Boolean).map(esc);
+  const status=statusLabel(w);
+  const statusClass=status==="Active"?"active":status==="Expirée"?"expired":status==="Expire bientôt"?"soon":"other";
+  return '<tr><td><strong>'+product+'</strong></td><td class="mono">'+esc(w.warranty_number||"—")+'</td><td>'+ (client.length?client.join("<br>"):"—") +'</td><td>'+esc(dateLabel(w.purchase_date))+'</td><td>'+esc(dateLabel(w.start_date))+'</td><td>'+esc(dateLabel(w.end_date))+'</td><td><span class="status '+statusClass+'">'+status+'</span></td></tr>';
+ }).join("");
+ const storeName=esc(currentStore.name||"Magasin");
+ const storeAddress=currentStore.address?'<div class="store-address">'+esc(currentStore.address)+'</div>':"";
+ const generated=today.toLocaleDateString("fr-FR",{day:"2-digit",month:"long",year:"numeric"});
  const html=`<!doctype html>
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<title>Rapport garanties</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rapport des garanties — ${storeName}</title>
 <style>
-body{font:13px Arial;padding:24px;color:#183b52}
-h1{font-size:22px}
-p{color:#667}
-table{width:100%;border-collapse:collapse;margin-top:20px}
-th,td{padding:9px;border:1px solid #dce5e9;text-align:left}
-th{background:#eef5f1}
+:root{color-scheme:light;--ink:#172b25;--muted:#64756d;--green:#087f5b;--line:#e2ebe5;--soft:#f2f8f4}
+*{box-sizing:border-box}
+body{margin:0;padding:28px;background:#eef3ef;color:var(--ink);font:12px/1.5 Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.toolbar{max-width:1180px;margin:0 auto 18px;display:flex;justify-content:flex-end;gap:10px}
+.toolbar button{border:0;border-radius:8px;padding:11px 16px;background:var(--green);color:#fff;font-weight:700;cursor:pointer}
+.toolbar .close{background:#e4ece7;color:#284438}
+.sheet{max-width:1180px;margin:auto;background:#fff;padding:34px 38px;border:1px solid #e4ebe6;box-shadow:0 12px 35px #183b5212}
+.topline{height:6px;background:linear-gradient(90deg,#087f5b,#38b88a);margin:-34px -38px 26px}
+.brandline{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;border-bottom:1px solid var(--line);padding-bottom:20px}
+.brand{font-size:22px;font-weight:800;letter-spacing:-.8px;color:var(--green)}
+.brand span{color:var(--ink)}
+.doc-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:700;text-align:right}
+h1{font-size:25px;line-height:1.2;margin:22px 0 5px;letter-spacing:-.6px}
+.store-address{color:var(--muted);margin-top:3px}
+.meta{color:var(--muted);margin-top:7px}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:23px 0}
+.metric{border:1px solid var(--line);border-radius:10px;padding:13px 15px;background:#fff}
+.metric span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700}
+.metric strong{display:block;font-size:24px;margin-top:4px;color:var(--ink)}
+.metric.total{background:var(--soft);border-color:#d7ebe0}.metric.total strong{color:var(--green)}
+.section-title{font-size:14px;font-weight:800;margin:24px 0 10px}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+thead{display:table-header-group}
+th{background:#edf5ef;color:#385849;text-transform:uppercase;letter-spacing:.45px;font-size:9px;text-align:left;padding:10px 8px;border-bottom:1px solid #d9e7dd}
+td{padding:10px 8px;border-bottom:1px solid #e8eee9;vertical-align:top;overflow-wrap:anywhere}
+tbody tr:nth-child(even){background:#fafcfb}
+th:nth-child(1){width:19%}th:nth-child(2){width:13%}th:nth-child(3){width:22%}th:nth-child(4),th:nth-child(5),th:nth-child(6){width:10%}th:nth-child(7){width:16%}
+.mono{font-family:Consolas,monospace;font-size:10px}
+.status{display:inline-block;padding:4px 7px;border-radius:20px;font-size:9px;font-weight:700;white-space:nowrap}
+.status.active{background:#e8f6ee;color:#167346}.status.expired{background:#fff0ee;color:#b5473c}.status.soon{background:#fff5df;color:#946b11}.status.other{background:#edf2f5;color:#526477}
+.empty{padding:24px;text-align:center;color:var(--muted);background:#f7faf8;border:1px dashed var(--line);border-radius:9px}
+.footer{display:flex;justify-content:space-between;gap:15px;border-top:1px solid var(--line);padding-top:13px;margin-top:24px;color:var(--muted);font-size:9px}
+@page{size:A4 landscape;margin:12mm}
+@media print{body{padding:0;background:#fff}.toolbar{display:none}.sheet{max-width:none;border:0;box-shadow:none;padding:0}.topline{margin:0 0 20px;height:5px}.metric,th,.status{print-color-adjust:exact;-webkit-print-color-adjust:exact}tr{break-inside:avoid}h1,.summary,.section-title{break-after:avoid}.footer{position:relative}}
+@media screen and (max-width:760px){body{padding:10px}.sheet{padding:20px}.topline{margin:-20px -20px 20px}.summary{grid-template-columns:repeat(2,1fr)}.brandline{flex-direction:column}.doc-label{text-align:left}table{min-width:900px}.table-scroll{overflow-x:auto}}
 </style>
 </head>
 <body>
-<h1>Rapport des garanties — ${esc(currentStore?.name||"Magasin")}</h1>
-<p>Généré le ${new Date().toLocaleDateString("fr-FR")} · ${storeWarranties.length} garantie(s)</p>
-<table>
-<thead><tr><th>Produit</th><th>N° garantie</th><th>Client</th><th>Achat</th><th>Fin</th><th>Statut</th></tr></thead>
-<tbody>${rows}</tbody>
-</table>
-
-<style id="gtn-product-photo-lightbox">
-.product-photo-zoom{display:block;width:120px;height:120px;object-fit:cover;border-radius:12px;margin:0 0 12px;cursor:zoom-in;border:0;box-shadow:0 3px 12px #17243b18;transition:transform .18s ease}
-.product-photo-zoom:hover{transform:scale(1.025)}
-#gtn-photo-lightbox{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(8,18,30,.88);backdrop-filter:blur(5px)}
-#gtn-photo-lightbox.is-open{display:flex}
-#gtn-photo-lightbox img{display:block;max-width:min(92vw,1100px);max-height:86vh;width:auto;height:auto;object-fit:contain;border-radius:12px;box-shadow:0 18px 60px #0008}
-#gtn-photo-lightbox button{position:absolute;top:18px;right:20px;width:46px;height:46px;border:1px solid #ffffff55;border-radius:50%;background:#ffffff20;color:#fff;font-size:30px;line-height:1;cursor:pointer}
-#gtn-photo-lightbox button:hover{background:#ffffff35}
-@media(max-width:600px){#gtn-photo-lightbox{padding:12px}#gtn-photo-lightbox img{max-width:96vw;max-height:82vh}#gtn-photo-lightbox button{top:12px;right:12px}}
-</style>
-<div id="gtn-photo-lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Photo du produit en grand format">
- <button type="button" aria-label="Fermer la photo">&times;</button>
- <img src="" alt="Photo du produit agrandie">
-</div>
-<script id="gtn-product-photo-lightbox-script">
-(()=>{
- const box=document.getElementById("gtn-photo-lightbox");
- if(!box)return;
- const large=box.querySelector("img"),close=()=>{box.classList.remove("is-open");box.setAttribute("aria-hidden","true");large.src="";document.body.style.overflow="";};
- const open=src=>{if(!src)return;large.src=src;box.classList.add("is-open");box.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";box.querySelector("button").focus();};
- document.addEventListener("click",e=>{
-  const photo=e.target.closest("img.product-photo-zoom");
-  if(photo){open(photo.dataset.zoomSrc||photo.src);return;}
-  if(e.target===box||e.target.closest("#gtn-photo-lightbox button"))close();
- });
- document.addEventListener("keydown",e=>{
-  if(e.key==="Escape"&&box.classList.contains("is-open"))close();
-  if((e.key==="Enter"||e.key===" ")&&e.target.matches("img.product-photo-zoom")){e.preventDefault();open(e.target.dataset.zoomSrc||e.target.src);}
- });
-})();
-</script>
-
+<div class="toolbar"><button class="close" type="button" onclick="window.close()">Fermer</button><button type="button" onclick="window.print()">Imprimer / Enregistrer en PDF</button></div>
+<main class="sheet">
+<div class="topline"></div>
+<div class="brandline"><div><div class="brand">Garantie<span>.tn</span></div><div class="meta">Rapport de gestion des garanties</div></div><div class="doc-label">Document du magasin<br>Généré le ${generated}</div></div>
+<h1>${storeName}</h1>${storeAddress}
+<div class="meta">Période : toutes les garanties enregistrées · ${total} dossier(s)</div>
+<section class="summary" aria-label="Résumé des garanties">
+<div class="metric total"><span>Total des garanties</span><strong>${total}</strong></div>
+<div class="metric"><span>Actives</span><strong>${active}</strong></div>
+<div class="metric"><span>Expire bientôt</span><strong>${expiring}</strong></div>
+<div class="metric"><span>Expirées</span><strong>${expired}</strong></div>
+</section>
+<div class="section-title">Détail des garanties</div>
+${total?'<div class="table-scroll"><table><thead><tr><th>Produit / marque / modèle</th><th>N° garantie</th><th>Client · téléphone · e-mail</th><th>Achat</th><th>Début</th><th>Fin</th><th>Statut</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<div class="empty">Aucune garantie enregistrée pour ce magasin.</div>'}
+<div class="footer"><span>Document généré automatiquement par Garantie.tn</span><span>${storeName} · ${generated}</span></div>
+</main>
 </body>
 </html>`;
  win.document.open();
  win.document.write(html);
  win.document.close();
- win.onload=()=>win.print();
+ win.onload=()=>setTimeout(()=>win.print(),250);
 }
 function renderStoreWarranties(){
  const q=$("warranty-search").value.trim().toLocaleLowerCase("fr");
