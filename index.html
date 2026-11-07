@@ -704,7 +704,8 @@ body>header .gtn-menu-toggle{display:none!important}
 
   document.getElementById("forgot-password").addEventListener("click", async () => {
     const emailValue = email.value.trim();
-    if (!emailValue || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(emailValue)) {
+    const emailParts = emailValue.split("@");
+    if (!emailValue || emailParts.length !== 2 || !emailParts[1].includes(".") || emailValue.includes(" ")) {
       message.textContent = "Saisissez d’abord votre adresse e-mail pour recevoir le lien de réinitialisation.";
       email.focus();
       return;
