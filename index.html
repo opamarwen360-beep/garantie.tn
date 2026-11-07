@@ -616,6 +616,7 @@ body>header .gtn-menu-toggle{display:none!important}
         <input id="password" type="password" autocomplete="current-password" placeholder="Mot de passe (8 caractères minimum)" required minlength="8">
         <button id="auth-submit" type="submit" style="width:100%;min-height:48px;touch-action:manipulation">Continuer →</button>
       </form>
+      <button id="request-password-reset" type="button" style="display:block;width:100%;margin-top:12px;padding:8px 10px;background:transparent!important;border:0!important;color:#087f5b!important;text-decoration:underline;font-size:13px;cursor:pointer;box-shadow:none!important">Mot de passe oublié ? Demander à l’administration</button>
       <p id="auth-message" style="margin-top:15px;font-size:13px" aria-live="polite"></p>
     </div>
   </div>
@@ -685,6 +686,7 @@ body>header .gtn-menu-toggle{display:none!important}
     submitButton.textContent = signup ? "Créer mon compte →" : "Se connecter →";
     document.getElementById("show-login").style.opacity = signup ? "0.65" : "1";
     document.getElementById("show-signup").style.opacity = signup ? "1" : "0.65";
+    document.getElementById("request-password-reset").style.display = signup ? "none" : "block";
 
     fullName.style.display = signup ? "block" : "none";
     phone.style.display = signup ? "block" : "none";
@@ -700,12 +702,36 @@ body>header .gtn-menu-toggle{display:none!important}
     message.textContent = "";
   }
 
+  document.getElementById("request-password-reset").addEventListener("click", async () => {
+    const emailValue = email.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+      message.textContent = "Saisissez votre adresse e-mail pour envoyer une demande à l’administration.";
+      email.focus();
+      return;
+    }
+    const button = document.getElementById("request-password-reset");
+    button.disabled = true;
+    message.textContent = "Envoi de votre demande...";
+    try {
+      const { error } = await supabase.functions.invoke("submit-password-reset-request", {
+        body: { email: emailValue }
+      });
+      if (error) throw error;
+      message.textContent = "Votre demande a été transmise à l’administration. Elle sera traitée après vérification de votre identité.";
+    } catch (error) {
+      message.textContent = "Erreur : " + (error?.message || "Impossible d’envoyer la demande.");
+    } finally {
+      button.disabled = false;
+    }
+  });
+
   function showInvitationPasswordSetup(session) {
     invitationMode = true;
     mode = "invitation";
     modal.style.display = "flex";
     document.getElementById("show-login").style.display = "none";
     document.getElementById("show-signup").style.display = "none";
+    document.getElementById("request-password-reset").style.display = "none";
     fullName.style.display = "none";
     phone.style.display = "none";
     nationalId.style.display = "none";
