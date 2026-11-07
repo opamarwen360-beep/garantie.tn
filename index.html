@@ -869,7 +869,11 @@ body>header .gtn-menu-toggle{display:none!important}
 
   setMode("login");
 
-  const invitationLinkType = new URLSearchParams(window.location.hash.slice(1)).get("type");
+  const authUrl = new URL(window.location.href);
+  const invitationLinkType =
+    new URLSearchParams(authUrl.hash.slice(1)).get("type") ||
+    authUrl.searchParams.get("type") ||
+    (authUrl.searchParams.has("code") ? "recovery" : null);
   supabase.auth.getSession().then(({ data, error }) => {
     if (error) {
       message.textContent = "Impossible de vérifier l’invitation : " + error.message;
