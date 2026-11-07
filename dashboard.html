@@ -427,7 +427,7 @@ body>header button#logout:hover{
 <section class="panel">
 <h2>Mes garanties enregistrées</h2>
 <p class="muted">Retrouvez ici les dossiers créés par votre magasin et ajoutez la facture PDF à chaque dossier.</p>
-<div class="store-tools"><input id="warranty-search" type="search" placeholder="Rechercher produit, client ou N° garantie..."><span id="warranty-count" class="muted"></span><button type="button" id="export-csv" class="secondary">Exporter Excel</button><button type="button" id="export-pdf" class="secondary">Exporter PDF</button></div><div id="warranty-list"><div class="empty">Chargement...</div></div>
+<div class="store-tools"><input id="warranty-search" type="search" placeholder="Rechercher produit, client ou N° garantie..."><span id="warranty-count" class="muted"></span><button type="button" id="export-csv" class="secondary">Exporter Excel (.xlsx)</button><button type="button" id="export-pdf" class="secondary">Exporter PDF</button></div><div id="warranty-list"><div class="empty">Chargement...</div></div>
 <p id="list-message" class="message" role="status"></p>
 </section>
 </div>
@@ -638,13 +638,75 @@ function updateStoreStats(){
  $("stat-expiring").textContent=storeWarranties.filter(w=>w.status==="active"&&w.end_date>=today&&w.end_date<=end).length;
  $("stat-expired").textContent=storeWarranties.filter(w=>w.status==="expired"||w.end_date<today).length;
 }
-function csvCell(value){return '"'+String(value??"").replace(/"/g,'""')+'"';}
-function exportWarrantiesCsv(){
- const headers=["Produit","Marque","Modèle","N° garantie","Client","E-mail","Téléphone","Date d'achat","Début garantie","Fin garantie","Statut"];
- const rows=storeWarranties.map(w=>[w.products?.name,w.products?.brand,w.products?.model,w.warranty_number,w.customer_name,w.customer_email,w.customer_phone,w.purchase_date,w.start_date,w.end_date,w.status]);
- const csv="\\uFEFF"+[headers,...rows].map(row=>row.map(csvCell).join(";")).join("\\r\\n");
- const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
- a.href=url;a.download="garanties-"+(currentStore?.name||"magasin").replace(/[^a-z0-9_-]/gi,"-")+".csv";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+let xlsxLibraryPromise=null;
+function loadXlsxLibrary(){
+ if(window.XLSX)return Promise.resolve(window.XLSX);
+ if(!xlsxLibraryPromise){
+  xlsxLibraryPromise=new Promise((resolve,reject)=>{
+   const script=document.createElement("script");
+   script.src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
+   script.onload=()=>window.XLSX?resolve(window.XLSX):reject(new Error("Bibliothèque Excel indisponible."));
+   script.onerror=()=>reject(new Error("Impossible de charger le module Excel. Vérifiez votre connexion."));
+   document.head.appendChild(script);
+  });
+ }
+ return xlsxLibraryPromise;
+}
+async function exportWarrantiesCsv(){
+ if(!currentStore){alert("Aucun magasin sélectionné.");return;}
+ const button=$("export-csv"),originalLabel=button.textContent;
+ button.disabled=true;button.textContent="Préparation du fichier...";
+ try{
+  const XLSX=await loadXlsxLibrary();
+  const today=new Date(),todayKey=[today.getFullYear(),String(today.getMonth()+1).padStart(2,"0"),String(today.getDate()).padStart(2,"0")].join("-");
+  const limit=new Date(today);limit.setDate(limit.getDate()+30);
+  const limitKey=[limit.getFullYear(),String(limit.getMonth()+1).padStart(2,"0"),String(limit.getDate()).padStart(2,"0")].join("-");
+  const expired=storeWarranties.filter(w=>w.status==="expired"||(w.end_date&&w.end_date<todayKey)).length;
+  const expiring=storeWarranties.filter(w=>w.status!=="expired"&&w.end_date&&w.end_date>=todayKey&&w.end_date<=limitKey).length;
+  const active=Math.max(0,storeWarranties.length-expired-expiring);
+  const statusLabel=w=>{
+   if(w.status==="expired"||(w.end_date&&w.end_date<todayKey))return "Expirée";
+   if(w.status==="active"&&w.end_date&&w.end_date<=limitKey)return "Expire bientôt";
+   if(w.status==="active")return "Active";
+   if(w.status==="pending")return "En attente";
+   return w.status||"Non renseigné";
+  };
+  const summaryRows=[
+   ["GARANTIE.TN — RAPPORT DES GARANTIES"],
+   ["Magasin",currentStore.name||"Magasin"],
+   ["Date d'export",today.toLocaleDateString("fr-FR")],
+   [],
+   ["INDICATEUR","VALEUR"],
+   ["Total des garanties",storeWarranties.length],
+   ["Garanties actives",active],
+   ["Expire bientôt (30 jours)",expiring],
+   ["Garanties expirées",expired]
+  ];
+  const summarySheet=XLSX.utils.aoa_to_sheet(summaryRows);
+  summarySheet["!cols"]=[{wch:34},{wch:32}];
+  summarySheet["!merges"]=[{s:{r:0,c:0},e:{r:0,c:1}}];
+  const headers=["Produit","Marque","Modèle","N° garantie","Client","E-mail","Téléphone","Date d'achat","Début garantie","Fin garantie","Statut"];
+  const rows=storeWarranties.map(w=>[
+   w.products?.name||"",w.products?.brand||"",w.products?.model||"",w.warranty_number||"",
+   w.customer_name||"",w.customer_email||"",String(w.customer_phone||""),
+   w.purchase_date||"",w.start_date||"",w.end_date||"",statusLabel(w)
+  ]);
+  const detailSheet=XLSX.utils.aoa_to_sheet([headers,...rows]);
+  detailSheet["!cols"]=[{wch:25},{wch:18},{wch:18},{wch:22},{wch:24},{wch:30},{wch:18},{wch:16},{wch:16},{wch:16},{wch:20}];
+  detailSheet["!autofilter"]={ref:XLSX.utils.encode_range({s:{r:0,c:0},e:{r:Math.max(rows.length,1),c:headers.length-1}})};
+  detailSheet["!freeze"]={xSplit:0,ySplit:1,topLeftCell:"A2",activePane:"bottomLeft",state:"frozen"};
+  const workbook=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook,summarySheet,"Résumé");
+  XLSX.utils.book_append_sheet(workbook,detailSheet,"Garanties");
+  workbook.Props={Title:"Rapport des garanties - "+(currentStore.name||"Magasin"),Subject:"Gestion des garanties",Author:"Garantie.tn",CreatedDate:today};
+  const safeName=(currentStore.name||"magasin").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9_-]+/gi,"-").replace(/^-+|-+$/g,"")||"magasin";
+  XLSX.writeFile(workbook,"garanties-"+safeName+"-"+todayKey+".xlsx");
+ }catch(error){
+  console.error("Export Excel:",error);
+  alert("L'export Excel a échoué. "+(error?.message||"Réessayez."));
+ }finally{
+  button.disabled=false;button.textContent=originalLabel;
+ }
 }
 function exportWarrantiesPdf(){
  if(!currentStore){alert("Aucun magasin sélectionné.");return;}
