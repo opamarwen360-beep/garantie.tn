@@ -424,6 +424,18 @@ body>header button#logout:hover{
 <header><a class="gtn-brand" href="./index.html" aria-label="Garantie.tn - Accueil"><img src="https://raw.githubusercontent.com/opamarwen360-beep/garantie.tn/main/Garantie.tn___Logo_concept_2-removebg-preview.png" alt="Garantie.tn"></a><nav class="gtn-nav-new" aria-label="Navigation principale"><a href="./dashboard.html" aria-current="page">Tableau de bord</a><a href="./index.html#services">Services</a></nav><button id="logout" type="button">Déconnexion</button></header>
 <main id="app" style="display:none">
 <section class="intro"><div class="store-heading"><div><h1>Espace magasin</h1><p class="muted" id="store-label">Gérez vos produits et les garanties de vos clients.</p></div><div class="store-switcher"><label for="store-select">Point de vente</label><select id="store-select" aria-label="Choisir un magasin"></select></div></div></section>
+<section class="panel hidden" id="subscription-panel">
+ <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+  <div><h2>Mon abonnement</h2><p class="muted" id="subscription-summary">Chargement de votre formule...</p></div>
+  <span class="plan-tag" id="subscription-badge">ABONNEMENT</span>
+ </div>
+ <div class="stats-grid" style="margin-top:16px">
+  <article class="stat-card"><span>Pro · Mensuel</span><strong>49 DT</strong><small class="muted">ou 490 DT / an</small></article>
+  <article class="stat-card"><span>Premium · Mensuel</span><strong>89 DT</strong><small class="muted">ou 890 DT / an</small></article>
+ </div>
+ <p class="small" style="margin-top:12px">Les nouveaux magasins bénéficient de 3 mois d’essai Premium gratuits. Le paiement en ligne sera ajouté dans une prochaine étape.</p>
+ <a id="subscription-contact" class="secondary" style="display:inline-block;margin-top:12px;padding:11px 16px;border-radius:8px;text-decoration:none;font-weight:700" href="https://wa.me/21628683448?text=Bonjour%2C%20je%20souhaite%20activer%20un%20abonnement%20Garantie.tn." target="_blank" rel="noopener noreferrer">Contacter Garantie.tn pour souscrire</a>
+</section>
 <section class="panel invite-entry hidden" id="invite-entry"><div><h2>Équipe du magasin</h2><p class="muted">Invitez vos employés à gérer ce point de vente avec vous.</p></div><button type="button" id="toggle-invite-panel">＋ Inviter du personnel <span class="plan-tag">ÉQUIPE</span></button></section>
 <section class="panel invite-panel hidden" id="invite-panel"><div class="invite-panel-head"><div><h2>Personnel du magasin</h2><p class="muted">Invitez un employé par e-mail pour lui donner accès à ce point de vente.</p></div><span class="plan-tag">PREMIUM</span></div><form id="invite-member-form" class="invite-member-form"><label for="invite-member-email">Adresse e-mail du personnel</label><input id="invite-member-email" type="email" maxlength="254" required placeholder="employe@exemple.com"><button type="submit" id="invite-member-submit">Envoyer l’invitation</button></form><p id="staff-capacity" class="small staff-capacity"></p><p class="small">Le propriétaire n’est pas compté dans cette limite. Chaque employé est compté une seule fois, même s’il a accès à plusieurs magasins.</p><p id="invite-member-message" class="message" role="status"></p></section>
 <section class="panel" id="store-members-panel"><h2>Personnel associé au magasin</h2><p class="muted">Les personnes qui ont accepté votre invitation et qui ont accès à ce magasin.</p><div id="store-members-list"><div class="empty">Chargement...</div></div></section>
@@ -522,15 +534,28 @@ async function init() {
  let canInviteStaff=false,staffLimit=0,staffUsed=0;
  if(isStoreOwner){
   const [{data:subscription,error:subscriptionError},{data:members,error:membersError},{data:pendingInvites,error:pendingError}]=await Promise.all([
-   supabase.from("owner_subscriptions").select("plan,status").eq("owner_id",user.id).maybeSingle(),
+   supabase.from("owner_subscriptions").select("plan,status,billing_cycle,price_tnd,trial_started_at,trial_ends_at,current_period_start,current_period_end").eq("owner_id",user.id).maybeSingle(),
    supabase.from("store_members").select("user_id").eq("owner_id",user.id),
    supabase.from("store_invitations").select("id").eq("owner_id",user.id).eq("status","pending")
   ]);
   if(subscriptionError)console.warn("Impossible de vérifier l’abonnement pour l’invitation :",subscriptionError);
   if(membersError)console.warn("Impossible de charger les membres :",membersError);
   if(pendingError)console.warn("Impossible de charger les invitations :",pendingError);
-  const plan=String(subscription?.plan||"").toLowerCase();
+  const plan=String(subscription?.plan||"starter").toLowerCase();
   staffLimit=({starter:1,pro:2,premium:4})[plan]||0;
+  const subPanel=$("subscription-panel");
+  subPanel.classList.remove("hidden");
+  const planNames={starter:"Free",pro:"Pro",premium:"Premium"};
+  const trialEnd=subscription?.trial_ends_at?new Date(subscription.trial_ends_at):null;
+  const trialActive=!!(trialEnd&&trialEnd.getTime()>Date.now());
+  const dateText=d=>d?d.toLocaleDateString("fr-FR"):"—";
+  $("subscription-badge").textContent=trialActive?"ESSAI PREMIUM":(planNames[plan]||"FREE").toUpperCase();
+  $("subscription-summary").textContent=trialActive
+    ?"Votre essai Premium gratuit est actif jusqu’au "+dateText(trialEnd)+"."
+    :(plan==="starter"?"Vous utilisez actuellement la formule Free.":"Votre formule actuelle : "+(planNames[plan]||plan)+" · "+(subscription?.billing_cycle==="annual"?"annuel":"mensuel")+".");
+  if(subscription?.trial_ends_at&&!trialActive) $("subscription-summary").textContent="Votre période d’essai est terminée le "+dateText(trialEnd)+". Contactez-nous pour activer une formule payante.";
+  const contactText="Bonjour, je souhaite souscrire à Garantie.tn. Mon compte : "+(user.email||user.id)+".";
+  $("subscription-contact").href="https://wa.me/21628683448?text="+encodeURIComponent(contactText);
   staffUsed=new Set((members||[]).map(m=>m.user_id)).size+(pendingInvites||[]).length;
   canInviteStaff=subscription?.status==="active"&&staffLimit>0;
  }
