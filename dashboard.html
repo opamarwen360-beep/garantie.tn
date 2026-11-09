@@ -389,6 +389,36 @@ body>header button#logout:hover{
 }
 </style>
 
+
+<style id="gtn-store-product-photo-fix">
+/* Product photo: compact preview in store warranty cards */
+#warranty-list .warranty .product-photo-zoom{
+  display:block!important;
+  width:100%!important;
+  max-width:280px!important;
+  height:190px!important;
+  margin:0 0 14px!important;
+  padding:8px!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  background:#f5f8fa!important;
+  border:1px solid #e5ebef!important;
+  border-radius:12px!important;
+  box-shadow:none!important;
+  cursor:zoom-in!important;
+}
+#warranty-list .warranty .product-photo-zoom:focus-visible{
+  outline:3px solid #16a477!important;
+  outline-offset:3px!important;
+}
+@media(max-width:560px){
+  #warranty-list .warranty .product-photo-zoom{
+    max-width:100%!important;
+    height:170px!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header><a class="gtn-brand" href="./index.html" aria-label="Garantie.tn - Accueil"><img src="https://raw.githubusercontent.com/opamarwen360-beep/garantie.tn/main/Garantie.tn___Logo_concept_2-removebg-preview.png" alt="Garantie.tn"></a><nav class="gtn-nav-new" aria-label="Navigation principale"><a href="./dashboard.html" aria-current="page">Tableau de bord</a><a href="./index.html#services">Services</a></nav><button id="logout" type="button">Déconnexion</button></header>
@@ -824,6 +854,20 @@ function renderStoreWarranties(){
       '</article>';
   }).join("");
 }
+
+
+// Open the original product photo in a separate tab when selected.
+$("warranty-list").addEventListener("click",e=>{
+ const img=e.target.closest(".product-photo-zoom");
+ if(!img||!img.dataset.zoomSrc)return;
+ window.open(img.dataset.zoomSrc,"_blank","noopener,noreferrer");
+});
+$("warranty-list").addEventListener("keydown",e=>{
+ const img=e.target.closest(".product-photo-zoom");
+ if(!img||!["Enter"," "].includes(e.key))return;
+ e.preventDefault();
+ window.open(img.dataset.zoomSrc,"_blank","noopener,noreferrer");
+});
 
 $("warranty-search").addEventListener("input",renderStoreWarranties);
 $("export-csv").addEventListener("click",exportWarrantiesCsv);
