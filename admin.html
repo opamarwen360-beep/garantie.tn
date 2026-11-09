@@ -118,6 +118,10 @@ table{min-width:620px}
 }
 @media(max-width:360px){.stats{grid-template-columns:1fr!important}}
 
+#section-subscriptions .subscription-controls{display:flex;gap:7px;align-items:center;min-width:300px}
+#section-subscriptions .subscription-controls select{min-width:110px;max-width:145px}
+#section-subscriptions .subscription-controls button{white-space:nowrap}
+@media(max-width:620px){#section-subscriptions .subscription-controls{min-width:0;flex-wrap:wrap}#section-subscriptions .subscription-controls select{flex:1 1 120px;max-width:none}}
 </style><style id="gtn-original-png-logo">header .logo{display:flex!important;align-items:center!important;flex:0 0 auto!important;min-width:0!important;text-decoration:none!important}header .logo img{display:block!important;width:260px!important;height:auto!important;max-height:none!important;object-fit:contain!important;object-position:left center!important;flex:0 0 auto!important}@media(max-width:560px){header .logo img{width:210px!important;max-height:none!important}}</style>
 
 
@@ -207,8 +211,15 @@ body>header .gtn-menu-toggle{display:none!important}
 <div class="stat"><span>Demandes SAV</span><strong id="stat-sav">—</strong></div>
 </div>
 <nav class="tabs" aria-label="Sections administration">
-<button class="active" data-tab="overview">Vue générale</button><button data-tab="password-resets">Demandes mots de passe</button><button data-tab="users">Utilisateurs</button><button data-tab="stores">Magasins</button><button data-tab="products">Produits</button><button data-tab="warranties">Garanties</button><button data-tab="sav">SAV</button><button data-tab="invoices">Factures</button><button data-tab="applications">Demandes magasins</button>
+<button class="active" data-tab="overview">Vue générale</button><button data-tab="password-resets">Demandes mots de passe</button><button data-tab="users">Utilisateurs</button><button data-tab="stores">Magasins</button><button data-tab="products">Produits</button><button data-tab="warranties">Garanties</button><button data-tab="sav">SAV</button><button data-tab="invoices">Factures</button><button data-tab="applications">Demandes magasins</button><button data-tab="subscriptions">Abonnements</button>
 </nav>
+<section class="panel section" id="section-subscriptions">
+<h2>Gestion des abonnements</h2>
+<p class="muted">Après confirmation du paiement sur WhatsApp, choisissez la formule et la période puis activez-la. Pro : 49 DT/mois ou 490 DT/an · Premium : 89 DT/mois ou 890 DT/an.</p>
+<p id="subscription-admin-message" role="status"></p>
+<div class="user-tools"><input id="subscription-search" type="search" placeholder="Rechercher un magasin, responsable, e-mail ou téléphone..." aria-label="Rechercher un abonnement"><span id="subscription-count" class="small"></span><button type="button" class="refresh" id="subscription-refresh">Actualiser</button></div>
+<div id="subscriptions-data" class="empty">Ouvrez cet onglet pour charger les abonnements.</div>
+</section>
 <section class="panel section" id="section-password-resets"><h2>Demandes de réinitialisation</h2><p class="muted">Vérifiez l’identité du demandeur avant de définir un mot de passe temporaire. Communiquez-le uniquement par un canal privé.</p><p id="password-reset-message" role="status"></p><div id="password-reset-data" class="empty">Chargement...</div></section>
  <section class="panel section active" id="section-overview"><h2>Bienvenue dans l'administration</h2><p class="muted">Choisissez une rubrique pour consulter les données de la plateforme.</p><div id="overview-content" class="empty">Chargement des statistiques...</div></section>
 <section class="panel section" id="section-users"><h2>Utilisateurs</h2><p class="muted">Comptes clients, magasins et administrateurs.</p><div class="user-tools"><input id="user-search" type="search" placeholder="Rechercher par nom ou téléphone..." aria-label="Rechercher un utilisateur"><select id="user-role-filter" aria-label="Filtrer par rôle"><option value="">Tous les rôles</option><option value="client">Clients</option><option value="magasin">Magasins</option><option value="admin">Administrateurs</option></select><span id="user-count" class="small" aria-live="polite"></span></div><div id="users-data" class="empty">Chargement...</div></section>
@@ -439,6 +450,48 @@ $("password-reset-data").addEventListener("click",async e=>{
  }catch(err){$("password-reset-message").textContent="Erreur : "+(err?.message||"Impossible de traiter la demande.");button.disabled=false;}
 });
 
+let adminSubscriptions=[];
+let subscriptionsLoaded=false;
+function renderSubscriptions(){
+ const query=$("subscription-search").value.trim().toLocaleLowerCase("fr");
+ const rows=adminSubscriptions.filter(s=>[s.store_name,s.owner_name,s.owner_email,s.owner_phone].some(v=>String(v||"").toLocaleLowerCase("fr").includes(query)));
+ $("subscription-count").textContent=rows.length+" / "+adminSubscriptions.length+" magasin(s)";
+ $("subscriptions-data").innerHTML=table(["Magasin / responsable","Formule actuelle","Fin de période","Activer / modifier"],rows.map(s=>{
+  const plan=s.plan==="pro"?"pro":s.plan==="premium"?"premium":"starter";
+  const cycle=s.billing_cycle==="annual"?"annual":"monthly";
+  const current=plan==="starter"?"Free":plan.toUpperCase();
+  const expiry=s.trial_ends_at&&new Date(s.trial_ends_at)>new Date()?"Essai jusqu’au "+fmt(s.trial_ends_at):(s.current_period_end?fmt(s.current_period_end):"—");
+  return '<tr><td><strong>'+esc(s.store_name)+'</strong><br>'+esc(s.owner_name||"")+'<br><span class="small">'+esc(s.owner_email||s.owner_phone||"")+'</span></td><td>'+esc(current)+'<br><span class="small">'+esc(s.status)+'</span></td><td>'+esc(expiry)+'</td><td><div class="subscription-controls"><select aria-label="Formule pour '+esc(s.store_name)+'" data-sub-plan="'+esc(s.owner_id)+'"><option value="starter" '+(plan==="starter"?"selected":"")+'>Free</option><option value="pro" '+(plan==="pro"?"selected":"")+'>Pro</option><option value="premium" '+(plan==="premium"?"selected":"")+'>Premium</option></select><select aria-label="Période pour '+esc(s.store_name)+'" data-sub-cycle="'+esc(s.owner_id)+'"><option value="monthly" '+(cycle==="monthly"?"selected":"")+'>Mensuel</option><option value="annual" '+(cycle==="annual"?"selected":"")+'>Annuel</option></select><button type="button" data-sub-activate="'+esc(s.owner_id)+'">Activer</button></div></td></tr>';
+ }));
+}
+async function loadSubscriptions(){
+ $("subscription-admin-message").textContent="Chargement des abonnements...";
+ try{
+  const {data,error}=await supabase.rpc("admin_list_owner_subscriptions");
+  if(error)throw error;
+  adminSubscriptions=data||[];subscriptionsLoaded=true;renderSubscriptions();
+  $("subscription-admin-message").textContent=adminSubscriptions.length?"Liste actualisée. Confirmez le paiement avant toute activation.":"Aucun magasin trouvé.";
+ }catch(err){$("subscription-admin-message").textContent="Erreur : "+(err?.message||"Chargement impossible.");}
+}
+$("subscription-search").addEventListener("input",renderSubscriptions);
+$("subscription-refresh").addEventListener("click",loadSubscriptions);
+$("subscriptions-data").addEventListener("click",async e=>{
+ const button=e.target.closest("button[data-sub-activate]");if(!button)return;
+ const ownerId=button.dataset.subActivate;
+ const plan=$("subscriptions-data").querySelector('select[data-sub-plan="'+CSS.escape(ownerId)+'"]')?.value;
+ const cycle=$("subscriptions-data").querySelector('select[data-sub-cycle="'+CSS.escape(ownerId)+'"]')?.value;
+ const row=adminSubscriptions.find(s=>s.owner_id===ownerId);if(!row||!plan||!cycle)return;
+ const label=plan==="starter"?"Free":plan==="pro"?"Pro":"Premium";
+ const price=plan==="starter"?0:plan==="pro"?(cycle==="annual"?490:49):(cycle==="annual"?890:89);
+ if(!confirm("Confirmer l’activation de "+label+" pour "+row.store_name+" ?"+(plan==="starter"?"":" Prix : "+price+" DT / "+(cycle==="annual"?"an":"mois")+".")+"\n\nAssurez-vous d’avoir confirmé le paiement avant de continuer."))return;
+ button.disabled=true;$("subscription-admin-message").textContent="Activation en cours...";
+ try{
+  const {data,error}=await supabase.rpc("admin_set_owner_subscription",{p_owner_id:ownerId,p_plan:plan,p_billing_cycle:cycle});
+  if(error)throw error;
+  $("subscription-admin-message").textContent="Abonnement activé : "+label+" — "+(data?.price_tnd??price)+" DT.";
+  await loadSubscriptions();
+ }catch(err){$("subscription-admin-message").textContent="Erreur d’activation : "+(err?.message||"Action impossible.");button.disabled=false;}
+});
 async function init(){
  const {data:{user},error:userError}=await supabase.auth.getUser();
  if(userError||!user){location.href="./index.html";return;}
@@ -447,7 +500,7 @@ async function init(){
  $("admin-email").textContent="Connecté en tant que "+user.email;
  await loadDashboard();
 }
-document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".section").forEach(x=>x.classList.toggle("active",x.id==="section-"+b.dataset.tab));});
+document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".section").forEach(x=>x.classList.toggle("active",x.id==="section-"+b.dataset.tab));if(b.dataset.tab==="subscriptions")loadSubscriptions();});
 $("product-search").addEventListener("input",renderProducts);$("product-store-filter").addEventListener("change",renderProducts);$("warranty-search").addEventListener("input",renderWarranties);$("warranty-status-filter").addEventListener("change",renderWarranties);$("invoice-search").addEventListener("input",renderInvoices);
 $("application-search").addEventListener("input",renderApplications);$("application-filter").addEventListener("change",renderApplications);$("user-search").addEventListener("input",renderUsers);$("user-role-filter").addEventListener("change",renderUsers);
 
