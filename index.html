@@ -611,7 +611,7 @@ body>header .gtn-menu-toggle{display:none!important}
       <form id="auth-form" novalidate>
         <input id="full-name" type="text" placeholder="Nom complet" style="display:none">
         <input id="phone" type="tel" placeholder="Téléphone" style="display:none">
-        <input id="national-id" type="text" inputmode="numeric" maxlength="8" pattern="[0-9]{8}" placeholder="Carte d’identité (8 chiffres)" style="display:none">
+        <input id="national-id" type="text" inputmode="numeric" maxlength="8" pattern="[0-9]{8}" autocomplete="off" placeholder="Numéro de carte d’identité (8 chiffres)" style="display:none">
         <input id="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="Adresse e-mail" required>
         <input id="password" type="password" autocomplete="current-password" placeholder="Mot de passe (8 caractères minimum)" required minlength="8">
         <button id="auth-submit" type="submit" style="width:100%;min-height:48px;touch-action:manipulation">Continuer →</button>
@@ -822,7 +822,9 @@ body>header .gtn-menu-toggle{display:none!important}
       }
     } catch (error) {
       const errorText = String(error?.message || "").toLowerCase();
-      if (errorText.includes("email rate limit") || errorText.includes("rate limit")) {
+      if (errorText.includes("profiles_national_id_number_uidx") || errorText.includes("duplicate key value") && errorText.includes("national_id_number")) {
+        message.textContent = "Ce numéro de carte d’identité est déjà associé à un autre compte. Chaque numéro ne peut être utilisé qu’une seule fois.";
+      } else if (errorText.includes("email rate limit") || errorText.includes("rate limit")) {
         message.textContent = "Trop de demandes d’e-mail. Attendez avant de réessayer. Si votre compte existe déjà, utilisez Connexion au lieu de Inscription.";
         startSignupCooldown(60);
       } else {
