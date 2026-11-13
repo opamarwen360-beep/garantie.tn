@@ -482,6 +482,15 @@ const $ = id => document.getElementById(id);
 let currentUser = null;
 let currentStore = null;
 
+let notificationChannel = null;
+function subscribeToNotifications(){
+ if(!currentUser)return;
+ if(notificationChannel){supabase.removeChannel(notificationChannel);notificationChannel=null;}
+ notificationChannel=supabase.channel("notifications-"+currentUser.id)
+  .on("postgres_changes",{event:"*",schema:"public",table:"notifications",filter:"user_id=eq."+currentUser.id},()=>{loadNotifications();})
+  .subscribe();
+}
+
 async function loadNotifications(){
  const box=$("notification-list"),badge=$("notification-unread");
  if(!box||!currentUser)return;
@@ -548,7 +557,7 @@ async function selectStore(storeId) {
 }
 async function init() {
  const {data:{user},error:userError}=await supabase.auth.getUser();
- if(userError||!user){location.href="./index.html";return;}currentUser=user;await loadNotifications();
+ if(userError||!user){location.href="./index.html";return;}currentUser=user;subscribeToNotifications();await loadNotifications();
  const {data:profile,error:profileError}=await supabase.from("profiles").select("role").eq("id",user.id).single();
  if(profileError){location.href="./index.html";return;}
  const {data:stores,error:storeError}=await supabase.from("stores").select("id,name,address,photo_path,owner_id").order("created_at",{ascending:true});
