@@ -197,6 +197,15 @@ const $ = (id) => document.getElementById(id);
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const date = (value) => value ? new Date(value + (value.length === 10 ? "T00:00:00" : "")).toLocaleDateString("fr-FR") : "—";
 
+let notificationChannel = null;
+function subscribeToNotifications(){
+ if(!currentUser)return;
+ if(notificationChannel){supabase.removeChannel(notificationChannel);notificationChannel=null;}
+ notificationChannel=supabase.channel("notifications-"+currentUser.id)
+  .on("postgres_changes",{event:"*",schema:"public",table:"notifications",filter:"user_id=eq."+currentUser.id},()=>{loadNotifications();})
+  .subscribe();
+}
+
 async function loadNotifications(){
  const box=$("notification-list"),badge=$("notification-unread");
  if(!box||!currentUser)return;
@@ -240,6 +249,7 @@ async function start() {
  const {data:{user},error:userError}=await supabase.auth.getUser();
  if(userError || !user){location.href="index.html";return;}
  currentUser = user;
+ subscribeToNotifications();
  await loadNotifications();
  const {data:profile,error:profileError}=await supabase.from("profiles").select("full_name,role,national_id_number,photo_path").eq("id",user.id).single();
  if(profileError) throw profileError;
