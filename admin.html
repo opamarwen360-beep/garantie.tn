@@ -254,8 +254,20 @@ async function loadDashboard(){
   ["invoices","id,warranty_id,file_name,file_path,created_at","created_at",null]
  ];
  const results=await Promise.all(specs.map(s=>fetchRows(s[0],s[1],s[2])));
- const [users,stores,products,warranties,sav,invoices,subscriptions]=results;adminUsers=users;adminStores=stores;adminProducts=products;adminWarranties=warranties;adminInvoices=invoices;refreshProductStoreFilter();savRows=sav;savWarranties=warranties;savStores=stores;savUsers=users;
+ const {data:subscriptionRows,error:subscriptionError}=await supabase.rpc("admin_list_owner_subscriptions");
+ if(subscriptionError)throw subscriptionError;
+ const subscriptions=subscriptionRows||[];
+ const [users,stores,products,warranties,sav,invoices]=results;adminUsers=users;adminStores=stores;adminProducts=products;adminWarranties=warranties;adminInvoices=invoices;refreshProductStoreFilter();savRows=sav;savWarranties=warranties;savStores=stores;savUsers=users;
  specs.forEach((s,i)=>{if(s[3])$(s[3]).textContent=results[i].length});
+ const now=new Date(),monthStart=new Date(now.getFullYear(),now.getMonth(),1);
+ const inCurrentMonth=row=>row.created_at&&new Date(row.created_at)>=monthStart;
+ const newUsers=users.filter(inCurrentMonth).length;
+ const newStores=stores.filter(inCurrentMonth).length;
+ const newWarranties=warranties.filter(inCurrentMonth).length;
+ const activeTrials=subscriptions.filter(s=>String(s.plan||"").toLowerCase()==="premium"&&s.trial_ends_at&&new Date(s.trial_ends_at)>now&&String(s.status||"active").toLowerCase()==="active");
+ const paidSubscriptions=subscriptions.filter(s=>["pro","premium"].includes(String(s.plan||"").toLowerCase())&&String(s.status||"").toLowerCase()==="active"&&!activeTrials.some(t=>t.owner_id===s.owner_id));
+ const monthlyRevenue=paidSubscriptions.reduce((sum,s)=>sum+Number(s.price_tnd||0)/(String(s.billing_cycle||"monthly").toLowerCase()==="annual"?12:1),0);
+ const trials=activeTrials.length;
  const activeWarranties=warranties.filter(w=>String(w.status||"").toLowerCase()==="active").length;
  const expiredWarranties=warranties.filter(w=>String(w.status||"").toLowerCase()==="expired").length;
  const openSav=sav.filter(r=>["pending","processing"].includes(String(r.status||"").toLowerCase())).length;
