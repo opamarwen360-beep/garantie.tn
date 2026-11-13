@@ -177,7 +177,7 @@ body>header .gtn-menu-toggle{display:none!important}
 
 <section class="panel" id="store-invitations-panel"><h2>Invitations de magasin</h2><p class="muted">Les magasins qui vous invitent apparaîtront ici. Votre compte client et vos garanties restent inchangés.</p><div id="store-invitations-list"><div class="empty">Vérification des invitations...</div></div></section>
 <section class="panel"><h2>Mon QR Code client</h2><p class="muted">Présentez ce QR code au magasin pour enregistrer vos achats et activer vos garanties automatiquement.</p><div id="client-qr" style="display:grid;place-items:center;min-height:180px;padding:12px"><div class="empty">Génération de votre QR code...</div></div><p class="muted" style="text-align:center">Ce QR code est personnel. Présentez-le uniquement à un magasin de confiance.</p></section>
-<section class="panel"><h2>Mon profil</h2><form id="client-profile-form"><label for="national-id">Numéro de carte d’identité</label><input id="national-id" inputmode="numeric" maxlength="20" placeholder="Votre numéro de carte d’identité"><label for="client-photo">Photo personnelle (JPG, PNG ou WebP — 5 Mo max.)</label><input id="client-photo" type="file" accept="image/jpeg,image/png,image/webp"><img id="client-photo-preview" alt="Ma photo" style="display:none;width:110px;height:110px;object-fit:cover;border-radius:50%"><button type="submit">Enregistrer mon profil</button></form><p id="profile-message" role="status"></p></section><section class="stats">
+<section class="panel"><h2>Mon profil</h2><form id="client-profile-form"><label for="national-id">Numéro de carte d’identité</label><input id="national-id" inputmode="numeric" maxlength="8" pattern="[0-9]{8}" placeholder="8 chiffres"><label for="client-photo">Photo personnelle (JPG, PNG ou WebP — 5 Mo max.)</label><input id="client-photo" type="file" accept="image/jpeg,image/png,image/webp"><img id="client-photo-preview" alt="Ma photo" style="display:none;width:110px;height:110px;object-fit:cover;border-radius:50%"><button type="submit">Enregistrer mon profil</button></form><p id="profile-message" role="status"></p></section><section class="stats">
  <div class="stat"><span class="muted">Mes garanties</span><strong id="total">—</strong></div>
  <div class="stat"><span class="muted">Garanties actives</span><strong id="active">—</strong></div>
  <div class="stat"><span class="muted">Garanties expirées</span><strong id="expired">—</strong></div>
@@ -307,7 +307,7 @@ $("client-profile-form").addEventListener("submit",async e=>{
  let photoPath=null;
  try{
   const idNumber=$("national-id").value.trim();
-  if(idNumber && !/^[0-9]{6,20}$/.test(idNumber))throw new Error("Le numéro de carte d’identité doit contenir entre 6 et 20 chiffres.");
+  if(idNumber && !/^[0-9]{8}$/.test(idNumber))throw new Error("Le numéro de carte d’identité doit contenir exactement 8 chiffres.");
   const {data:oldProfile,error:readError}=await supabase.from("profiles").select("photo_path").eq("id",currentUser.id).single();if(readError)throw readError;
   const file=$("client-photo").files[0];
   if(file){
